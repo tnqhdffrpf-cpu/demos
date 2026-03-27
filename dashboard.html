@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Good Morning Brett ð</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', sans-serif; background: #0f172a; color: #e2e8f0; min-height: 100vh; }
+
+  /* ââ Header ââ */
+  .header {
+    background: linear-gradient(135deg, #0ea5e9, #6366f1, #8b5cf6, #0ea5e9);
+    background-size: 300% 300%;
+    animation: gradientShift 8s ease infinite;
+    padding: 28px 24px 22px;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 12px;
+  }
+  @keyframes gradientShift {
+    0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%}
+  }
+  .header-left { font-size: 13px; opacity: 0.9; line-height: 1.6; }
+  .header-left strong { font-size: 15px; display: block; }
+  .header-center { text-align: center; flex: 1; }
+  .header-center h1 { font-size: 26px; font-weight: 800; letter-spacing: -0.5px; }
+  .header-center .date { font-size: 13px; opacity: 0.85; margin-top: 2px; }
+  .header-right { font-size: 13px; opacity: 0.9; text-align: right; max-width: 220px; line-height: 1.5; font-style: italic; }
+
+  /* ââ Cards ââ */
+  .cards { display: flex; gap: 16px; padding: 20px; flex-wrap: wrap; }
+  .card { flex: 1; min-width: 280px; border-radius: 16px; overflow: hidden; background: #1e293b; border: 1px solid rgba(255,255,255,0.08); }
+  .card-header { padding: 16px 18px 14px; display: flex; align-items: center; gap: 10px; }
+  .card-header h2 { font-size: 15px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; }
+  .card-header .icon { font-size: 20px; }
+  .card-body { padding: 0 18px 18px; }
+
+  /* Surf card */
+  .surf .card-header { background: linear-gradient(135deg, #0369a1, #0284c7); }
+  .surf .rating { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; margin-top: 10px; background: #0ea5e9; color: #fff; }
+  .surf .conditions { font-size: 14px; line-height: 1.7; color: #94a3b8; margin-bottom: 14px; }
+  .surf .conditions strong { color: #e2e8f0; }
+  .surf .warning { background: #7f1d1d; border: 1px solid #ef4444; border-radius: 8px; padding: 10px 12px; font-size: 13px; color: #fca5a5; margin-bottom: 14px; }
+  .surf .warning strong { color: #f87171; }
+
+  /* Wave SVG */
+  .wave-container { height: 60px; margin: 10px 0; overflow: hidden; border-radius: 8px; background: #0c1a2e; }
+  .wave-container svg { width: 100%; height: 100%; }
+
+  /* 5-day table */
+  .forecast { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .forecast th { color: #64748b; font-weight: 600; padding: 6px 4px; text-align: left; border-bottom: 1px solid #334155; }
+  .forecast td { padding: 7px 4px; border-bottom: 1px solid #1e293b; }
+  .forecast tr:last-child td { border-bottom: none; }
+  .badge { display: inline-block; padding: 2px 7px; border-radius: 10px; font-size: 10px; font-weight: 700; }
+  .badge.good { background: #14532d; color: #4ade80; }
+  .badge.fair { background: #713f12; color: #fbbf24; }
+  .badge.poor { background: #1e293b; color: #64748b; }
+  .badge.flat { background: #1e1b4b; color: #818cf8; }
+  .badge.firing { background: #0c4a6e; color: #38bdf8; }
+  .badge.warning { background: #7f1d1d; color: #fca5a5; }
+
+  /* Tech & Game Dev cards */
+  .tech .card-header { background: linear-gradient(135deg, #92400e, #b45309); }
+  .gamedev .card-header { background: linear-gradient(135deg, #14532d, #15803d); }
+
+  details { border-bottom: 1px solid #334155; }
+  details:last-child { border-bottom: none; }
+  summary {
+    padding: 13px 0; font-size: 14px; font-weight: 600; color: #e2e8f0;
+    cursor: pointer; list-style: none; display: flex; align-items: flex-start;
+    gap: 8px; line-height: 1.4;
+  }
+  summary::-webkit-details-marker { display: none; }
+  summary::before {
+    content: 'âº'; font-size: 18px; line-height: 1; color: #64748b;
+    transition: transform 0.2s; flex-shrink: 0; margin-top: 1px;
+  }
+  details[open] summary::before { transform: rotate(90deg); }
+  .detail-body { padding: 0 0 13px 22px; font-size: 13px; color: #94a3b8; line-height: 1.65; }
+  .new-tag { display: inline-block; background: #1d4ed8; color: #bfdbfe; font-size: 9px; font-weight: 700; padding: 1px 5px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.5px; margin-left: 6px; vertical-align: middle; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <strong>ð Cannon Beach, OR</strong>
+    48Â°F Â· Overcast<br>
+    Dropping tide Â· 9 mph N wind<br>
+    Best window: 9amâ1pm
+  </div>
+  <div class="header-center">
+    <h1>Good Morning, Brett ð¤</h1>
+    <div class="date">Friday, March 27, 2026</div>
+  </div>
+  <div class="header-right">
+    "The ocean doesn't care what's on your to-do list â paddle out anyway."
+  </div>
+</div>
+
+<div class="cards">
+
+  <!-- ââ SURF CARD ââ -->
+  <div class="card surf">
+    <div class="card-header">
+      <span class="icon">ð</span>
+      <h2>Cannon Beach Surf</h2>
+    </div>
+    <div class="card-body">
+      <div class="rating">FAIR</div>
+
+      <!-- Animated wave SVG -->
+      <div class="wave-container">
+        <svg viewBox="0 0 400 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="wg" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#0ea5e9" stop-opacity="0.8"/>
+              <stop offset="100%" stop-color="#0369a1" stop-opacity="0.3"/>
+            </linearGradient>
+          </defs>
+          <path fill="url(#wg)">
+            <animate attributeName="d" dur="4s" repeatCount="indefinite"
+              values="M0,30 C60,10 120,50 180,30 C240,10 300,50 360,30 C380,22 395,26 400,30 L400,60 L0,60 Z;
+                      M0,35 C50,55 110,15 180,35 C250,55 310,15 370,35 C385,40 395,38 400,35 L400,60 L0,60 Z;
+                      M0,30 C60,10 120,50 180,30 C240,10 300,50 360,30 C380,22 395,26 400,30 L400,60 L0,60 Z"/>
+          </path>
+          <path fill="#38bdf8" fill-opacity="0.25">
+            <animate attributeName="d" dur="6s" repeatCount="indefinite"
+              values="M0,40 C80,20 160,55 240,38 C310,22 370,45 400,38 L400,60 L0,60 Z;
+                      M0,38 C70,55 150,20 230,42 C305,58 368,28 400,42 L400,60 L0,60 Z;
+                      M0,40 C80,20 160,55 240,38 C310,22 370,45 400,38 L400,60 L0,60 Z"/>
+          </path>
+        </svg>
+      </div>
+
+      <div class="conditions">
+        <strong>2â4 ft</strong> with <strong>4â6 ft sets</strong> Â· NW/WSW combo swell<br>
+        Period: <strong>10s</strong> Â· Water: <strong>48Â°F</strong><br>
+        Wind: N cross-shore 9 mph Â· Dropping tide â
+      </div>
+
+      <div class="warning">
+        <strong>â ï¸ Gale Watch Saturday</strong> â S winds 25â35 kt gusting to 40, seas building to 14â16 ft. Stay out.
+      </div>
+
+      <table class="forecast">
+        <thead>
+          <tr><th>Day</th><th>Size</th><th>Wind</th><th>Rating</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Fri 3/27</td><td>2â4 ft</td><td>N 9 mph</td><td><span class="badge fair">Fair</span></td></tr>
+          <tr><td>Sat 3/28</td><td>14â16 ft</td><td>S 35 kt</td><td><span class="badge warning">â  Gale</span></td></tr>
+          <tr><td>Sun 3/29</td><td>6â8 ft</td><td>SW 20 mph</td><td><span class="badge poor">Poor</span></td></tr>
+          <tr><td>Mon 3/30</td><td>4â6 ft</td><td>W 12 mph</td><td><span class="badge fair">Fair</span></td></tr>
+          <tr><td>Tue 3/31</td><td>5â7 ft</td><td>NW 8 mph</td><td><span class="badge good">Good</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ââ TECH RUMORS CARD ââ -->
+  <div class="card tech">
+    <div class="card-header">
+      <span class="icon">ð¡</span>
+      <h2>Tech Rumors</h2>
+    </div>
+    <div class="card-body">
+
+      <details>
+        <summary>Apple killed the Mac Pro <span class="new-tag">new</span></summary>
+        <div class="detail-body">Officially discontinued yesterday (March 26). Apple confirmed no future Mac Pro models are planned, signaling a full consolidation around Apple Silicon Mac Studio and Mac mini at the pro end. The Mac Pro era is over.</div>
+      </details>
+
+      <details>
+        <summary>Apple Watch Series 12 redesign scrapped <span class="new-tag">new</span></summary>
+        <div class="detail-body">The rumored round-face redesign is officially dead for Series 12. Apple Watch Ultra 4 is still in play and may get Touch ID integration into the display â a first for the Ultra line.</div>
+      </details>
+
+      <details>
+        <summary>Meta Ray-Ban "Scriber" &amp; "Blazer" hit FCC <span class="new-tag">new</span></summary>
+        <div class="detail-body">Two new Meta smart glasses codenames surfaced in FCC filings this week, strongly suggesting display-equipped successors to the current Ray-Ban Meta are imminent. Meanwhile Meta is dealing with an EU battery regulation block and a fresh privacy lawsuit.</div>
+      </details>
+
+      <details>
+        <summary>Samsung AI glasses: specs locked in</summary>
+        <div class="detail-body">Samsung's smart glasses are shaping up with a 12MP camera and Gemini AI on-device. Expected to launch later this year, positioning directly against Meta Ray-Ban and future Apple glasses.</div>
+      </details>
+
+      <details>
+        <summary>Panasonic MFT: AI over megapixels <span class="new-tag">new</span></summary>
+        <div class="detail-body">A Panasonic executive confirmed this week that the company's focus for future MFT cameras is AI-driven dynamic range and noise reduction rather than a megapixel race. Also: Chinese brand Songdian is entering the MFT ecosystem, and the YoloLiv 18mm f/1.4 MFT lens is dropping imminently.</div>
+      </details>
+
+      <details>
+        <summary>GoPro unveils GP3 AI processor <span class="new-tag">new</span></summary>
+        <div class="detail-body">GoPro dropped the GP3, a new in-house 5nm AI-powered processor. Full camera lineup reveal is set for NAB in April â expected to bring significant low-light and stabilization improvements.</div>
+      </details>
+
+    </div>
+  </div>
+
+  <!-- ââ GAME DEV CARD ââ -->
+  <div class="card gamedev">
+    <div class="card-header">
+      <span class="icon">ð®</span>
+      <h2>Game Dev &amp; Vibe Coding</h2>
+    </div>
+    <div class="card-body">
+
+      <details>
+        <summary>Vibe coding guide hits 1.5M views <span class="new-tag">new</span></summary>
+        <div class="detail-body">Nicolas Zullo's vibe coding tutorial went viral â a full multiplayer 3D game built with zero human-written code using Claude. The workflow: describe â generate â iterate. Claude Code's new auto mode (just entered research preview) makes this even more hands-off.</div>
+      </details>
+
+      <details>
+        <summary>Three.js Water Pro: film-quality WebGPU ocean <span class="new-tag">new</span></summary>
+        <div class="detail-body">Three.js Water Pro launched this week with an FFT-based WebGPU ocean renderer featuring foam, caustics, and subsurface scattering. Runs in browser at high frame rates. Directly relevant for your VR water project.</div>
+      </details>
+
+      <details>
+        <summary>AI sprite sheet generation in 15â30 seconds</summary>
+        <div class="detail-body">Ludo.ai's natural language animation pipeline can now generate full sprite sheets in 15â30 seconds. Scenario updated its frame-by-frame consistency workflow. SEELE also offers rapid sprite generation â worth testing for your Quest game characters.</div>
+      </details>
+
+      <details>
+        <summary>VR Games Showcase: 20+ titles revealed <span class="new-tag">new</span></summary>
+        <div class="detail-body">The March 24 VR Games Showcase revealed over 20 new Quest titles. Highlight: a 32-player VR shooter launching April 23. Meta Quest now requires Android 14 targeting (as of March 1). Movement SDK added audio-to-facial-expression mapping (March 23).</div>
+      </details>
+
+      <details>
+        <summary>Quest 3 water shader: 72 FPS in Unity URP <span class="new-tag">new</span></summary>
+        <div class="detail-body">A developer published a Quest 3 water shader approach hitting 72 FPS in Unity URP using a clever two-quad technique. Hybrid SPH/grid fluid simulation and ML-based fluid behavior prediction are trending for real-time games â viable path for your water physics VR project.</div>
+      </details>
+
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
