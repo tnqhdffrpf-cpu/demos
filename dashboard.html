@@ -9,7 +9,6 @@
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { font-family: 'Inter', sans-serif; background: #0f172a; color: #e2e8f0; min-height: 100vh; }
 
-  /* ── Header ── */
   .header {
     background: linear-gradient(135deg, #0ea5e9, #6366f1, #8b5cf6, #0ea5e9);
     background-size: 300% 300%;
@@ -28,7 +27,6 @@
   .header-center .date { font-size: 13px; opacity: 0.85; margin-top: 2px; }
   .header-right { font-size: 13px; opacity: 0.9; text-align: right; max-width: 220px; line-height: 1.5; font-style: italic; }
 
-  /* ── Cards ── */
   .cards { display: flex; gap: 16px; padding: 20px; flex-wrap: wrap; }
   .card { flex: 1; min-width: 280px; border-radius: 16px; overflow: hidden; background: #1e293b; border: 1px solid rgba(255,255,255,0.08); }
   .card-header { padding: 16px 18px 14px; display: flex; align-items: center; gap: 10px; }
@@ -36,19 +34,16 @@
   .card-header .icon { font-size: 20px; }
   .card-body { padding: 0 18px 18px; }
 
-  /* Surf card */
   .surf .card-header { background: linear-gradient(135deg, #0369a1, #0284c7); }
-  .surf .rating { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; margin-top: 10px; background: #0ea5e9; color: #fff; }
+  .surf .rating { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; margin-top: 10px; background: #1e293b; color: #64748b; }
   .surf .conditions { font-size: 14px; line-height: 1.7; color: #94a3b8; margin-bottom: 14px; }
   .surf .conditions strong { color: #e2e8f0; }
   .surf .warning { background: #7f1d1d; border: 1px solid #ef4444; border-radius: 8px; padding: 10px 12px; font-size: 13px; color: #fca5a5; margin-bottom: 14px; }
   .surf .warning strong { color: #f87171; }
 
-  /* Wave SVG */
   .wave-container { height: 60px; margin: 10px 0; overflow: hidden; border-radius: 8px; background: #0c1a2e; }
   .wave-container svg { width: 100%; height: 100%; }
 
-  /* 5-day table */
   .forecast { width: 100%; border-collapse: collapse; font-size: 12px; }
   .forecast th { color: #64748b; font-weight: 600; padding: 6px 4px; text-align: left; border-bottom: 1px solid #334155; }
   .forecast td { padding: 7px 4px; border-bottom: 1px solid #1e293b; }
@@ -57,11 +52,9 @@
   .badge.good { background: #14532d; color: #4ade80; }
   .badge.fair { background: #713f12; color: #fbbf24; }
   .badge.poor { background: #1e293b; color: #64748b; }
-  .badge.flat { background: #1e1b4b; color: #818cf8; }
   .badge.firing { background: #0c4a6e; color: #38bdf8; }
   .badge.warning { background: #7f1d1d; color: #fca5a5; }
 
-  /* Tech & Game Dev cards */
   .tech .card-header { background: linear-gradient(135deg, #92400e, #b45309); }
   .gamedev .card-header { background: linear-gradient(135deg, #14532d, #15803d); }
 
@@ -74,7 +67,7 @@
   }
   summary::-webkit-details-marker { display: none; }
   summary::before {
-    content: '›'; font-size: 18px; line-height: 1; color: #64748b;
+    content: '\203A'; font-size: 18px; line-height: 1; color: #64748b;
     transition: transform 0.2s; flex-shrink: 0; margin-top: 1px;
   }
   details[open] summary::before { transform: rotate(90deg); }
@@ -86,32 +79,30 @@
 
 <div class="header">
   <div class="header-left">
-    <strong>🌊 Cannon Beach, OR</strong>
-    48°F · Overcast<br>
-    Dropping tide · 9 mph N wind<br>
-    Best window: 9am–1pm
+    <strong>&#127754; Cannon Beach, OR</strong>
+    52&deg;F &middot; Choppy/Stormy<br>
+    Building swell &middot; N wind 9 mph<br>
+    Best window: Morning only
   </div>
   <div class="header-center">
-    <h1>Good Morning, Brett 🤙</h1>
-    <div class="date">Friday, March 27, 2026</div>
+    <h1>Good Morning, Brett &#129305;</h1>
+    <div class="date">Saturday, March 28, 2026</div>
   </div>
   <div class="header-right">
-    "The ocean doesn't care what's on your to-do list — paddle out anyway."
+    &ldquo;The ocean doesn&rsquo;t care what&rsquo;s on your to-do list &mdash; paddle out anyway.&rdquo;
   </div>
 </div>
 
 <div class="cards">
 
-  <!-- ── SURF CARD ── -->
   <div class="card surf">
     <div class="card-header">
-      <span class="icon">🏄</span>
+      <span class="icon">&#127940;</span>
       <h2>Cannon Beach Surf</h2>
     </div>
     <div class="card-body">
-      <div class="rating">FAIR</div>
+      <div class="rating">POOR</div>
 
-      <!-- Animated wave SVG -->
       <div class="wave-container">
         <svg viewBox="0 0 400 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
           <defs>
@@ -136,13 +127,13 @@
       </div>
 
       <div class="conditions">
-        <strong>2–4 ft</strong> with <strong>4–6 ft sets</strong> · NW/WSW combo swell<br>
-        Period: <strong>10s</strong> · Water: <strong>48°F</strong><br>
-        Wind: N cross-shore 9 mph · Dropping tide ✓
+        <strong>2&ndash;4 ft</strong> faces, sets to <strong>4&ndash;6 ft</strong> &middot; NW/WSW combo swell<br>
+        Period: <strong>10s</strong> &middot; Water: <strong>52&deg;F</strong><br>
+        Wind: N cross-shore 9 mph &middot; Choppy &amp; building
       </div>
 
       <div class="warning">
-        <strong>⚠️ Gale Watch Saturday</strong> — S winds 25–35 kt gusting to 40, seas building to 14–16 ft. Stay out.
+        <strong>&#9888;&#65039; Gale Conditions Today</strong> &mdash; Swell building through the day, seas rough. Monday is the week&rsquo;s best window at 4&ndash;6 ft with 11s periods.
       </div>
 
       <table class="forecast">
@@ -150,88 +141,101 @@
           <tr><th>Day</th><th>Size</th><th>Wind</th><th>Rating</th></tr>
         </thead>
         <tbody>
-          <tr><td>Fri 3/27</td><td>2–4 ft</td><td>N 9 mph</td><td><span class="badge fair">Fair</span></td></tr>
-          <tr><td>Sat 3/28</td><td>14–16 ft</td><td>S 35 kt</td><td><span class="badge warning">⚠ Gale</span></td></tr>
-          <tr><td>Sun 3/29</td><td>6–8 ft</td><td>SW 20 mph</td><td><span class="badge poor">Poor</span></td></tr>
-          <tr><td>Mon 3/30</td><td>4–6 ft</td><td>W 12 mph</td><td><span class="badge fair">Fair</span></td></tr>
-          <tr><td>Tue 3/31</td><td>5–7 ft</td><td>NW 8 mph</td><td><span class="badge good">Good</span></td></tr>
+          <tr><td>Sat 3/28</td><td>2&ndash;4 ft</td><td>N 9 mph</td><td><span class="badge poor">Poor</span></td></tr>
+          <tr><td>Sun 3/29</td><td>4&ndash;6 ft</td><td>SW 20 mph</td><td><span class="badge poor">Poor</span></td></tr>
+          <tr><td>Mon 3/30</td><td>4&ndash;6 ft</td><td>W 12 mph</td><td><span class="badge good">Good</span></td></tr>
+          <tr><td>Tue 3/31</td><td>3&ndash;5 ft</td><td>NW 8 mph</td><td><span class="badge fair">Fair</span></td></tr>
+          <tr><td>Wed 4/1</td><td>2&ndash;3 ft</td><td>NW 10 mph</td><td><span class="badge fair">Fair</span></td></tr>
         </tbody>
       </table>
     </div>
   </div>
 
-  <!-- ── TECH RUMORS CARD ── -->
   <div class="card tech">
     <div class="card-header">
-      <span class="icon">📡</span>
+      <span class="icon">&#128225;</span>
       <h2>Tech Rumors</h2>
     </div>
     <div class="card-body">
 
       <details>
-        <summary>Apple killed the Mac Pro <span class="new-tag">new</span></summary>
-        <div class="detail-body">Officially discontinued yesterday (March 26). Apple confirmed no future Mac Pro models are planned, signaling a full consolidation around Apple Silicon Mac Studio and Mac mini at the pro end. The Mac Pro era is over.</div>
+        <summary>Apple has 15+ products still coming in 2026 <span class="new-tag">new</span></summary>
+        <div class="detail-body">Fresh off its biggest product week ever in early March, Apple reportedly has 15+ more on the runway: foldable iPhone, OLED MacBook Pro, HomePod mini, Apple TV refresh, and a smart home hub with a 6&ndash;7&rdquo; display, among others.</div>
       </details>
 
       <details>
-        <summary>Apple Watch Series 12 redesign scrapped <span class="new-tag">new</span></summary>
-        <div class="detail-body">The rumored round-face redesign is officially dead for Series 12. Apple Watch Ultra 4 is still in play and may get Touch ID integration into the display — a first for the Ultra line.</div>
+        <summary>WWDC 2026 set June 8&ndash;12; iOS 27 is a &ldquo;Snow Leopard&rdquo; year <span class="new-tag">new</span></summary>
+        <div class="detail-body">iOS 27 is framed as stability-first &mdash; performance and cleanup over new features. Standout: Siri gets an &ldquo;Extensions&rdquo; system letting users route queries to Claude, Gemini, or Grok, ending OpenAI&rsquo;s exclusive arrangement.</div>
       </details>
 
       <details>
-        <summary>Meta Ray-Ban "Scriber" &amp; "Blazer" hit FCC <span class="new-tag">new</span></summary>
-        <div class="detail-body">Two new Meta smart glasses codenames surfaced in FCC filings this week, strongly suggesting display-equipped successors to the current Ray-Ban Meta are imminent. Meanwhile Meta is dealing with an EU battery regulation block and a fresh privacy lawsuit.</div>
+        <summary>Meta Ray-Ban display glasses blocked from EU</summary>
+        <div class="detail-body">Bloomberg reports Meta&rsquo;s display-equipped Ray-Bans face EU battery and AI regulations on top of supply shortages that already paused rollout in UK/France/Italy/Canada. Waveguide displays are complex to manufacture and production hasn&rsquo;t caught up with &ldquo;unprecedented&rdquo; US demand.</div>
       </details>
 
       <details>
-        <summary>Samsung AI glasses: specs locked in</summary>
-        <div class="detail-body">Samsung's smart glasses are shaping up with a 12MP camera and Gemini AI on-device. Expected to launch later this year, positioning directly against Meta Ray-Ban and future Apple glasses.</div>
+        <summary>Samsung Galaxy Glasses confirmed 2026 &mdash; no AR display</summary>
+        <div class="detail-body">12MP autofocus camera, Qualcomm AR1 chip, gesture controls, ~50g frame, 155mAh battery. No AR display &mdash; that&rsquo;s reserved for the $1,799 Galaxy XR headset. Fashion partnerships with Gentle Monster and Warby Parker put it directly against Meta Ray-Ban.</div>
       </details>
 
       <details>
-        <summary>Panasonic MFT: AI over megapixels <span class="new-tag">new</span></summary>
-        <div class="detail-body">A Panasonic executive confirmed this week that the company's focus for future MFT cameras is AI-driven dynamic range and noise reduction rather than a megapixel race. Also: Chinese brand Songdian is entering the MFT ecosystem, and the YoloLiv 18mm f/1.4 MFT lens is dropping imminently.</div>
+        <summary>Apple AI glasses targeting late 2026</summary>
+        <div class="detail-body">Apple&rsquo;s first wearable glasses will be camera-and-AI focused with no AR overlay &mdash; essentially its answer to Ray-Ban Meta. A waveguide display version is further out. Could slip to 2027, but supply chain activity suggests Apple is serious.</div>
       </details>
 
       <details>
-        <summary>GoPro unveils GP3 AI processor <span class="new-tag">new</span></summary>
-        <div class="detail-body">GoPro dropped the GP3, a new in-house 5nm AI-powered processor. Full camera lineup reveal is set for NAB in April — expected to bring significant low-light and stabilization improvements.</div>
+        <summary>OM System PEN F revival in development <span class="new-tag">new</span></summary>
+        <div class="detail-body">OM System SVP Kazuhiro Togashi hinted this week that a new PEN camera is actively in development &mdash; speculation points to a retro PEN F-style body, not just a spec bump. Exec body language is being read as &ldquo;sooner than you think.&rdquo;</div>
+      </details>
+
+      <details>
+        <summary>Panasonic reaffirms MFT, but questions linger</summary>
+        <div class="detail-body">Post-CP+ 2026, Panasonic execs said they see unique value in MFT&rsquo;s compact advantages. But MFT releases have thinned since 2024. New entrants like Songdian and the YoloLiv 18mm f/1.4 MFT prime (shipping soon) show the ecosystem stays alive.</div>
       </details>
 
     </div>
   </div>
 
-  <!-- ── GAME DEV CARD ── -->
   <div class="card gamedev">
     <div class="card-header">
-      <span class="icon">🎮</span>
+      <span class="icon">&#127918;</span>
       <h2>Game Dev &amp; Vibe Coding</h2>
     </div>
     <div class="card-body">
 
       <details>
-        <summary>Vibe coding guide hits 1.5M views <span class="new-tag">new</span></summary>
-        <div class="detail-body">Nicolas Zullo's vibe coding tutorial went viral — a full multiplayer 3D game built with zero human-written code using Claude. The workflow: describe → generate → iterate. Claude Code's new auto mode (just entered research preview) makes this even more hands-off.</div>
+        <summary>Vibe coding goes production-ready for indie devs</summary>
+        <div class="detail-body">AI-assisted game development is graduating from experiment to shipping product in 2026. Tools like VibeGame (Three.js/Rapier/bitecs) lead the pack. Caveat: ~45% of AI-generated code carries security flaws, so human review remains essential.</div>
       </details>
 
       <details>
-        <summary>Three.js Water Pro: film-quality WebGPU ocean <span class="new-tag">new</span></summary>
-        <div class="detail-body">Three.js Water Pro launched this week with an FFT-based WebGPU ocean renderer featuring foam, caustics, and subsurface scattering. Runs in browser at high frame rates. Directly relevant for your VR water project.</div>
+        <summary>Three.js hits WebGPU production milestone</summary>
+        <div class="detail-body">Three.js r171+ ships production-ready WebGPU with zero config overhead. Safari 26&rsquo;s WebGPU rollout closes the cross-browser gap. Compute shaders unlock GPU-accelerated physics and ML inference in browser, with 2&ndash;50x performance gains in complex scenes.</div>
       </details>
 
       <details>
-        <summary>AI sprite sheet generation in 15–30 seconds</summary>
-        <div class="detail-body">Ludo.ai's natural language animation pipeline can now generate full sprite sheets in 15–30 seconds. Scenario updated its frame-by-frame consistency workflow. SEELE also offers rapid sprite generation — worth testing for your Quest game characters.</div>
+        <summary>VR Games Showcase drops big Quest announcements <span class="new-tag">new</span></summary>
+        <div class="detail-body">Spring 2026 VR Games Showcase (March 26&ndash;28) delivered a wave of Quest titles: <em>The Boys: Trigger Warning</em> launched March 26, <em>Roboquest VR</em> slated May 21, <em>Payday: Aces High</em> (4-player co-op) in pipeline. Quest 3 got QoL updates including light/dark theme switching.</div>
       </details>
 
       <details>
-        <summary>VR Games Showcase: 20+ titles revealed <span class="new-tag">new</span></summary>
-        <div class="detail-body">The March 24 VR Games Showcase revealed over 20 new Quest titles. Highlight: a 32-player VR shooter launching April 23. Meta Quest now requires Android 14 targeting (as of March 1). Movement SDK added audio-to-facial-expression mapping (March 23).</div>
+        <summary>Meta winds down Horizon Worlds &amp; creator bonuses <span class="new-tag">new</span></summary>
+        <div class="detail-body">Horizon Worlds exits the Meta Quest Store by March 31. Creator Bonus Program makes final payouts in May as Meta pivots incentives toward mobile. Studio shutdowns and layoffs continue across VR as AAA costs outpace player acquisition.</div>
       </details>
 
       <details>
-        <summary>Quest 3 water shader: 72 FPS in Unity URP <span class="new-tag">new</span></summary>
-        <div class="detail-body">A developer published a Quest 3 water shader approach hitting 72 FPS in Unity URP using a clever two-quad technique. Hybrid SPH/grid fluid simulation and ML-based fluid behavior prediction are trending for real-time games — viable path for your water physics VR project.</div>
+        <summary>AI sprite generation reaches mainstream indie workflow</summary>
+        <div class="detail-body">PixelLab, Ludo.ai, and Sprite AI ($5&ndash;24/mo) all offer game-ready sprite sheet exports. Emerging workflow: generate 20 AI variants, pick the best, refine in a pixel editor. Most 2026 shipped indies are mixing tools rather than committing to one.</div>
+      </details>
+
+      <details>
+        <summary>ALL WILL FALL uses water physics as its core mechanic (April 3)</summary>
+        <div class="detail-body">Post-apocalyptic city builder launching April 3 centers its entire loop on buoyancy and water physics &mdash; build vertical settlements on the ocean, manage structural weight, scavenge floating resources. Water simulation as a primary mechanic, not just visual polish.</div>
+      </details>
+
+      <details>
+        <summary>Quest 3 water shader hitting 72 FPS in Unity URP <span class="new-tag">new</span></summary>
+        <div class="detail-body">A developer published a Quest 3 water shader approach hitting 72 FPS in Unity URP using a clever two-quad technique. Hybrid SPH/grid fluid simulation and ML-based fluid behavior prediction are trending &mdash; viable path for your water physics VR project.</div>
       </details>
 
     </div>
