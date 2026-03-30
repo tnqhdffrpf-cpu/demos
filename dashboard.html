@@ -3,12 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Good Morning Brett 🌊</title>
+<title>Good Morning Brett &#127754;</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { font-family: 'Inter', sans-serif; background: #0f172a; color: #e2e8f0; min-height: 100vh; }
-
   .header {
     background: linear-gradient(135deg, #0ea5e9, #6366f1, #8b5cf6, #0ea5e9);
     background-size: 300% 300%;
@@ -26,24 +25,22 @@
   .header-center h1 { font-size: 26px; font-weight: 800; letter-spacing: -0.5px; }
   .header-center .date { font-size: 13px; opacity: 0.85; margin-top: 2px; }
   .header-right { font-size: 13px; opacity: 0.9; text-align: right; max-width: 220px; line-height: 1.5; font-style: italic; }
-
   .cards { display: flex; gap: 16px; padding: 20px; flex-wrap: wrap; }
   .card { flex: 1; min-width: 280px; border-radius: 16px; overflow: hidden; background: #1e293b; border: 1px solid rgba(255,255,255,0.08); }
   .card-header { padding: 16px 18px 14px; display: flex; align-items: center; gap: 10px; }
   .card-header h2 { font-size: 15px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; }
   .card-header .icon { font-size: 20px; }
   .card-body { padding: 0 18px 18px; }
-
   .surf .card-header { background: linear-gradient(135deg, #0369a1, #0284c7); }
-  .surf .rating { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; margin-top: 10px; background: #1e293b; color: #64748b; }
+  .surf .rating { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; margin-top: 10px; }
+  .rating.fair { background: #713f12; color: #fbbf24; }
+  .rating.poor { background: #1e293b; color: #64748b; }
+  .rating.good { background: #14532d; color: #4ade80; }
   .surf .conditions { font-size: 14px; line-height: 1.7; color: #94a3b8; margin-bottom: 14px; }
   .surf .conditions strong { color: #e2e8f0; }
-  .surf .warning { background: #7f1d1d; border: 1px solid #ef4444; border-radius: 8px; padding: 10px 12px; font-size: 13px; color: #fca5a5; margin-bottom: 14px; }
-  .surf .warning strong { color: #f87171; }
-
+  .surf .tip { background: #0c1a2e; border-left: 3px solid #0ea5e9; border-radius: 0 8px 8px 0; padding: 10px 12px; font-size: 13px; color: #7dd3fc; margin-bottom: 14px; }
   .wave-container { height: 60px; margin: 10px 0; overflow: hidden; border-radius: 8px; background: #0c1a2e; }
   .wave-container svg { width: 100%; height: 100%; }
-
   .forecast { width: 100%; border-collapse: collapse; font-size: 12px; }
   .forecast th { color: #64748b; font-weight: 600; padding: 6px 4px; text-align: left; border-bottom: 1px solid #334155; }
   .forecast td { padding: 7px 4px; border-bottom: 1px solid #1e293b; }
@@ -52,12 +49,19 @@
   .badge.good { background: #14532d; color: #4ade80; }
   .badge.fair { background: #713f12; color: #fbbf24; }
   .badge.poor { background: #1e293b; color: #64748b; }
-  .badge.firing { background: #0c4a6e; color: #38bdf8; }
-  .badge.warning { background: #7f1d1d; color: #fca5a5; }
-
-  .tech .card-header { background: linear-gradient(135deg, #92400e, #b45309); }
-  .gamedev .card-header { background: linear-gradient(135deg, #14532d, #15803d); }
-
+  .badge.best { background: #0c4a6e; color: #38bdf8; }
+  .business .card-header { background: linear-gradient(135deg, #7c2d12, #b45309); }
+  .market-ticker { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0 14px; }
+  .ticker { background: #0f172a; border-radius: 8px; padding: 6px 10px; font-size: 12px; }
+  .ticker .name { color: #64748b; font-weight: 600; font-size: 10px; }
+  .ticker .val { color: #e2e8f0; font-weight: 700; }
+  .ticker .chg { font-size: 11px; }
+  .ticker .chg.down { color: #f87171; }
+  .ticker .chg.up { color: #4ade80; }
+  .bigstory .card-header { background: linear-gradient(135deg, #7f1d1d, #991b1b); }
+  .bigstory .verdict { background: #450a0a; border: 1px solid #ef4444; border-radius: 8px; padding: 10px 12px; font-size: 13px; color: #fca5a5; margin: 10px 0 14px; }
+  .bigstory .verdict strong { color: #f87171; }
+  .techgame .card-header { background: linear-gradient(135deg, #312e81, #1e3a5f); }
   details { border-bottom: 1px solid #334155; }
   details:last-child { border-bottom: none; }
   summary {
@@ -72,7 +76,12 @@
   }
   details[open] summary::before { transform: rotate(90deg); }
   .detail-body { padding: 0 0 13px 22px; font-size: 13px; color: #94a3b8; line-height: 1.65; }
+  .detail-body p { margin-bottom: 8px; }
+  .source-link { display: inline-block; margin-top: 6px; color: #38bdf8; font-size: 12px; font-weight: 600; text-decoration: none; }
+  .source-link:hover { text-decoration: underline; }
   .new-tag { display: inline-block; background: #1d4ed8; color: #bfdbfe; font-size: 9px; font-weight: 700; padding: 1px 5px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.5px; margin-left: 6px; vertical-align: middle; }
+  .section-divider { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #475569; padding: 12px 0 4px; }
+  .sources-row { margin-top: 12px; font-size: 12px; color: #475569; }
 </style>
 </head>
 <body>
@@ -80,16 +89,16 @@
 <div class="header">
   <div class="header-left">
     <strong>&#127754; Cannon Beach, OR</strong>
-    52&deg;F &middot; Choppy/Stormy<br>
-    Building swell &middot; N wind 9 mph<br>
-    Best window: Morning only
+    WNW swell 6&ndash;7ft at 10s offshore<br>
+    3&ndash;5ft faces &middot; E wind light AM<br>
+    Best window: Morning
   </div>
   <div class="header-center">
     <h1>Good Morning, Brett &#129305;</h1>
-    <div class="date">Saturday, March 28, 2026</div>
+    <div class="date">Monday, March 30, 2026</div>
   </div>
   <div class="header-right">
-    &ldquo;The ocean doesn&rsquo;t care what&rsquo;s on your to-do list &mdash; paddle out anyway.&rdquo;
+    &ldquo;The sea does not reward those who are too anxious, too greedy, or too impatient. One should lie empty, open, choiceless as a beach.&rdquo;
   </div>
 </div>
 
@@ -101,8 +110,7 @@
       <h2>Cannon Beach Surf</h2>
     </div>
     <div class="card-body">
-      <div class="rating">POOR</div>
-
+      <div class="rating good">GOOD</div>
       <div class="wave-container">
         <svg viewBox="0 0 400 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
           <defs>
@@ -119,123 +127,191 @@
           </path>
           <path fill="#38bdf8" fill-opacity="0.25">
             <animate attributeName="d" dur="6s" repeatCount="indefinite"
-              values="M0,40 C80,20 160,55 240,38 C310,22 370,45 400,38 L400,60 L0,60 Z;
+              values="M0,40 C80,20 160,55 240,38 C310,22 370,45 400,38 L400,60 L0,60 Z;60,55 240,38 C310,22 370,45 400,38 L400,60 L0,60 Z;
                       M0,38 C70,55 150,20 230,42 C305,58 368,28 400,42 L400,60 L0,60 Z;
                       M0,40 C80,20 160,55 240,38 C310,22 370,45 400,38 L400,60 L0,60 Z"/>
           </path>
         </svg>
       </div>
-
       <div class="conditions">
-        <strong>2&ndash;4 ft</strong> faces, sets to <strong>4&ndash;6 ft</strong> &middot; NW/WSW combo swell<br>
-        Period: <strong>10s</strong> &middot; Water: <strong>52&deg;F</strong><br>
-        Wind: N cross-shore 9 mph &middot; Choppy &amp; building
+        <strong>3&ndash;5 ft</strong> faces, sets <strong>overhead+</strong> &middot; WNW 6&ndash;7ft offshore at 10s<br>
+        Mixed SW swell 1ft at 15s &middot; Water: <strong>48&deg;F</strong> (full rubber required)<br>
+        Wind: E 5&ndash;11 kt morning (offshore), shifting NNW afternoon
       </div>
-
-      <div class="warning">
-        <strong>&#9888;&#65039; Gale Conditions Today</strong> &mdash; Swell building through the day, seas rough. Monday is the week&rsquo;s best window at 4&ndash;6 ft with 11s periods.
+      <div class="tip">
+        &#9733; <strong>Go this morning</strong> &mdash; light east wind is offshore and favorable. Swell eases through the afternoon as wind clocks NNW. Best window is now through midday.
       </div>
-
       <table class="forecast">
         <thead>
           <tr><th>Day</th><th>Size</th><th>Wind</th><th>Rating</th></tr>
         </thead>
         <tbody>
-          <tr><td>Sat 3/28</td><td>2&ndash;4 ft</td><td>N 9 mph</td><td><span class="badge poor">Poor</span></td></tr>
-          <tr><td>Sun 3/29</td><td>4&ndash;6 ft</td><td>SW 20 mph</td><td><span class="badge poor">Poor</span></td></tr>
-          <tr><td>Mon 3/30</td><td>4&ndash;6 ft</td><td>W 12 mph</td><td><span class="badge good">Good</span></td></tr>
-          <tr><td>Tue 3/31</td><td>3&ndash;5 ft</td><td>NW 8 mph</td><td><span class="badge fair">Fair</span></td></tr>
-          <tr><td>Wed 4/1</td><td>2&ndash;3 ft</td><td>NW 10 mph</td><td><span class="badge fair">Fair</span></td></tr>
+          <tr><td>Mon 3/30</td><td>3&ndash;5 ft</td><td>E&rarr;NNW</td><td><span class="badge good">Good</span></td></tr>
+          <tr><td>Tue 3/31</td><td>4&ndash;6 ft</td><td>W 8 mph</td><td><span class="badge best">Good &#9733;</span></td></tr>
+          <tr><td>Wed 4/1</td><td>3&ndash;5 ft</td><td>SW 14 mph</td><td><span class="badge fair">Fair</span></td></tr>
+          <tr><td>Thu 4/2</td><td>2&ndash;3 ft</td><td>NW 12 mph</td><td><span class="badge fair">Fair</span></td></tr>
+          <tr><td>Fri 4/3</td><td>2&ndash;4 ft</td><td>NW 10 mph</td><td><span class="badge fair">Fair</span></td></tr>
         </tbody>
       </table>
+      <div class="sources-row">
+        Sources:
+        <a href="https://www.surfline.com/surf-report/cannon-beach/5842041f4e65fad6a77089b8" target="_blank" rel="noopener" class="source-link">Surfline &#8594;</a>
+        &nbsp;&middot;&nbsp;
+        <a href="https://marine.weather.gov/MapClick.php?lat=45.72631510756138&lon=-123.96354675292969&site=pqr&unit=0&lg=en&FcstType=marine" target="_blank" rel="noopener" class="source-link">NWS Marine &#8594;</a>
+        &nbsp;&middot;&nbsp;
+        <a href="https://www.ndbc.noaa.gov/station_page.php?station=46029" target="_blank" rel="noopener" class="source-link">NOAA Buoy 46029 &#8594;</a>
+      </div>
     </div>
   </div>
 
-  <div class="card tech">
+  <div class="card business">
+    <div class="card-header">
+      <span class="icon">&#128200;</span>
+      <h2>Business &amp; Markets</h2>
+    </div>
+    <div class="card-body">
+      <div class="market-ticker">
+        <div class="ticker"><div class="name">DOW</div><div class="val">45,358</div><div class="chg up">&#9650; 0.42%</div></div>
+        <div class="ticker"><div class="name">S&amp;P 500</div><div class="val">6,380</div><div class="chg up">&#9650; 0.18%</div></div>
+        <div class="ticker"><div class="name">NASDAQ</div><div class="val">20,935</div><div class="chg down">&#9660; 0.06%</div></div>
+        <div class="ticker"><div class="name">BRENT OIL</div><div class="val">~$114</div><div class="chg down">&#9650; new high</div></div>
+      </div>
+
+      <details>
+        <summary>Markets bounce on Trump &ldquo;serious discussions&rdquo; with Iran <span class="new-tag">new</span></summary>
+        <div class="detail-body">
+          <p>The Dow gained 406 points early before settling up 191 (+0.42%) as Trump announced &ldquo;serious discussions&rdquo; are underway with a new Iranian leadership faction. The S&amp;P snapped its 5-week losing streak (up 0.18%) while the Nasdaq slipped slightly (&ndash;0.06%) as semiconductor stocks lagged. Equities are attempting a recovery but Brent crude pushing above $114 is keeping gains capped.</p>
+          <a href="https://247wallst.com/investing/2026/03/30/stock-market-live-march-30-2026-sp-500-spy-up-on-president-trump-optimism/" target="_blank" rel="noopener" class="source-link">247 Wall St live &#8594;</a>
+          &nbsp;&middot;&nbsp;
+          <a href="https://www.thestreet.com/investing/stocks/stock-market-today-mar-30-2026-updates" target="_blank" rel="noopener" class="source-link">TheStreet &#8594;</a>
+        </div>
+      </details>
+
+      <details>
+        <summary>Iran accepts &ldquo;most&rdquo; of 15-point peace plan; Trump threatens oil wells <span class="new-tag">new</span></summary>
+        <div class="detail-body">
+          <p>Tehran reportedly accepted most of a 15-point US peace framework, but Trump simultaneously posted on Truth Social threatening to &ldquo;obliterate&rdquo; all Iranian oil wells, power plants, Kharg Island, and desalination plants if the Strait isn&rsquo;t reopened immediately. The mixed signals are keeping energy markets volatile &mdash; Brent above $114.</p>
+          <a href="https://www.cbsnews.com/live-updates/iran-war-us-trump-uncertainty-oil-prices-strait-of-hormuz-houthis-red-sea/" target="_blank" rel="noopener" class="source-link">CBS News live &#8594;</a>
+        </div>
+      </details>
+
+      <details>
+        <summary>Alcoa (AA) surges as Iranian strikes hit Gulf aluminum smelters</summary>
+        <div class="detail-body">
+          <p>Alcoa shares surged Monday as global aluminum prices rose sharply following Iranian strikes on Bahrain&rsquo;s Alba smelter &mdash; one of the world&rsquo;s largest. The attack has expanded market anxiety beyond oil into metals and industrial supply chains. Alcoa is the biggest US beneficiary of rising aluminum prices.</p>
+          <a href="https://www.ibtimes.com.au/us-stock-market-today-march-30-2026-futures-rise-iran-talk-hopes-amid-oil-surge-1864999" target="_blank" rel="noopener" class="source-link">IBTimes &#8594;</a>
+        </div>
+      </details>
+
+      <details>
+        <summary>S&amp;P snaps 5-week losing streak; rotation into value and energy</summary>
+        <div class="detail-body">
+          <p>Wall Street strategists note a clear sector rotation: energy, materials, and defense stocks are leading while large-cap tech lags. The &ldquo;grind lower&rdquo; scenario priced in last week is being reassessed as Iran peace signals emerged. However, with oil still above $114 and the peace framework unconfirmed, most desks are calling this a &ldquo;relief bounce, not a reversal.&rdquo;</p>
+          <a href="https://www.fool.com/investing/2026/03/30/stock-market-today-live-coverage/" target="_blank" rel="noopener" class="source-link">Motley Fool live &#8594;</a>
+        </div>
+      </details>
+
+      <details>
+        <summary>OpenAI shuts down Sora; redirects compute to other projects <span class="new-tag">new</span></summary>
+        <div class="detail-body">
+          <p>OpenAI has shut down Sora, its video generation product, after running it separately from the main research effort. The compute is being redirected to other high-priority tasks &mdash; widely speculated to be reasoning models and agentic systems. No public timeline for a replacement product was given.</p>
+          <a href="https://techstartups.com/2026/03/30/top-tech-news-today-march-30-2026/" target="_blank" rel="noopener" class="source-link">Tech Startups &#8594;</a>
+        </div>
+      </details>
+
+    </div>
+  </div>
+
+  <div class="card bigstory">
+    <div class="card-header">
+      <span class="icon">&#128308;</span>
+      <h2>Big Story of the Week</h2>
+    </div>
+    <div class="card-body">
+      <div class="verdict">
+        <strong>&#9888;&#65039; US&ndash;Iran War / Strait of Hormuz (Day 30)</strong> &mdash; One month in. Only 6 vessels/day through the strait vs 135 normally. Bloomberg calls it the biggest oil supply shock in history. The next 48 hours are critical: peace framework accepted in part, but Trump&rsquo;s threats are escalating simultaneously.
+      </div>
+      <details open>
+        <summary>Where things stand today</summary>
+        <div class="detail-body">
+          <p>Day 30 of the conflict. The strait has been effectively closed since late February &mdash; only about 6 ships/day transit vs the normal 135. China, Russia, India, Iraq, Pakistan, Malaysia, and Thailand vessels have been granted passage by Iran as diplomatic signals.</p>
+          <p>Today: Iran reportedly accepted &ldquo;most&rdquo; of a 15-point US peace plan, per unnamed officials. Pakistan is playing mediator. But on Truth Social, Trump simultaneously threatened to destroy all of Iran&rsquo;s oil infrastructure, power plants, and desalination facilities if Hormuz isn&rsquo;t reopened immediately.</p>
+          <p><strong>Watch:</strong> If a deal is confirmed this week, expect oil to drop sharply and markets to rally hard. If talks collapse, $130+ oil is back on the table and the correction resumes. The extended US deadline expires in roughly 10 days.</p>
+          <a href="https://www.bloomberg.com/news/articles/2026-03-30/energy-crisis-iran-s-grip-on-hormuz-is-tighter-than-ever-after-a-month-of-war" target="_blank" rel="noopener" class="source-link">Bloomberg: one month in &#8594;</a>
+          &nbsp;&middot;&nbsp;
+          <a href="https://en.wikipedia.org/wiki/2026_Strait_of_Hormuz_crisis" target="_blank" rel="noopener" class="source-link">Wikipedia overview &#8594;</a>
+          &nbsp;&middot;&nbsp;
+          <a href="https://www.npr.org/2026/03/29/nx-s1-5765344/pakistan-diplomatic-discussions-iran-war" target="_blank" rel="noopener" class="source-link">NPR: Pakistan talks &#8594;</a>
+        </div>
+      </details>
+    </div>
+  </div>
+
+  <div class="card techgame">
     <div class="card-header">
       <span class="icon">&#128225;</span>
-      <h2>Tech Rumors</h2>
+      <h2>Tech &amp; Game Dev</h2>
     </div>
     <div class="card-body">
 
+      <div class="section-divider">&#128241; Tech Rumors</div>
+
       <details>
-        <summary>Apple has 15+ products still coming in 2026 <span class="new-tag">new</span></summary>
-        <div class="detail-body">Fresh off its biggest product week ever in early March, Apple reportedly has 15+ more on the runway: foldable iPhone, OLED MacBook Pro, HomePod mini, Apple TV refresh, and a smart home hub with a 6&ndash;7&rdquo; display, among others.</div>
+        <summary>OpenAI kills Sora; compute shifted to agents &amp; reasoning <span class="new-tag">new</span></summary>
+        <div class="detail-body">
+          <p>OpenAI officially shut down Sora today after running the video generation product as a separate effort. The compute is moving to agentic systems and reasoning model work. No confirmed replacement timeline. Rivals Runway and Kling are the immediate beneficiaries.</p>
+          <a href="https://techstartups.com/2026/03/30/top-tech-news-today-march-30-2026/" target="_blank" rel="noopener" class="source-link">Tech Startups &#8594;</a>
+        </div>
       </details>
 
       <details>
-        <summary>WWDC 2026 set June 8&ndash;12; iOS 27 is a &ldquo;Snow Leopard&rdquo; year <span class="new-tag">new</span></summary>
-        <div class="detail-body">iOS 27 is framed as stability-first &mdash; performance and cleanup over new features. Standout: Siri gets an &ldquo;Extensions&rdquo; system letting users route queries to Claude, Gemini, or Grok, ending OpenAI&rsquo;s exclusive arrangement.</div>
+        <summary>Project Helix confirmed: next Xbox plays on both console and PC unified</summary>
+        <div class="detail-body">
+          <p>At GDC Festival of Gaming, Microsoft confirmed Project Helix &mdash; the next generation Xbox platform. Future Xbox titles will be natively playable on both console and PC under a single unified Xbox platform. Microsoft also announced new Windows 11 gaming tools: faster load times, Windows ML-enhanced graphics, and smoother gameplay APIs for developers.</p>
+          <a href="https://blogs.windows.com/windowsdeveloper/2026/03/11/gdc-2026-announcing-new-tools-and-platform-updates-for-windows-pc-game-developers/" target="_blank" rel="noopener" class="source-link">Windows Dev Blog &#8594;</a>
+        </div>
       </details>
 
       <details>
-        <summary>Meta Ray-Ban display glasses blocked from EU</summary>
-        <div class="detail-body">Bloomberg reports Meta&rsquo;s display-equipped Ray-Bans face EU battery and AI regulations on top of supply shortages that already paused rollout in UK/France/Italy/Canada. Waveguide displays are complex to manufacture and production hasn&rsquo;t caught up with &ldquo;unprecedented&rdquo; US demand.</div>
+        <summary>Google DeepMind Genie 3: navigable 3D worlds from text prompts</summary>
+        <div class="detail-body">
+          <p>Google DeepMind drew the biggest crowds at GDC 2026 with a live demo of Genie 3, which generates navigable 3D game worlds from text prompts alone. The demo showed fully playable environments created in real time. Bloomberg called it one of the five major GDC takeaways for 2026.</p>
+          <a href="https://www.bloomberg.com/news/newsletters/2026-03-13/the-2026-game-developers-conference-s-five-major-takeaways" target="_blank" rel="noopener" class="source-link">Bloomberg GDC roundup &#8594;</a>
+        </div>
+      </details>
+
+      <div class="section-divider">&#127918; Game Dev &amp; Vibe Coding</div>
+
+      <details>
+        <summary>Clair Obscur: Expedition 33 wins GDC Game of the Year <span class="new-tag">new</span></summary>
+        <div class="detail-body">
+          <p>Clair Obscur: Expedition 33 swept the Game Developers Choice Awards with Game of the Year and four additional wins. The French indie RPG has been a critical darling since launch and the GDC win signals the industry&rsquo;s strong endorsement of smaller creative studios in 2026.</p>
+          <a href="https://gdconf.com/news-insights/" target="_blank" rel="noopener" class="source-link">GDC news &#8594;</a>
+        </div>
       </details>
 
       <details>
-        <summary>Samsung Galaxy Glasses confirmed 2026 &mdash; no AR display</summary>
-        <div class="detail-body">12MP autofocus camera, Qualcomm AR1 chip, gesture controls, ~50g frame, 155mAh battery. No AR display &mdash; that&rsquo;s reserved for the $1,799 Galaxy XR headset. Fashion partnerships with Gentle Monster and Warby Parker put it directly against Meta Ray-Ban.</div>
+        <summary>Wanderstop dev Ivy Road shuts down today <span class="new-tag">new</span></summary>
+        <div class="detail-body">
+          <p>Ivy Road, the indie studio behind Wanderstop, announced it is shutting down effective today (March 30). The closure is part of an ongoing wave of studio shutdowns as AAA and mid-tier development costs continue to outpace player acquisition &mdash; especially in the VR and single-player narrative space.</p>
+          <a href="https://gametyrant.com/news/march-2026-video-game-and-tech-releases-updated-weekly" target="_blank" rel="noopener" class="source-link">GameTyrant &#8594;</a>
+        </div>
       </details>
 
       <details>
-        <summary>Apple AI glasses targeting late 2026</summary>
-        <div class="detail-body">Apple&rsquo;s first wearable glasses will be camera-and-AI focused with no AR overlay &mdash; essentially its answer to Ray-Ban Meta. A waveguide display version is further out. Could slip to 2027, but supply chain activity suggests Apple is serious.</div>
+        <summary>Five new Steam games you probably missed this week</summary>
+        <div class="detail-body">
+          <p>Yahoo Tech&rsquo;s weekly indie roundup highlights five notable Steam releases from this week that flew under the radar. March 30, 2026 continues a strong run for PC indie releases &mdash; the post-GDC window tends to see a spike in small-team launches riding the industry buzz.</p>
+          <a href="https://tech.yahoo.com/gaming/articles/five-steam-games-probably-missed-231418784.html" target="_blank" rel="noopener" class="source-link">Yahoo Tech &#8594;</a>
+        </div>
       </details>
 
       <details>
-        <summary>OM System PEN F revival in development <span class="new-tag">new</span></summary>
-        <div class="detail-body">OM System SVP Kazuhiro Togashi hinted this week that a new PEN camera is actively in development &mdash; speculation points to a retro PEN F-style body, not just a spec bump. Exec body language is being read as &ldquo;sooner than you think.&rdquo;</div>
-      </details>
-
-      <details>
-        <summary>Panasonic reaffirms MFT, but questions linger</summary>
-        <div class="detail-body">Post-CP+ 2026, Panasonic execs said they see unique value in MFT&rsquo;s compact advantages. But MFT releases have thinned since 2024. New entrants like Songdian and the YoloLiv 18mm f/1.4 MFT prime (shipping soon) show the ecosystem stays alive.</div>
-      </details>
-
-    </div>
-  </div>
-
-  <div class="card gamedev">
-    <div class="card-header">
-      <span class="icon">&#127918;</span>
-      <h2>Game Dev &amp; Vibe Coding</h2>
-    </div>
-    <div class="card-body">
-
-      <details>
-        <summary>Vibe coding goes production-ready for indie devs</summary>
-        <div class="detail-body">AI-assisted game development is graduating from experiment to shipping product in 2026. Tools like VibeGame (Three.js/Rapier/bitecs) lead the pack. Caveat: ~45% of AI-generated code carries security flaws, so human review remains essential.</div>
-      </details>
-
-      <details>
-        <summary>Three.js hits WebGPU production milestone</summary>
-        <div class="detail-body">Three.js r171+ ships production-ready WebGPU with zero config overhead. Safari 26&rsquo;s WebGPU rollout closes the cross-browser gap. Compute shaders unlock GPU-accelerated physics and ML inference in browser, with 2&ndash;50x performance gains in complex scenes.</div>
-      </details>
-
-      <details>
-        <summary>VR Games Showcase drops big Quest announcements <span class="new-tag">new</span></summary>
-        <div class="detail-body">Spring 2026 VR Games Showcase (March 26&ndash;28) delivered a wave of Quest titles: <em>The Boys: Trigger Warning</em> launched March 26, <em>Roboquest VR</em> slated May 21, <em>Payday: Aces High</em> (4-player co-op) in pipeline. Quest 3 got QoL updates including light/dark theme switching.</div>
-      </details>
-
-      <details>
-        <summary>Meta winds down Horizon Worlds &amp; creator bonuses <span class="new-tag">new</span></summary>
-        <div class="detail-body">Horizon Worlds exits the Meta Quest Store by March 31. Creator Bonus Program makes final payouts in May as Meta pivots incentives toward mobile. Studio shutdowns and layoffs continue across VR as AAA costs outpace player acquisition.</div>
-      </details>
-
-      <details>
-        <summary>AI sprite generation reaches mainstream indie workflow</summary>
-        <div class="detail-body">PixelLab, Ludo.ai, and Sprite AI ($5&ndash;24/mo) all offer game-ready sprite sheet exports. Emerging workflow: generate 20 AI variants, pick the best, refine in a pixel editor. Most 2026 shipped indies are mixing tools rather than committing to one.</div>
-      </details>
-
-      <details>
-        <summary>ALL WILL FALL uses water physics as its core mechanic (April 3)</summary>
-        <div class="detail-body">Post-apocalyptic city builder launching April 3 centers its entire loop on buoyancy and water physics &mdash; build vertical settlements on the ocean, manage structural weight, scavenge floating resources. Water simulation as a primary mechanic, not just visual polish.</div>
-      </details>
-
-      <details>
-        <summary>Quest 3 water shader hitting 72 FPS in Unity URP <span class="new-tag">new</span></summary>
-        <div class="detail-body">A developer published a Quest 3 water shader approach hitting 72 FPS in Unity URP using a clever two-quad technique. Hybrid SPH/grid fluid simulation and ML-based fluid behavior prediction are trending &mdash; viable path for your water physics VR project.</div>
+        <summary>VR Games Showcase recap: Roboqust VR, Sol Protocol alpha live</summary>
+        <div class="detail-body">
+          <p>Spring 2026 VR Games Showcase follow-up: <em>Roboquest VR</em> confirmed May 21 release, <em>Sol Protocol</em> public alpha launched this weekend on Quest 3. <em>Payday: Aces High</em> (4-player co-op) remains in the pipeline. Meta&rsquo;s Spring Sale is running through the weekend.</p>
+          <a href="https://www.roadtovr.com" target="_blank" rel="noopener" class="source-link">Road to VR &#8594;</a>
+        </div>
       </details>
 
     </div>
