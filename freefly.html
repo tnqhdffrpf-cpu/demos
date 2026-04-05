@@ -86,7 +86,7 @@
   <h1>FREE FLIGHT</h1>
   <div class="tagline">RELAXING BIPLANE EXPERIENCE</div>
   <div class="instructions">
-    <strong>iPhone:</strong> Tilt phone left / right to steer<br>
+    <strong>iPhone:</strong> Tilt left/right to steer Â· tilt forward/back for altitude<br>
     <strong>Desktop:</strong> Hold left or right side of screen<br>
     <span style="color:#7ab;font-size:0.8rem;">Fly over forests, mountains, and a city.<br>No goals. Just fly.</span>
   </div>
@@ -124,8 +124,8 @@
 const CFG = {
   worldSize:    3600,     // full extent of terrain (units)
   planeSpeed:   70,       // forward speed (units/sec)
-  turnGain:     4.2,      // tilt â turn rate amplification
-  inputSmooth:  0.10,     // input smoothing (higher = snappier)
+  turnGain:     2.0,      // tilt â turn rate amplification
+  inputSmooth:  0.06,     // input smoothing (higher = snappier)
   bankMult:     1.05,     // visual bank exaggeration factor
   bankSmooth:   0.13,     // bank visual smoothing speed
   cameraSmooth: 0.068,    // camera position lerp
@@ -133,8 +133,11 @@ const CFG = {
   camDist:      26,       // distance behind plane
   camHeight:    9,        // height above plane
   targetAlt:    115,      // desired altitude above terrain
-  altSmooth:    0.016,    // altitude correction speed
-  tiltClamp:    28,       // max degrees of tilt used (smaller = more sensitive)
+  altSmooth:    0.010,    // altitude correction speed (used when not pitching)
+  tiltClamp:    45,       // max degrees of gamma tilt used for turning
+  pitchClamp:   30,       // max degrees of beta deviation = full pitch
+  pitchGain:    60,       // altitude change speed at max pitch (units/sec)
+  pitchSmooth:  0.07,     // pitch input smoothing
 };
 
 // Seeded RNG â ensures the world looks the same every load
@@ -521,14 +524,18 @@ scene.add(biplane);
 
 
 // âââ 9. Input ââââââââââââââââââââââââââââââââââââââââââââââââââââ
-let rawGamma   = 0;   // device left/right tilt (degrees). Positive = right
-let touchDir   = 0;   // -1 = left, 0 = neutral, 1 = right
-let smoothTurn = 0;   // final smoothed turn value passed to physics
+let rawGamma    = 0;   // device left/right tilt (degrees). Positive = right
+let rawBeta     = 0;   // device forward/back tilt (degrees)
+let pitchNeutral = 65; // beta at game-start = level flight
+let touchDir    = 0;   // -1 = left, 0 = neutral, 1 = right
+let smoothTurn  = 0;   // final smoothed turn value passed to physics
+let smoothPitch = 0;   // final smoothed pitch value
 let motionReady = false;
 
 // Device orientation (iPhone gyro)
 function onOrientation(evt) {
   rawGamma = evt.gamma ?? 0;
+  rawBeta  = evt.beta  ?? pitchNeutral;
 }
 
 // Touch (mobile fallback / desktop testing)
@@ -581,6 +588,8 @@ document.getElementById('startBtn').addEventListener('click', async () => {
   }
 
   document.getElementById('overlay').style.display = 'none';
+  // Calibrate pitch neutral to wherever phone is held at launch
+  if (rawBeta !== 0) pitchNeutral = rawBeta;
   gameStarted = true;
   clock.start();
 });
@@ -661,12 +670,24 @@ function animate() {
   biplane.position.x += fwdX * CFG.planeSpeed * dt;
   biplane.position.z += fwdZ * CFG.planeSpeed * dt;
 
-  // ââ Altitude: gently correct toward target height above terrain â
+  // ââ Pitch from phone forward/back tilt (beta) âââââââââââââââââ
   bobTime += dt;
-  const gH     = getHeight(biplane.position.x, biplane.position.z);
-  const bobAlt = Math.sin(bobTime * 0.55) * 4.5;  // gentle up/down bob
-  const wantY  = gH + CFG.targetAlt + bobAlt;
-  biplane.position.y += (wantY - biplane.position.y) * CFG.altSmooth;
+  let rawPitchInput = 0;
+  if (motionReady) {
+    // Tilt top toward you = nose up = climb, tilt away = nose down = dive
+    rawPitchInput = Math.max(-1, Math.min(1, (rawBeta - pitchNeutral) / CFG.pitchClamp));
+  }
+  smoothPitch += (rawPitchInput - smoothPitch) * CFG.pitchSmooth;
+  biplane.position.y += smoothPitch * CFG.pitchGain * dt;
+
+  // ââ Altitude floor + gentle return to cruise when level âââââââ
+  const gH = getHeight(biplane.position.x, biplane.position.z);
+  const floorY = gH + 30;
+  if (biplane.position.y < floorY) biplane.position.y += (floorY - biplane.position.y) * 0.12;
+  if (!motionReady || Math.abs(rawPitchInput) < 0.12) {
+    const wantY = gH + CFG.targetAlt;
+    biplane.position.y += (wantY - biplane.position.y) * CFG.altSmooth;
+  }
 
   // ââ World wrap âââââââââââââââââââââââââââââââââââââââââââââââââ
   const half = CFG.worldSize * 0.48;
@@ -682,8 +703,8 @@ function animate() {
   const targetBank = -smoothTurn * CFG.bankMult;
   biplane.rotation.z += (targetBank - biplane.rotation.z) * CFG.bankSmooth;
 
-  // Very slight nose pitch bob
-  biplane.rotation.x = Math.sin(bobTime * 0.55) * 0.032;
+  // Nose pitches with altitude input + subtle idle bob
+  biplane.rotation.x = -smoothPitch * 0.5 + Math.sin(bobTime * 0.55) * 0.018;
 
   // ââ Spin propeller (speed proportional to smoothTurn for drama) â
   biplane.userData.propeller.rotation.z += dt * (20 + Math.abs(smoothTurn) * 2);
