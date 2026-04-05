@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Cat Keys</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;overflow:hidden;background:#1b1035;touch-action:manipulation;user-select:none;font-family:sans-serif}
+canvas{display:block;position:fixed;top:0;left:0}
+#hud{position:fixed;bottom:0;left:0;right:0;padding:12px;display:flex;justify-content:center;align-items:center;gap:10px;z-index:99}
+.btn{background:#e74c3c;color:#fff;border:none;border-radius:99px;padding:13px 22px;font-size:14px;font-weight:700;cursor:pointer}
+.btn:active{opacity:.75}
+#playBtn{background:#27ae60;display:none}
+#stopBtn{background:#555;display:none}
+#clrBtn{background:rgba(255,255,255,.15);display:none}
+.bwrap{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:99px;padding:10px 14px;color:#fff;font-size:13px;display:flex;align-items:center;gap:5px}
+.bwrap input{width:40px;background:none;border:none;color:#fff;font-size:15px;font-weight:700;text-align:center;outline:none}
+#bar{position:fixed;top:0;left:0;height:4px;width:0%;background:linear-gradient(90deg,#a855f7,#06b6d4);z-index:100;display:none}
+#msg{position:fixed;top:14px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.55);color:#fff;padding:7px 18px;border-radius:20px;font-size:13px;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap;z-index:100}
+#msg.on{opacity:1}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="bar"></div>
+<div id="msg"></div>
+<div id="hud">
+  <div class="bwrap">â© <input id="bpmIn" type="number" value="120" min="60" max="200"> BPM</div>
+  <button class="btn" id="recBtn">âº Record</button>
+  <button class="btn" id="playBtn">â¶ Loop</button>
+  <button class="btn" id="stopBtn">â  Stop</button>
+  <button class="btn" id="clrBtn">â Clear</button>
+</div>
+
+<script>
+// ââ setup ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+const cv = document.getElementById('c');
+const g  = cv.getContext('2d');
+let W, H;
+
+function resize(){
+  W = cv.width  = window.innerWidth;
+  H = cv.height = window.innerHeight;
+  makeCats();
+}
+window.addEventListener('resize', resize);
+
+// ââ cat data âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// 5 distinct cats: orange tabby, silver, black, cream, brown
+const CATS_DEF = [
+  { col:'#e8935c', dark:'#b05a28', eye:'#3d9e28', stripe:true  },
+  { col:'#c0c0c0', dark:'#787878', eye:'#c89010', stripe:false },
+  { col:'#282828', dark:'#000',    eye:'#2ecc71', stripe:false },
+  { col:'#f5e8d0', dark:'#c8aa80', eye:'#4488cc', stripe:true  },
+  { col:'#7a4a28', dark:'#3a2010', eye:'#d09820', stripe:true  },
+];
+const NOTES = [261.63, 329.63, 392.00, 523.25, 659.25];
+
+let cats = [];
+
+function makeCats(){
+  // place 5 cats evenly across width, at ~55% height
+  const xs = [.12, .30, .52, .71, .88];
+  const ys = [.53, .63, .50, .60, .55];
+  const sz = [100, 85, 118, 92, 100];
+  cats = CATS_DEF.map((d,i)=>({
+    ...d, freq:NOTES[i],
+    bx: W*xs[i], by: H*ys[i], sz: sz[i],
+    ts: (i%2===0?1:-1),          // tail side
+    sp: .45+Math.random()*.35,   // sway speed (rad/s)
+    sa: sz[i]*(.10+Math.random()*.10), // sway amplitude
+    ph: Math.random()*Math.PI*2, // phase
+    bounce:0, bv:0, lit:false,
+    rx:0, ry:0,                  // rendered pos (for hit-test)
+  }));
+}
+
+// ââ cat drawing ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Helper: draw a filled ellipse without ctx.ellipse()
+function ellipse(cx, cy, rx, ry, fill, stroke, sw){
+  g.save();
+  g.translate(cx, cy);
+  g.scale(rx, ry);
+  g.beginPath();
+  g.arc(0, 0, 1, 0, Math.PI*2);
+  g.restore();
+  if(fill)  { g.fillStyle = fill;   g.fill(); }
+  if(stroke){ g.strokeStyle = stroke; g.lineWidth = sw||1; g.stroke(); }
+}
+
+function drawCat(cat, t){
+  const s = cat.sz;
+  const sw  = Math.sin(t * cat.sp + cat.ph) * cat.sa;
+  const bob = Math.sin(t * cat.sp * 1.7 + cat.ph) * s * .018;
+  const tw  = Math.sin(t * cat.sp * 2.1 + cat.ph) * .5; // tail wag angle
+
+  cat.rx = cat.bx + sw;
+  cat.ry = cat.by + bob + cat.bounce;
+
+  g.save();
+  g.translate(cat.rx, cat.ry);
+
+  const ts = cat.ts; // tail side: +1 or -1
+  const hY = -s*.38; // head centre Y
+  const hR =  s*.27; // head radius
+
+  // â tail (behind everything)
+  g.save();
+  g.strokeStyle = cat.col;
+  g.lineWidth   = s*.09;
+  g.lineCap = 'round';
+  g.lineJoin = 'round';
+  g.beginPath();
+  g.moveTo(ts*s*.30, s*.18);
+  g.bezierCurveTo(
+    ts*s*.90,  s*.38,
+    ts*s*1.05, -s*.05 + Math.sin(tw)*s*.25,
+    ts*s*.68,  -s*.38 + Math.sin(tw)*s*.12
+  );
+  g.stroke();
+  // fluffy tip
+  g.strokeStyle = lighten(cat.col, 35);
+  g.lineWidth   = s*.055;
+  g.beginPath();
+  g.moveTo(ts*s*.68, -s*.38 + Math.sin(tw)*s*.12);
+  g.bezierCurveTo(
+    ts*s*.85, -s*.48 + Math.sin(tw)*s*.15,
+    ts*s*.90, -s*.54 + Math.sin(tw)*s*.12,
+    ts*s*.68, -s*.38 + Math.sin(tw)*s*.12
+  );
+  g.stroke();
+  g.restore();
+
+  // â body
+  ellipse(0, s*.08, s*.37, s*.43, cat.col);
+
+  // body stripes
+  if(cat.stripe){
+    g.save();
+    g.globalAlpha = .20;
+    g.strokeStyle = cat.dark;
+    g.lineWidth   = s*.04;
+    g.lineCap = 'round';
+    for(const ox of [-.20, 0, .20]){
+      g.beginPath();
+      g.moveTo(ox*s, -s*.28);
+      g.lineTo(ox*s,  s*.45);
+      g.stroke();
+    }
+    g.restore();
+  }
+
+  // â head
+  g.fillStyle = cat.col;
+  g.beginPath();
+  g.arc(0, hY, hR, 0, Math.PI*2);
+  g.fill();
+
+  // forehead stripes
+  if(cat.stripe){
+    g.save();
+    g.globalAlpha = .18;
+    g.strokeStyle = cat.dark;
+    g.lineWidth   = s*.030;
+    g.lineCap = 'round';
+    for(const ox of [-.13, 0, .13]){
+      g.beginPath();
+      g.moveTo(ox*hR*2.2, hY - hR*.20);
+      g.lineTo(ox*hR*1.6, hY - hR*.82);
+      g.stroke();
+    }
+    g.restore();
+  }
+
+  // â ears (left & right)
+  for(const side of [-1,1]){
+    const ex = side * hR * .64;
+    const ey = hY - hR * .70;
+    // outer ear
+    g.fillStyle = cat.col;
+    g.beginPath();
+    g.moveTo(ex - side*hR*.36,  ey + hR*.44);
+    g.lineTo(ex + side*hR*.07,  ey - hR*.54);
+    g.lineTo(ex + side*hR*.46,  ey + hR*.30);
+    g.closePath();
+    g.fill();
+    // inner pink
+    g.save();
+    g.globalAlpha = .70;
+    g.fillStyle = '#ffb0c0';
+    g.beginPath();
+    g.moveTo(ex - side*hR*.20,  ey + hR*.28);
+    g.lineTo(ex + side*hR*.04,  ey - hR*.22);
+    g.lineTo(ex + side*hR*.28,  ey + hR*.18);
+    g.closePath();
+    g.fill();
+    g.restore();
+  }
+
+  // â eyes
+  const eyY = hY - hR*.04;
+  for(const side of [-1,1]){
+    const ex = side * hR * .42;
+    const eyH = cat.lit ? hR*.19 : hR*.165; // taller when active
+    // white
+    ellipse(ex, eyY, hR*.175, eyH, '#fff');
+    // iris
+    ellipse(ex, eyY, hR*.108, eyH*.85, cat.eye);
+    // pupil (vertical slit)
+    ellipse(ex, eyY, hR*.042, cat.lit ? hR*.135 : hR*.090, '#111');
+    // glint
+    g.fillStyle = 'rgba(255,255,255,.9)';
+    g.beginPath();
+    g.arc(ex + hR*.038, eyY - hR*.040, hR*.028, 0, Math.PI*2);
+    g.fill();
+  }
+
+  // â nose (small pink triangle)
+  const nY = hY + hR*.22;
+  g.fillStyle = cat.eye === '#2ecc71' ? '#ff8888' : '#ffaaaa'; // contrast for black cat
+  g.fillStyle = '#ff9999';
+  g.beginPath();
+  g.moveTo(0,         nY - hR*.05);
+  g.lineTo(-hR*.10,   nY + hR*.09);
+  g.lineTo( hR*.10,   nY + hR*.09);
+  g.closePath();
+  g.fill();
+
+  // â mouth
+  const mY = hY + hR*.32;
+  g.strokeStyle = 'rgba(130,70,70,.9)';
+  g.lineWidth = s*.018;
+  g.lineCap = 'round';
+  // philtrum
+  g.beginPath();
+  g.moveTo(0, nY + hR*.09);
+  g.lineTo(0, mY);
+  g.stroke();
+  // left + right curves
+  const smileAmt = cat.lit ? hR*.13 : hR*.07;
+  for(const side of [-1,1]){
+    g.beginPath();
+    g.moveTo(0, mY);
+    g.quadraticCurveTo(side*hR*.09, mY+smileAmt, side*hR*.20, mY);
+    g.stroke();
+  }
+
+  // â whiskers (3 per side)
+  const wY = hY + hR*.17;
+  g.strokeStyle = 'rgba(255,255,255,.80)';
+  g.lineWidth = s*.013;
+  g.lineCap = 'round';
+  for(const side of [-1,1]){
+    for(const [ang, len] of [[-0.12,.92],[0.01,.97],[0.16,.86]]){
+      g.save();
+      g.translate(side*hR*.09, wY);
+      g.rotate(ang*side);
+      g.beginPath();
+      g.moveTo(0, 0);
+      g.lineTo(side*hR*len, 0);
+      g.stroke();
+      g.restore();
+    }
+  }
+
+  // â active glow ring
+  if(cat.lit){
+    g.save();
+    g.strokeStyle = 'rgba(255,225,50,.90)';
+    g.lineWidth = 4;
+    g.beginPath();
+    g.arc(0, hY, hR+12, 0, Math.PI*2);
+    g.stroke();
+    g.restore();
+  }
+
+  g.restore(); // main transform
+}
+
+function lighten(hex, a){
+  const n=parseInt(hex.slice(1),16);
+  const r=Math.min(255,(n>>16)+a);
+  const gr=Math.min(255,((n>>8)&0xff)+a);
+  const b=Math.min(255,(n&0xff)+a);
+  return `rgb(${r},${gr},${b})`;
+}
+
+// ââ hit test âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+function hit(cat, px, py){
+  const s=cat.sz, hR=s*.27;
+  const dx=px-cat.rx, dy=py-cat.ry;
+  // head
+  if(dx*dx+(dy+s*.38)*(dy+s*.38) < (hR*1.3)*(hR*1.3)) return true;
+  // body
+  const bx=dx/(s*.37), by=(dy-s*.08)/(s*.43);
+  if(bx*bx+by*by < 1.25) return true;
+  return false;
+}
+
+// ââ stars ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+let stars=[];
+function buildStars(){
+  stars=[];
+  for(let i=0;i<100;i++)
+    stars.push({x:Math.random(),y:Math.random(),r:.3+Math.random()*1.2,a:Math.random()});
+}
+
+function drawBG(t){
+  g.fillStyle='#1b1035';
+  g.fillRect(0,0,W,H);
+  stars.forEach(s=>{
+    const a=.25+s.a*.6+Math.sin(t*.7+s.a*10)*.12;
+    g.globalAlpha=a;
+    g.fillStyle='#fff';
+    g.beginPath();
+    g.arc(s.x*W, s.y*H, s.r, 0, Math.PI*2);
+    g.fill();
+  });
+  g.globalAlpha=1;
+  g.fillStyle='rgba(255,255,255,.22)';
+  g.font=`bold ${Math.min(W*.05,26)}px sans-serif`;
+  g.textAlign='left';
+  g.fillText('ð± CAT KEYS', 16, 38);
+}
+
+// ââ audio ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+let AC=null;
+function getAC(){
+  if(!AC) AC=new (window.AudioContext||window.webkitAudioContext)();
+  if(AC.state==='suspended') AC.resume();
+  return AC;
+}
+
+function meow(freq, when){
+  const a=getAC();
+  const now=when||a.currentTime;
+  const gn=a.createGain(), f=a.createBiquadFilter();
+  f.type='bandpass';
+  f.frequency.setValueAtTime(freq*2.3,now);
+  f.frequency.exponentialRampToValueAtTime(freq*.88,now+.20);
+  f.Q.value=4;
+  gn.gain.setValueAtTime(0,now);
+  gn.gain.linearRampToValueAtTime(.38,now+.016);
+  gn.gain.setValueAtTime(.38,now+.055);
+  gn.gain.exponentialRampToValueAtTime(.001,now+.50);
+  [['triangle',0,1],['sine',7,.40],['sawtooth',-4,.13]].forEach(([tp,dt,gv])=>{
+    const o=a.createOscillator(), og=a.createGain();
+    o.type=tp; o.detune.value=dt;
+    o.frequency.setValueAtTime(freq*1.52,now);
+    o.frequency.exponentialRampToValueAtTime(freq*.78,now+.22);
+    o.frequency.exponentialRampToValueAtTime(freq*.64,now+.48);
+    og.gain.value=gv;
+    o.connect(og); og.connect(f);
+    o.start(now); o.stop(now+.55);
+  });
+  f.connect(gn); gn.connect(a.destination);
+}
+
+// ââ record / loop ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+let bpm=120, loopMs=0, recStart=0, notes=[], isRec=false, isLoop=false;
+let loopTO=null, cycleT=null, recTimer=null;
+
+function startRec(){
+  bpm=Math.max(60,Math.min(200,parseInt(document.getElementById('bpmIn').value)||120));
+  loopMs=(60000/bpm)*8;
+  notes=[]; isRec=true; recStart=performance.now();
+  document.getElementById('recBtn').textContent='â¹ Stop';
+  toast('âº Recording '+((loopMs/1000).toFixed(1))+'sâ¦');
+  click(bpm,loopMs);
+  recTimer=setTimeout(stopRec,loopMs);
+}
+function stopRec(){
+  if(!isRec)return;
+  clearTimeout(recTimer); isRec=false;
+  document.getElementById('recBtn').textContent='âº Record';
+  if(notes.length){
+    notes=quantize(notes,loopMs,bpm);
+    document.getElementById('playBtn').style.display='block';
+    document.getElementById('clrBtn').style.display='block';
+    toast('â '+notes.length+' notes â hit Loop!');
+  } else { toast('Nothing recorded'); }
+}
+function quantize(ns,lm,b){
+  const g16=(60000/b)/4;
+  return ns.map(n=>({ci:n.ci,t:(Math.round(n.t/g16)*g16)%lm})).sort((a,b)=>a.t-b.t);
+}
+function startLoop(){
+  if(isLoop||!notes.length)return;
+  isLoop=true;
+  document.getElementById('playBtn').style.display='none';
+  document.getElementById('stopBtn').style.display='block';
+  document.getElementById('bar').style.display='block';
+  runCycle(null);
+}
+function runCycle(nextT){
+  if(!isLoop)return;
+  const a=getAC(), ls=loopMs/1000;
+  const t0=nextT!==null?nextT:a.currentTime+.09;
+  cycleT=t0;
+  notes.forEach(n=>{
+    const at=t0+n.t/1000;
+    meow(cats[n.ci].freq,at);
+    const ms=Math.max(0,(at-a.currentTime)*1000);
+    setTimeout(()=>flash(n.ci),ms);
+  });
+  const nxt=t0+ls;
+  const wait=(nxt-a.currentTime)*1000-65;
+  loopTO=setTimeout(()=>runCycle(nxt),Math.max(30,wait));
+}
+function flash(ci){
+  if(!cats[ci])return;
+  cats[ci].lit=true; cats[ci].bv=-14;
+  setTimeout(()=>{ if(cats[ci]) cats[ci].lit=false; },370);
+}
+function stopLoop(){
+  isLoop=false; clearTimeout(loopTO); loopTO=null; cycleT=null;
+  document.getElementById('stopBtn').style.display='none';
+  document.getElementById('playBtn').style.display='block';
+  document.getElementById('bar').style.display='none';
+  document.getElementById('bar').style.width='0%';
+}
+function clearAll(){
+  stopLoop(); notes=[];
+  document.getElementById('playBtn').style.display='none';
+  document.getElementById('clrBtn').style.display='none';
+  toast('Cleared');
+}
+function click(bpm,dms){
+  const a=getAC(), beat=60/bpm;
+  const n=Math.floor(dms/1000/beat), now=a.currentTime+.04;
+  for(let i=0;i<n;i++){
+    const t=now+i*beat, o=a.createOscillator(), gn=a.createGain();
+    o.frequency.value=i%4===0?1400:880;
+    gn.gain.setValueAtTime(.06,t); gn.gain.exponentialRampToValueAtTime(.001,t+.04);
+    o.connect(gn); gn.connect(a.destination); o.start(t); o.stop(t+.045);
+  }
+}
+
+// ââ loop bar âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+function updateBar(){
+  if(!isLoop||!cycleT||!AC)return;
+  const p=Math.min(100,Math.max(0,(AC.currentTime-cycleT)/(loopMs/1000)*100));
+  document.getElementById('bar').style.width=p+'%';
+}
+
+// ââ toast ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+let toastTO;
+function toast(m){
+  const el=document.getElementById('msg');
+  el.textContent=m; el.classList.add('on');
+  clearTimeout(toastTO);
+  toastTO=setTimeout(()=>el.classList.remove('on'),2600);
+}
+
+// ââ input ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+function onDown(e){
+  e.preventDefault();
+  const list=e.changedTouches||[e];
+  const r=cv.getBoundingClientRect();
+  const sx=cv.width/r.width, sy=cv.height/r.height;
+  for(const t of list){
+    const px=(t.clientX-r.left)*sx, py=(t.clientY-r.top)*sy;
+    for(let i=0;i<cats.length;i++){
+      if(hit(cats[i],px,py)){
+        meow(cats[i].freq);
+        cats[i].lit=true; cats[i].bv=-14;
+        setTimeout(()=>{ if(cats[i]) cats[i].lit=false; },370);
+        if(isRec) notes.push({ci:i,t:performance.now()-recStart});
+        break;
+      }
+    }
+  }
+}
+cv.addEventListener('mousedown', onDown);
+cv.addEventListener('touchstart', onDown, {passive:false});
+
+document.getElementById('recBtn').addEventListener('click', ()=>isRec?stopRec():startRec());
+document.getElementById('playBtn').addEventListener('click', startLoop);
+document.getElementById('stopBtn').addEventListener('click', stopLoop);
+document.getElementById('clrBtn').addEventListener('click', clearAll);
+
+// ââ animation loop âââââââââââââââââââââââââââââââââââââââââââââââââââââ
+function draw(ts){
+  requestAnimationFrame(draw);
+  const t=ts/1000;
+  g.clearRect(0,0,W,H);
+  drawBG(t);
+  cats.forEach(cat=>{
+    if(cat.bv!==0||cat.bounce!==0){
+      cat.bv+=2.2; cat.bounce+=cat.bv;
+      if(cat.bounce>=0){cat.bounce=0;cat.bv=0;}
+    }
+    drawCat(cat, t);
+  });
+  updateBar();
+}
+
+// ââ init âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+resize();
+buildStars();
+requestAnimationFrame(draw);
+</script>
+</body>
+</html>
