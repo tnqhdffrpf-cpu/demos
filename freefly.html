@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Free Flight</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { overflow: hidden; touch-action: none; background: #5ba3d9; }
+  canvas { display: block; }
+
+  /* ââ Start Overlay âââââââââââââââââââââââââââââââ */
+  #overlay {
+    position: fixed; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    background: linear-gradient(170deg, #0d1b2e 0%, #1a3a5c 60%, #2e6090 100%);
+    color: #fff;
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif;
+    z-index: 20; text-align: center; padding: 2.5rem 2rem;
+    user-select: none; -webkit-user-select: none;
+  }
+  #overlay .plane-icon { font-size: 5rem; margin-bottom: 0.6rem; animation: float 3s ease-in-out infinite; }
+  @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
+  #overlay h1 {
+    font-size: 2.8rem; font-weight: 700; letter-spacing: 5px;
+    background: linear-gradient(135deg, #fff 30%, #88ccff);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    margin-bottom: 0.4rem;
+  }
+  #overlay .tagline { color: #7ab; font-size: 1rem; letter-spacing: 2px; margin-bottom: 2rem; }
+  .instructions {
+    background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 16px; padding: 1.2rem 1.6rem;
+    font-size: 0.88rem; line-height: 2.1; color: #c8dff0;
+    margin-bottom: 2rem; max-width: 340px;
+  }
+  .instructions strong { color: #fff; }
+  #startBtn {
+    padding: 1.1rem 3.5rem; font-size: 1.15rem; font-weight: 600;
+    background: linear-gradient(135deg, #4a9eff, #2266cc);
+    color: #fff; border: none; border-radius: 50px; cursor: pointer;
+    box-shadow: 0 6px 28px rgba(74,158,255,0.45);
+    letter-spacing: 1px; -webkit-tap-highlight-color: transparent;
+    transition: transform 0.1s, box-shadow 0.1s;
+  }
+  #startBtn:active { transform: scale(0.96); box-shadow: 0 2px 12px rgba(74,158,255,0.3); }
+
+  /* ââ HUD âââââââââââââââââââââââââââââââââââââââââ */
+  #hud {
+    position: fixed; bottom: 28px; left: 0; right: 0;
+    text-align: center; pointer-events: none; z-index: 5;
+    font-family: -apple-system, sans-serif;
+  }
+  #region-label {
+    display: inline-block;
+    background: rgba(0,0,0,0.28); border-radius: 20px;
+    padding: 0.35rem 1.1rem; font-size: 0.7rem;
+    color: rgba(255,255,255,0.55); letter-spacing: 2px; text-transform: uppercase;
+  }
+  #steer-hint {
+    position: fixed; top: 20px; left: 0; right: 0; text-align: center;
+    pointer-events: none; z-index: 5;
+    color: rgba(255,255,255,0.35);
+    font-family: -apple-system, sans-serif; font-size: 0.65rem; letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  /* ââ Touch zones (desktop visual guide) âââââââ */
+  #touch-left, #touch-right {
+    position: fixed; top: 0; bottom: 0; width: 50%;
+    pointer-events: none; z-index: 3; opacity: 0; transition: opacity 0.15s;
+  }
+  #touch-left  { left: 0;  background: linear-gradient(to right, rgba(80,160,255,0.12), transparent); }
+  #touch-right { right: 0; background: linear-gradient(to left,  rgba(80,160,255,0.12), transparent); }
+  #touch-left.active, #touch-right.active { opacity: 1; }
+</style>
+</head>
+<body>
+
+<!-- Start screen -->
+<div id="overlay">
+  <div class="plane-icon">â</div>
+  <h1>FREE FLIGHT</h1>
+  <div class="tagline">RELAXING BIPLANE EXPERIENCE</div>
+  <div class="instructions">
+    <strong>iPhone:</strong> Tilt phone left / right to steer<br>
+    <strong>Desktop:</strong> Hold left or right side of screen<br>
+    <span style="color:#7ab;font-size:0.8rem;">Fly over forests, mountains, and a city.<br>No goals. Just fly.</span>
+  </div>
+  <button id="startBtn">â&nbsp; TAP TO FLY</button>
+</div>
+
+<!-- In-flight UI -->
+<div id="steer-hint">tilt to steer</div>
+<div id="hud"><span id="region-label">Flying over the world</span></div>
+<div id="touch-left"></div>
+<div id="touch-right"></div>
+
+<!-- Three.js r128 from CDN -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+<script>
+'use strict';
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+//  FREE FLIGHT  â  Relaxing Biplane
+//  Architecture:
+//    1. Config & helpers
+//    2. Renderer / scene / camera
+//    3. Lighting & atmosphere
+//    4. Terrain (height function + mesh + vertex colors)
+//    5. Forest  (instanced trees, forest region)
+//    6. City    (instanced buildings, city region)
+//    7. Clouds  (instanced)
+//    8. Biplane model (procedural geometry)
+//    9. Input   (DeviceOrientation + touch + mouse)
+//   10. Game loop (physics, camera, HUD)
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+
+
+// âââ 1. Config âââââââââââââââââââââââââââââââââââââââââââââââââââ
+const CFG = {
+  worldSize:    3600,     // full extent of terrain (units)
+  planeSpeed:   70,       // forward speed (units/sec)
+  turnGain:     4.2,      // tilt â turn rate amplification
+  inputSmooth:  0.10,     // input smoothing (higher = snappier)
+  bankMult:     1.05,     // visual bank exaggeration factor
+  bankSmooth:   0.13,     // bank visual smoothing speed
+  cameraSmooth: 0.068,    // camera position lerp
+  lookSmooth:   0.10,     // camera look-at lerp
+  camDist:      26,       // distance behind plane
+  camHeight:    9,        // height above plane
+  targetAlt:    115,      // desired altitude above terrain
+  altSmooth:    0.016,    // altitude correction speed
+  tiltClamp:    28,       // max degrees of tilt used (smaller = more sensitive)
+};
+
+// Seeded RNG â ensures the world looks the same every load
+function rng(seed) {
+  let s = seed >>> 0;
+  return () => {
+    s = Math.imul(s ^ (s >>> 15), s | 1);
+    s ^= s + Math.imul(s ^ (s >>> 7), s | 61);
+    return ((s ^ (s >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+
+// âââ 2. Renderer / Scene / Camera ââââââââââââââââââââââââââââââââ
+const renderer = new THREE.WebGLRenderer({
+  antialias:        false,             // off for mobile perf
+  powerPreference:  'high-performance',
+});
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.shadowMap.enabled = false;
+document.body.appendChild(renderer.domElement);
+
+const scene  = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(
+  62, window.innerWidth / window.innerHeight, 1, 4500
+);
+
+// Skybox color & fog
+scene.background = new THREE.Color(0x7ec8f0);
+scene.fog         = new THREE.FogExp2(0x99d4f0, 0.00042);
+
+
+// âââ 3. Lighting & Atmosphere ââââââââââââââââââââââââââââââââââââ
+// Warm ambient
+scene.add(new THREE.AmbientLight(0xffe8cc, 0.60));
+
+// Main sun
+const sun = new THREE.DirectionalLight(0xfff5e0, 1.15);
+sun.position.set(400, 600, 150);
+scene.add(sun);
+
+// Soft sky fill from above
+const skyFill = new THREE.DirectionalLight(0xaad4ff, 0.25);
+skyFill.position.set(-100, 200, -300);
+scene.add(skyFill);
+
+// Sun disc in sky
+const sunDisc = new THREE.Mesh(
+  new THREE.SphereGeometry(22, 10, 8),
+  new THREE.MeshBasicMaterial({ color: 0xfff9cc })
+);
+sunDisc.position.set(700, 600, -900);
+scene.add(sunDisc);
+
+// Horizon haze plane (large translucent quad near horizon)
+const hazeMesh = new THREE.Mesh(
+  new THREE.PlaneGeometry(8000, 400),
+  new THREE.MeshBasicMaterial({
+    color: 0xb8e0ff, transparent: true, opacity: 0.18, depthWrite: false
+  })
+);
+hazeMesh.rotation.x = -Math.PI / 2;
+hazeMesh.position.set(0, 20, 0);
+scene.add(hazeMesh);
+
+
+// âââ 4. Terrain ââââââââââââââââââââââââââââââââââââââââââââââââââ
+/**
+ * Deterministic terrain height function.
+ * Forest region:  x < 0       (hilly, green)
+ * Valley:         0 < x < 350 (gently rolling)
+ * City:           x > 350     (mostly flat)
+ */
+function getHeight(x, z) {
+  let h = 0;
+  h += Math.sin(x * 0.0030) * Math.cos(z * 0.0028) * 24;
+  h += Math.sin(x * 0.0068 + 1.3) * Math.sin(z * 0.0055 + 0.8) * 14;
+  h += Math.sin(x * 0.0150 + 0.4) * 7;
+  h += Math.cos(z * 0.0120 + 0.6) * 5;
+  // Mountains on the far-left
+  const mtn = Math.max(0, -x - 600);
+  h += Math.sin(x * 0.004) * Math.cos(z * 0.004) * mtn * 0.12;
+  // Flatten for city (right side)
+  if (x > 180) h *= Math.max(0, 1 - (x - 180) / 500);
+  return h;
+}
+
+// Build terrain geometry
+const T_SEGS  = 110;
+const terrGeo = new THREE.PlaneGeometry(CFG.worldSize, CFG.worldSize, T_SEGS, T_SEGS);
+terrGeo.rotateX(-Math.PI / 2);
+
+const vPos    = terrGeo.attributes.position;
+const vColor  = new Float32Array(vPos.count * 3);
+
+for (let i = 0; i < vPos.count; i++) {
+  const x = vPos.getX(i), z = vPos.getZ(i);
+  const h = getHeight(x, z);
+  vPos.setY(i, h);
+
+  // Terrain color: blend from forest green â grey city
+  const cityT = Math.max(0, Math.min(1, (x - 80) / 500));  // 0 = forest, 1 = city
+  const snowT  = Math.max(0, (h - 55) / 40);               // snow at peaks
+
+  // Forest green
+  let r = 0.18 + h * 0.004 + cityT * 0.35;
+  let g = 0.50 + h * 0.004 - cityT * 0.10;
+  let b = 0.12 + cityT * 0.35;
+
+  // Snow cap blend
+  r = r + snowT * (0.92 - r);
+  g = g + snowT * (0.95 - g);
+  b = b + snowT * (0.98 - b);
+
+  vColor[i * 3    ] = Math.max(0, Math.min(1, r));
+  vColor[i * 3 + 1] = Math.max(0, Math.min(1, g));
+  vColor[i * 3 + 2] = Math.max(0, Math.min(1, b));
+}
+vPos.needsUpdate = true;
+terrGeo.setAttribute('color', new THREE.BufferAttribute(vColor, 3));
+terrGeo.computeVertexNormals();
+
+scene.add(new THREE.Mesh(
+  terrGeo,
+  new THREE.MeshLambertMaterial({ vertexColors: true })
+));
+
+
+// âââ 5. Forest (Instanced Trees) âââââââââââââââââââââââââââââââââ
+(function buildForest() {
+  const N   = 1100;
+  const r   = rng(42001);
+
+  // Foliage: cone, 6-sided for low poly look
+  const foliageMat = new THREE.MeshLambertMaterial({ color: 0x2d7045 });
+  const trunkMat   = new THREE.MeshLambertMaterial({ color: 0x5c3210 });
+  const foliage2   = new THREE.MeshLambertMaterial({ color: 0x3a8a50 }); // lighter variant
+
+  const foliageInst  = new THREE.InstancedMesh(new THREE.ConeGeometry(5.5, 15, 6),  foliageMat, N);
+  const foliage2Inst = new THREE.InstancedMesh(new THREE.ConeGeometry(4.2, 11, 6),  foliage2,   N);
+  const trunkInst    = new THREE.InstancedMesh(new THREE.CylinderGeometry(0.85, 1.3, 9, 5), trunkMat, N);
+
+  foliageInst.instanceMatrix.setUsage(THREE.StaticDrawUsage);
+  foliage2Inst.instanceMatrix.setUsage(THREE.StaticDrawUsage);
+  trunkInst.instanceMatrix.setUsage(THREE.StaticDrawUsage);
+
+  const dummy = new THREE.Object3D();
+
+  for (let i = 0; i < N; i++) {
+    // Forest region: x â [-1700, 100], z spread across world
+    const x  = -1700 + r() * 1850;
+    const z  = (r() - 0.5) * CFG.worldSize * 0.92;
+    const sc = 0.55 + r() * 1.05;
+    const gH = getHeight(x, z);
+    const ry = r() * Math.PI * 2;
+
+    // Trunk
+    dummy.position.set(x, gH + 4.5 * sc, z);
+    dummy.scale.setScalar(sc);
+    dummy.rotation.y = ry;
+    dummy.updateMatrix();
+    trunkInst.setMatrixAt(i, dummy.matrix);
+
+    // Main foliage cone
+    dummy.position.set(x, gH + 15 * sc, z);
+    dummy.updateMatrix();
+    foliageInst.setMatrixAt(i, dummy.matrix);
+
+    // Smaller upper cone for layered look
+    dummy.position.set(x, gH + 22 * sc, z);
+    dummy.scale.setScalar(sc * 0.62);
+    dummy.updateMatrix();
+    foliage2Inst.setMatrixAt(i, dummy.matrix);
+  }
+
+  foliageInst.instanceMatrix.needsUpdate  = true;
+  foliage2Inst.instanceMatrix.needsUpdate = true;
+  trunkInst.instanceMatrix.needsUpdate    = true;
+
+  scene.add(foliageInst, foliage2Inst, trunkInst);
+})();
+
+
+// âââ 6. City (Instanced Buildings + Roads) âââââââââââââââââââââââ
+(function buildCity() {
+  const N = 340;
+  const r = rng(77002);
+
+  // Buildings â single instanced mesh with grey material
+  const buildMat  = new THREE.MeshLambertMaterial({ color: 0x7a8899 });
+  const buildInst = new THREE.InstancedMesh(new THREE.BoxGeometry(1, 1, 1), buildMat, N);
+  buildInst.instanceMatrix.setUsage(THREE.StaticDrawUsage);
+
+  const dummy = new THREE.Object3D();
+  let   idx   = 0;
+
+  // City occupies x: 380â1480, z: -600â540 (roughly 1100Ã1140 block grid)
+  for (let gx = 0; gx < 17 && idx < N; gx++) {
+    for (let gz = 0; gz < 20 && idx < N; gz++) {
+      const x      = 380  + gx * 64 + (r() - 0.5) * 16;
+      const z      = -600 + gz * 57 + (r() - 0.5) * 16;
+      const w      = 16   + r() * 26;
+      const d      = 16   + r() * 26;
+      // Taller buildings toward center of city
+      const distC  = Math.hypot(gx - 8, gz - 10) / 14;
+      const height = 12 + Math.pow(r(), 1.2) * (80 - distC * 50);
+      const gH     = getHeight(x, z);
+
+      dummy.position.set(x, gH + height * 0.5, z);
+      dummy.scale.set(w, height, d);
+      dummy.rotation.y = (r() - 0.5) * 0.35;
+      dummy.updateMatrix();
+      buildInst.setMatrixAt(idx++, dummy.matrix);
+    }
+  }
+  buildInst.count = idx;
+  buildInst.instanceMatrix.needsUpdate = true;
+  scene.add(buildInst);
+
+  // Road grid (flat boxes on city terrain)
+  const roadMat = new THREE.MeshLambertMaterial({ color: 0x2e2e3a });
+  const cityOriginZ = -600, cityWidth = 1140;
+  // Horizontal roads (along X axis)
+  for (let i = 0; i <= 6; i++) {
+    const z   = cityOriginZ + (i / 6) * cityWidth;
+    const gH  = getHeight(930, z);
+    const rd  = new THREE.Mesh(new THREE.BoxGeometry(1200, 0.6, 8), roadMat);
+    rd.position.set(930, gH + 0.4, z);
+    scene.add(rd);
+  }
+  // Vertical roads (along Z axis)
+  for (let i = 0; i <= 6; i++) {
+    const x  = 380 + i * 180;
+    const gH = getHeight(x, -30);
+    const rd = new THREE.Mesh(new THREE.BoxGeometry(8, 0.6, 1200), roadMat);
+    rd.position.set(x, gH + 0.4, -30);
+    scene.add(rd);
+  }
+})();
+
+
+// âââ 7. Clouds (Instanced) âââââââââââââââââââââââââââââââââââââââ
+(function buildClouds() {
+  const N   = 55;
+  const r   = rng(55500);
+
+  const cloudMat  = new THREE.MeshLambertMaterial({
+    color: 0xf8fbff, transparent: true, opacity: 0.88, depthWrite: false
+  });
+  const cloudInst = new THREE.InstancedMesh(
+    new THREE.SphereGeometry(1, 6, 4), cloudMat, N
+  );
+  cloudInst.instanceMatrix.setUsage(THREE.StaticDrawUsage);
+
+  const dummy = new THREE.Object3D();
+  for (let i = 0; i < N; i++) {
+    dummy.position.set(
+      (r() - 0.5) * CFG.worldSize * 0.82,
+      175 + r() * 130,
+      (r() - 0.5) * CFG.worldSize * 0.82
+    );
+    dummy.scale.set(55 + r() * 75, 18 + r() * 16, 40 + r() * 50);
+    dummy.rotation.y = r() * Math.PI;
+    dummy.updateMatrix();
+    cloudInst.setMatrixAt(i, dummy.matrix);
+  }
+  cloudInst.instanceMatrix.needsUpdate = true;
+  scene.add(cloudInst);
+})();
+
+
+// âââ 8. Biplane Model ââââââââââââââââââââââââââââââââââââââââââââ
+function buildBiplane() {
+  const root = new THREE.Group();
+
+  // Materials
+  const M = {
+    body:   new THREE.MeshLambertMaterial({ color: 0xf0a818 }), // golden yellow
+    wing:   new THREE.MeshLambertMaterial({ color: 0xd08810 }), // darker wing
+    red:    new THREE.MeshLambertMaterial({ color: 0xcc2230 }), // accent red
+    glass:  new THREE.MeshLambertMaterial({ color: 0x99ccff, transparent: true, opacity: 0.65 }),
+    metal:  new THREE.MeshLambertMaterial({ color: 0x909090 }),
+    dark:   new THREE.MeshLambertMaterial({ color: 0x222222 }),
+    white:  new THREE.MeshLambertMaterial({ color: 0xfafafa }),
+  };
+
+  // Helper: add mesh to root
+  function part(geo, mat, px=0,py=0,pz=0, rx=0,ry=0,rz=0, sx=1,sy=1,sz=1) {
+    const m = new THREE.Mesh(geo, mat);
+    m.position.set(px, py, pz);
+    m.rotation.set(rx, ry, rz);
+    m.scale.set(sx, sy, sz);
+    root.add(m);
+    return m;
+  }
+
+  // â Fuselage (main body)
+  part(new THREE.BoxGeometry(2.0, 1.7, 8.5), M.body);
+  // â Nose taper
+  part(new THREE.CylinderGeometry(0.38, 0.95, 2.4, 8), M.body, 0, 0, -5.2, Math.PI/2);
+  // â Tail fairing (taper at rear)
+  part(new THREE.BoxGeometry(1.2, 1.05, 2.8), M.body, 0, -0.15, 3.8);
+
+  // â Upper wing
+  part(new THREE.BoxGeometry(16, 0.28, 2.5), M.wing, 0, 1.9, -0.5);
+  // â Lower wing
+  part(new THREE.BoxGeometry(13.5, 0.22, 2.1), M.wing, 0, -0.2, -0.5);
+
+  // â Red accent stripes on upper wing
+  part(new THREE.BoxGeometry(2.4, 0.32, 2.5), M.red, -3.8, 1.91, -0.5);
+  part(new THREE.BoxGeometry(2.4, 0.32, 2.5), M.red,  3.8, 1.91, -0.5);
+  // â White tip stripes
+  part(new THREE.BoxGeometry(1.2, 0.30, 2.5), M.white, -7.2, 1.91, -0.5);
+  part(new THREE.BoxGeometry(1.2, 0.30, 2.5), M.white,  7.2, 1.91, -0.5);
+
+  // â Wing struts (4 interplane struts)
+  const strutGeo = new THREE.BoxGeometry(0.24, 2.1, 0.24);
+  for (const sx of [-3.0, 3.0]) {
+    for (const sz of [0.3, 1.8]) {
+      part(strutGeo, M.metal, sx, 0.85, sz);
+    }
+  }
+
+  // â Horizontal stabilizer
+  part(new THREE.BoxGeometry(7.2, 0.22, 1.7), M.wing, 0, 0.22, 3.5);
+  // â Vertical fin
+  part(new THREE.BoxGeometry(0.22, 2.2, 1.8), M.wing, 0, 1.2, 3.4);
+  // â Rudder hint
+  part(new THREE.BoxGeometry(0.18, 1.6, 0.8), M.red, 0, 1.0, 4.2);
+
+  // â Cockpit opening
+  part(new THREE.BoxGeometry(1.35, 1.0, 1.7), M.glass, 0, 1.2, 0.15);
+
+  // â Pilot silhouette (simple)
+  part(new THREE.SphereGeometry(0.45, 6, 5), M.dark, 0, 1.95, 0.3);
+  part(new THREE.BoxGeometry(0.7, 0.6, 0.5), M.dark, 0, 1.55, 0.3);
+
+  // â Engine cowling ring
+  part(new THREE.TorusGeometry(0.88, 0.18, 8, 12), M.metal, 0, 0, -4.25, Math.PI/2);
+
+  // â Propeller assembly (spins)
+  const propGroup = new THREE.Group();
+  propGroup.position.z = -6.0;
+  // Hub
+  const hub = new THREE.Mesh(new THREE.CylinderGeometry(0.32, 0.32, 0.7, 8), M.metal);
+  hub.rotation.x = Math.PI / 2;
+  propGroup.add(hub);
+  // Two blades
+  const bladeGeo = new THREE.BoxGeometry(0.32, 4.2, 0.14);
+  const b1 = new THREE.Mesh(bladeGeo, M.dark);
+  const b2 = b1.clone(); b2.rotation.z = Math.PI / 2;
+  // Blade tips
+  const tipGeo = new THREE.BoxGeometry(0.5, 0.9, 0.14);
+  const t1 = new THREE.Mesh(tipGeo, M.red); t1.position.y = 2.2;
+  const t2 = t1.clone(); t2.position.y = -2.2;
+  const t3 = new THREE.Mesh(tipGeo, M.red); t3.position.x = 2.2;
+  const t4 = t3.clone(); t4.position.x = -2.2;
+  b1.add(t1, t2); b2.add(t3, t4);
+  propGroup.add(b1, b2);
+  root.add(propGroup);
+  root.userData.propeller = propGroup;
+
+  // â Landing gear
+  const wheelGeo = new THREE.TorusGeometry(0.58, 0.21, 6, 10);
+  for (const wx of [-1.7, 1.7]) {
+    // Axle strut
+    part(new THREE.BoxGeometry(0.18, 1.5, 0.18), M.metal, wx, -1.55, -1.9);
+    // Cross brace
+    part(new THREE.BoxGeometry(3.4, 0.18, 0.18), M.metal, 0, -2.3, -1.9);
+    // Wheel
+    const wheel = new THREE.Mesh(wheelGeo, M.dark);
+    wheel.position.set(wx, -2.4, -1.9);
+    wheel.rotation.y = Math.PI / 2;
+    root.add(wheel);
+  }
+
+  return root;
+}
+
+const biplane = buildBiplane();
+biplane.position.set(-500, 125, -300);
+scene.add(biplane);
+
+
+// âââ 9. Input ââââââââââââââââââââââââââââââââââââââââââââââââââââ
+let rawGamma   = 0;   // device left/right tilt (degrees). Positive = right
+let touchDir   = 0;   // -1 = left, 0 = neutral, 1 = right
+let smoothTurn = 0;   // final smoothed turn value passed to physics
+let motionReady = false;
+
+// Device orientation (iPhone gyro)
+function onOrientation(evt) {
+  rawGamma = evt.gamma ?? 0;
+}
+
+// Touch (mobile fallback / desktop testing)
+const cvs = renderer.domElement;
+function getTouchDir(clientX) { return clientX < window.innerWidth * 0.5 ? -1 : 1; }
+
+const leftEl  = document.getElementById('touch-left');
+const rightEl = document.getElementById('touch-right');
+function showTouchFeedback(dir) {
+  leftEl.classList.toggle('active',  dir === -1);
+  rightEl.classList.toggle('active', dir ===  1);
+}
+
+cvs.addEventListener('touchstart', e => {
+  touchDir = getTouchDir(e.touches[0].clientX);
+  showTouchFeedback(touchDir);
+}, { passive: true });
+cvs.addEventListener('touchmove', e => {
+  touchDir = getTouchDir(e.touches[0].clientX);
+  showTouchFeedback(touchDir);
+}, { passive: true });
+cvs.addEventListener('touchend', () => {
+  touchDir = 0; showTouchFeedback(0);
+}, { passive: true });
+cvs.addEventListener('mousedown', e => {
+  touchDir = getTouchDir(e.clientX); showTouchFeedback(touchDir);
+});
+cvs.addEventListener('mouseup',    () => { touchDir = 0; showTouchFeedback(0); });
+cvs.addEventListener('mouseleave', () => { touchDir = 0; showTouchFeedback(0); });
+
+
+// âââ Start button ââââââââââââââââââââââââââââââââââââââââââââââââ
+document.getElementById('startBtn').addEventListener('click', async () => {
+  // iOS 13+ requires explicit permission for DeviceOrientationEvent
+  if (typeof DeviceOrientationEvent !== 'undefined' &&
+      typeof DeviceOrientationEvent.requestPermission === 'function') {
+    try {
+      const perm = await DeviceOrientationEvent.requestPermission();
+      if (perm === 'granted') {
+        window.addEventListener('deviceorientation', onOrientation, true);
+        motionReady = true;
+      }
+    } catch (err) {
+      // Permission denied or not available â fall back to touch
+    }
+  } else {
+    // Android / desktop: orientation events don't need permission
+    window.addEventListener('deviceorientation', onOrientation, true);
+    motionReady = true;
+  }
+
+  document.getElementById('overlay').style.display = 'none';
+  gameStarted = true;
+  clock.start();
+});
+
+
+// âââ 10. Game Loop âââââââââââââââââââââââââââââââââââââââââââââââ
+let gameStarted = false;
+let yaw         = Math.PI * 0.5;  // initial heading (facing roughly west)
+let bobTime     = 0;
+const clock     = new THREE.Clock(false);
+
+// Camera state vectors â lerped each frame
+const camPos    = new THREE.Vector3();
+const camLook   = new THREE.Vector3();
+
+// Initialize camera behind the plane
+{
+  const initCamX = biplane.position.x + Math.sin(yaw) * CFG.camDist;
+  const initCamZ = biplane.position.z + Math.cos(yaw) * CFG.camDist;
+  camPos.set(initCamX, biplane.position.y + CFG.camHeight, initCamZ);
+  camLook.copy(biplane.position);
+  camera.position.copy(camPos);
+  camera.lookAt(camLook);
+}
+
+// Region label for HUD
+const regionEl = document.getElementById('region-label');
+function updateRegion(x) {
+  if      (x > 350)  regionEl.textContent = 'Flying over the city';
+  else if (x < -200) regionEl.textContent = 'Flying over the forest';
+  else if (x < -900) regionEl.textContent = 'Flying over the mountains';
+  else               regionEl.textContent = 'Flying over the valley';
+}
+
+// Main animation loop
+function animate() {
+  requestAnimationFrame(animate);
+
+  if (!gameStarted) {
+    // Idle: slowly orbit camera around the plane for the title screen
+    const t   = Date.now() * 0.00025;
+    const orb = 32;
+    camera.position.set(
+      biplane.position.x + Math.sin(t) * orb,
+      biplane.position.y + 14,
+      biplane.position.z + Math.cos(t) * orb
+    );
+    camera.lookAt(biplane.position);
+    biplane.userData.propeller.rotation.z += 0.04;
+    renderer.render(scene, camera);
+    return;
+  }
+
+  const dt = Math.min(clock.getDelta(), 0.05);
+
+  // ââ Compute steering input ââââââââââââââââââââââââââââââââââââââ
+  // Prefer gyro if tilt is meaningful; otherwise use touch/mouse
+  let rawInput = 0;
+  if (motionReady && Math.abs(rawGamma) > 1.5) {
+    // Clamp physical tilt to Â±CFG.tiltClamp degrees â map to Â±1
+    rawInput = Math.max(-1, Math.min(1, rawGamma / CFG.tiltClamp));
+  } else {
+    rawInput = touchDir;
+  }
+
+  // Apply gain and smooth
+  const targetTurn = rawInput * CFG.turnGain;
+  smoothTurn += (targetTurn - smoothTurn) * CFG.inputSmooth;
+
+  // ââ Heading ââââââââââââââââââââââââââââââââââââââââââââââââââââ
+  yaw -= smoothTurn * dt;
+
+  // ââ Forward vector (plane moves in -Z local = -sin(yaw), -cos(yaw)) ââ
+  const fwdX = -Math.sin(yaw);
+  const fwdZ = -Math.cos(yaw);
+
+  // ââ Translate plane âââââââââââââââââââââââââââââââââââââââââââ
+  biplane.position.x += fwdX * CFG.planeSpeed * dt;
+  biplane.position.z += fwdZ * CFG.planeSpeed * dt;
+
+  // ââ Altitude: gently correct toward target height above terrain â
+  bobTime += dt;
+  const gH     = getHeight(biplane.position.x, biplane.position.z);
+  const bobAlt = Math.sin(bobTime * 0.55) * 4.5;  // gentle up/down bob
+  const wantY  = gH + CFG.targetAlt + bobAlt;
+  biplane.position.y += (wantY - biplane.position.y) * CFG.altSmooth;
+
+  // ââ World wrap âââââââââââââââââââââââââââââââââââââââââââââââââ
+  const half = CFG.worldSize * 0.48;
+  if (biplane.position.x >  half) biplane.position.x -= CFG.worldSize * 0.96;
+  if (biplane.position.x < -half) biplane.position.x += CFG.worldSize * 0.96;
+  if (biplane.position.z >  half) biplane.position.z -= CFG.worldSize * 0.96;
+  if (biplane.position.z < -half) biplane.position.z += CFG.worldSize * 0.96;
+
+  // ââ Apply plane rotation âââââââââââââââââââââââââââââââââââââââ
+  biplane.rotation.y = yaw;
+
+  // Visual bank: lean into turn (exaggerated for satisfying feel)
+  const targetBank = -smoothTurn * CFG.bankMult;
+  biplane.rotation.z += (targetBank - biplane.rotation.z) * CFG.bankSmooth;
+
+  // Very slight nose pitch bob
+  biplane.rotation.x = Math.sin(bobTime * 0.55) * 0.032;
+
+  // ââ Spin propeller (speed proportional to smoothTurn for drama) â
+  biplane.userData.propeller.rotation.z += dt * (20 + Math.abs(smoothTurn) * 2);
+
+  // ââ Chase camera âââââââââââââââââââââââââââââââââââââââââââââââ
+  // Camera sits behind (opposite of forward direction) + height offset
+  const targetCamX = biplane.position.x - fwdX * (-CFG.camDist); // = + fwdX * dist (behind)
+  const targetCamZ = biplane.position.z - fwdZ * (-CFG.camDist);
+  // Slight lateral lag: camera trails the turn a bit
+  const targetCam = new THREE.Vector3(
+    biplane.position.x + Math.sin(yaw) * CFG.camDist,
+    biplane.position.y + CFG.camHeight,
+    biplane.position.z + Math.cos(yaw) * CFG.camDist
+  );
+  camPos.lerp(targetCam, CFG.cameraSmooth);
+  camera.position.copy(camPos);
+
+  // Look slightly ahead of the plane for a cinematic angle
+  const lookAhead = 18;
+  const targetLook = new THREE.Vector3(
+    biplane.position.x + fwdX * lookAhead,
+    biplane.position.y - 1,
+    biplane.position.z + fwdZ * lookAhead
+  );
+  camLook.lerp(targetLook, CFG.lookSmooth);
+  camera.lookAt(camLook);
+
+  // ââ HUD update âââââââââââââââââââââââââââââââââââââââââââââââââ
+  updateRegion(biplane.position.x);
+
+  renderer.render(scene, camera);
+}
+
+// ââ Window resize âââââââââââââââââââââââââââââââââââââââââââââââ
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+// Kick off the loop
+animate();
+</script>
+</body>
+</html>
