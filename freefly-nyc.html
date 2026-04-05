@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-fullscreen">
+<title>NYC Central Park Free Flight</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body { width:100%; height:100%; overflow:hidden; background:#1a1a2e; }
+canvas { display:block; }
+#overlay {
+  position:fixed; inset:0; display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  background:rgba(0,0,0,0.72); color:#fff; text-align:center;
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  z-index:10; padding:20px;
+}
+#overlay h1 { font-size:clamp(1.4rem,5vw,2.2rem); margin-bottom:10px; font-weight:700; }
+#overlay p  { font-size:clamp(0.85rem,3vw,1.05rem); opacity:0.82; margin-bottom:22px; max-width:340px; line-height:1.5; }
+#startBtn {
+  padding:14px 36px; font-size:1.1rem; border:none; border-radius:50px;
+  background:linear-gradient(135deg,#4a9eff,#0066cc); color:#fff;
+  cursor:pointer; font-weight:600; letter-spacing:0.03em;
+  box-shadow:0 4px 20px rgba(74,158,255,0.4);
+}
+#startBtn:active { transform:scale(0.96); }
+#hud {
+  position:fixed; top:16px; left:50%; transform:translateX(-50%);
+  color:rgba(255,255,255,0.88); font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  font-size:clamp(0.75rem,2.5vw,0.9rem); pointer-events:none; text-align:center;
+  text-shadow:0 1px 4px rgba(0,0,0,0.7); z-index:5; white-space:nowrap;
+}
+#region-label {
+  position:fixed; bottom:28px; left:50%; transform:translateX(-50%);
+  color:rgba(255,255,255,0.75); font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  font-size:clamp(0.7rem,2.2vw,0.85rem); pointer-events:none;
+  text-shadow:0 1px 3px rgba(0,0,0,0.8); z-index:5; white-space:nowrap;
+  background:rgba(0,0,0,0.3); padding:4px 12px; border-radius:20px;
+}
+#touch-left, #touch-right {
+  position:fixed; top:0; bottom:0; width:50%; opacity:0; z-index:4;
+  transition:opacity 0.1s;
+}
+#touch-left  { left:0;  background:radial-gradient(ellipse at 20% 50%,rgba(100,180,255,0.15),transparent 70%); }
+#touch-right { right:0; background:radial-gradient(ellipse at 80% 50%,rgba(100,180,255,0.15),transparent 70%); }
+#touch-left.active, #touch-right.active { opacity:1; }
+</style>
+</head>
+<body>
+<div id="overlay">
+  <h1>NYC Central Park Free Flight</h1>
+  <p>Fly your biplane over Manhattan. Tilt to turn &amp; pitch â tap left/right to steer with touch.</p>
+  <button id="startBtn">Start Flying</button>
+</div>
+<div id="hud"><span id="region-label">Flying over Central Park</span></div>
+<div id="touch-left"></div>
+<div id="touch-right"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+'use strict';
+
+const CFG = {
+  worldSize: 6000, planeSpeed: 110, turnGain: 2.0, inputSmooth: 0.06,
+  bankMult: 1.05, bankSmooth: 0.13, cameraSmooth: 0.068, lookSmooth: 0.10,
+  camDist: 26, camHeight: 9, targetAlt: 180, altSmooth: 0.010,
+  tiltClamp: 45, pitchClamp: 30, pitchGain: 60, pitchSmooth: 0.07,
+};
+
+function rng(seed) {
+  return function() {
+    seed |= 0; seed = seed + 0x6D2B79F5 | 0;
+    let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+
+// ââ Scene ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.shadowMap.enabled = false;
+document.body.appendChild(renderer.domElement);
+
+const camera = new THREE.PerspectiveCamera(62, window.innerWidth / window.innerHeight, 1, 14000);
+const scene  = new THREE.Scene();
+scene.background = new THREE.Color(0x87ceeb);
+scene.fog = new THREE.Fog(0x87ceeb, 2000, 5800);
+
+const ambLight = new THREE.AmbientLight(0xffffff, 0.55);
+scene.add(ambLight);
+const sunLight = new THREE.DirectionalLight(0xfff5e0, 1.1);
+sunLight.position.set(800, 1200, 400);
+scene.add(sunLight);
+
+// ââ Terrain ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+const PARK_W1 = -400, PARK_W2 = 400, PARK_S = -2000, PARK_N = 2000;
+function getHeight(x, z) { return 0; }
+
+(function buildTerrain() {
+  const urbanMat = new THREE.MeshLambertMaterial({ color: 0x8a9090 });
+  const urban = new THREE.Mesh(new THREE.PlaneGeometry(CFG.worldSize, CFG.worldSize), urbanMat);
+  urban.rotation.x = -Math.PI / 2;
+  urban.position.y = -0.1;
+  scene.add(urban);
+
+  const parkMat = new THREE.MeshLambertMaterial({ color: 0x4a8c3f });
+  const park = new THREE.Mesh(new THREE.PlaneGeometry(800, 4000), parkMat);
+  park.rotation.x = -Math.PI / 2;
+  park.position.set(0, 0, 0);
+  scene.add(park);
+
+  const meadowMat = new THREE.MeshLambertMaterial({ color: 0x5a9e4a });
+  [[0, -800, 350, 600], [-100, 500, 200, 400], [120, -200, 180, 300]].forEach(([px, pz, pw, pd]) => {
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(pw, pd), meadowMat);
+    m.rotation.x = -Math.PI / 2;
+    m.position.set(px, 0.1, pz);
+    scene.add(m);
+  });
+})();
+
+// ââ Trees ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+(function buildTrees() {
+  const N = 1400;
+  const r = rng(42000);
+  const foliageMat  = new THREE.MeshLambertMaterial({ color: 0x2d7a1f });
+  const foliage2    = new THREE.MeshLambertMaterial({ color: 0x1f6a12 });
+  const trunkMat    = new THREE.MeshLambertMaterial({ color: 0x6a4a2a });
+  const foliageInst = new THREE.InstancedMesh(new THREE.ConeGeometry(4.5, 12, 6), foliageMat, N);
+  const foliage2Inst = new THREE.InstancedMesh(new THREE.ConeGeometry(3.2, 9, 6), foliage2, N);
+  const trunkInst    = new THREE.InstancedMesh(new THREE.CylinderGeometry(0.7, 1.1, 7, 5), trunkMat, N);
+  foliageInst.instanceMatrix.setUsage(THREE.StaticDrawUsage);
+  foliage2Inst.instanceMatrix.setUsage(THREE.StaticDrawUsage);
+  trunkInst.instanceMatrix.setUsage(THREE.StaticDrawUsage);
+  const dummy = new THREE.Object3D();
+  for (let i = 0; i < N; i++) {
+    let x, z, tries = 0;
+    do {
+      x = PARK_W1 + r() * (PARK_W2 - PARK_W1);
+      z = PARK_S  + r() * (PARK_N  - PARK_S);
+      tries++;
+    } while (tries < 8 && x > -190 && x < 190 && z > 440 && z < 890);
+    const sc = 0.5 + r() * 0.9;
+    const gH = getHeight(x, z);
+    dummy.position.set(x, gH + 3.5 * sc, z);
+    dummy.scale.setScalar(sc);
+    dummy.rotation.y = r() * Math.PI * 2;
+    dummy.updateMatrix();
+    trunkInst.setMatrixAt(i, dummy.matrix);
+    dummy.position.set(x, gH + 11 * sc, z);
+    dummy.updateMatrix();
+    foliageInst.setMatrixAt(i, dummy.matrix);
+    dummy.position.set(x, gH + 17 * sc, z);
+    dummy.scale.setScalar(sc * 0.62);
+    dummy.updateMatrix();
+    foliage2Inst.setMatrixAt(i, dummy.matrix);
+  }
+  foliageInst.instanceMatrix.needsUpdate  = true;
+  foliage2Inst.instanceMatrix.needsUpdate = true;
+  trunkInst.instanceMatrix.needsUpdate    = true;
+  scene.add(foliageInst, foliage2Inst, trunkInst);
+})();
+
+// ââ Buildings âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// [x, z, width, depth, height, colorHex]
+// Origin = center of Central Park. x=East(+)/West(-), z=South(+)/North(-)
+// 1 unit = 1 meter
+const BUILDINGS = [
+  // Central Park West
+  [-460,-370,62,58,37,0x8a7a6a],[-465,-180,68,60,80,0x9a8a78],
+  [-462,-290,36,36,99,0x9a8875],[-462,-248,36,36,99,0x9a8875],
+  [-470,310,40,40,106,0x9b8c7a],[-470,355,40,40,106,0x9b8c7a],
+  [-468,-395,90,45,101,0x8e8078],[-490,-1620,90,55,120,0x8a7e72],
+  [-500,-1760,48,48,213,0xb0a898],[-520,-1900,42,42,178,0xc8b8a0],
+  // Central Park South / 59th St
+  [510,-2050,82,68,77,0xd4c8a8],[80,-2090,110,48,70,0x9a9090],
+  [-240,-2080,42,38,128,0x8c8484],[-310,-2080,38,34,86,0x8a8080],
+  [-165,-2080,36,34,90,0x909090],
+  // 5th Avenue / Museum Mile
+  [540,70,130,55,28,0xc8b890],[465,180,28,28,46,0xb0a080],
+  [462,305,30,30,62,0xb0a888],[458,-625,28,28,65,0xa89880],
+  [458,-580,30,30,68,0xa89880],[460,-70,30,30,55,0xb0a080],
+  // Midtown / Billionaires' Row
+  [920,-1900,28,28,426,0xe8e0d8],[320,-2080,24,24,428,0xe0d8d0],
+  [160,-2080,42,42,306,0xd0c8c0],[50,-2080,38,38,290,0xd8d0c8],
+  [480,-2100,45,45,209,0xa0a8b0],[340,-2090,40,40,162,0x909898],
+  // Columbus Circle / Time Warner
+  [-460,-1960,52,52,229,0xa8b0b8],[-408,-1960,52,52,229,0xa8b0b8],
+  // Upper West Side fill
+  [-540,-800,40,38,55,0x908878],[-540,-700,38,38,58,0x908878],
+  [-540,-600,40,40,52,0x908878],[-540,-500,38,38,60,0x908878],
+  [-540,-100,40,40,54,0x908878],[-540,100,38,38,56,0x908878],
+  [-540,500,40,38,50,0x908878],[-540,700,38,38,55,0x908878],
+  [-540,900,40,40,52,0x908878],[-540,1100,38,38,50,0x908878],
+  [-540,1300,40,38,48,0x908878],
+  // Upper East Side fill
+  [540,-800,38,38,58,0x909888],[540,-600,40,40,55,0x909888],
+  [540,-400,38,38,60,0x909888],[540,-200,40,40,54,0x909888],
+  [540,0,38,38,56,0x909888],[540,200,40,38,52,0x909888],
+  [540,400,38,38,58,0x909888],[540,600,40,40,55,0x909888],
+  [540,800,38,38,50,0x909888],[540,1000,40,40,52,0x909888],
+  [540,1200,38,38,48,0x909888],[540,1400,40,38,50,0x909888],
+  // Harlem
+  [-300,2200,45,38,38,0x989080],[-150,2200,40,38,40,0x989080],
+  [0,2200,45,40,36,0x989080],[150,2200,40,38,38,0x989080],
+  [300,2200,45,40,42,0x989080],[-300,2400,42,38,35,0x989080],
+  [0,2400,45,40,38,0x989080],[300,2400,40,38,36,0x989080],
+  // Midtown south / east
+  [700,-2200,45,40,190,0x9098a0],[800,-2200,42,42,220,0x9098a0],
+  [900,-2200,45,42,175,0x9098a0],[1000,-2200,42,40,200,0x9098a0],
+  [1100,-2200,45,42,185,0x9098a0],[650,-2350,42,42,160,0x9098a0],
+  [750,-2350,45,40,180,0x9098a0],[850,-2350,42,42,195,0x9098a0],
+  [950,-2350,45,40,170,0x9098a0],[1050,-2350,42,42,165,0x9098a0],
+  [600,-2500,45,40,150,0x9098a0],[700,-2500,42,42,175,0x9098a0],
+  [800,-2500,45,40,200,0x9098a0],[900,-2500,42,42,165,0x9098a0],
+  [1000,-2500,45,40,185,0x9098a0],
+  // Midtown west / 6th Ave
+  [-100,-2200,42,40,155,0x9098a0],[-200,-2200,45,42,170,0x9098a0],
+  [-350,-2200,42,40,145,0x9098a0],[-100,-2350,45,42,160,0x9098a0],
+  [-200,-2350,42,40,175,0x9098a0],[-350,-2350,45,42,140,0x9098a0],
+  [-100,-2500,42,40,165,0x9098a0],[-200,-2500,45,42,180,0x9098a0],
+  [-350,-2500,42,40,155,0x9098a0],
+];
+
+(function buildNYC() {
+  const geo = new THREE.BoxGeometry(1, 1, 1);
+  BUILDINGS.forEach(([x, z, w, d, h, col]) => {
+    const mat  = new THREE.MeshLambertMaterial({ color: col });
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.position.set(x, h * 0.5, z);
+    mesh.scale.set(w, h, d);
+    scene.add(mesh);
+    const capH = Math.max(2, h * 0.05);
+    const cap  = new THREE.Mesh(
+      new THREE.BoxGeometry(w * 0.92, capH, d * 0.92),
+      new THREE.MeshLambertMaterial({ color: Math.max(0, col - 0x181818) })
+    );
+    cap.position.set(x, h + capH * 0.5, z);
+    scene.add(cap);
+  });
+
+  // Dense background fill buildings
+  const bgMat  = new THREE.MeshLambertMaterial({ color: 0x8890a0 });
+  const bgInst = new THREE.InstancedMesh(geo, bgMat, 600);
+  bgInst.instanceMatrix.setUsage(THREE.StaticDrawUsage);
+  const dummy = new THREE.Object3D();
+  const rand  = rng(12345);
+  let idx = 0;
+  for (let row = -24; row <= 24 && idx < 200; row++) {
+    for (let col = 0; col < 3 && idx < 200; col++) {
+      const x = -650 - col * 80 - rand() * 20;
+      const z = row * 160 + rand() * 40;
+      if (Math.abs(z) > 2600) continue;
+      const w = 30 + rand() * 25, d = 28 + rand() * 22;
+      const h = 20 + Math.pow(rand(), 1.5) * 80;
+      dummy.position.set(x, h * 0.5, z);
+      dummy.scale.set(w, h, d);
+      dummy.rotation.y = (rand() - 0.5) * 0.2;
+      dummy.updateMatrix();
+      bgInst.setMatrixAt(idx++, dummy.matrix);
+    }
+  }
+  for (let row = -24; row <= 24 && idx < 400; row++) {
+    for (let col = 0; col < 3 && idx < 400; col++) {
+      const x = 650 + col * 90 + rand() * 20;
+      const z = row * 160 + rand() * 40;
+      if (Math.abs(z) > 2600) continue;
+      const w = 30 + rand() * 25, d = 28 + rand() * 22;
+      const h = 20 + Math.pow(rand(), 1.5) * 90;
+      dummy.position.set(x, h * 0.5, z);
+      dummy.scale.set(w, h, d);
+      dummy.rotation.y = (rand() - 0.5) * 0.2;
+      dummy.updateMatrix();
+      bgInst.setMatrixAt(idx++, dummy.matrix);
+    }
+  }
+  bgInst.count = idx;
+  bgInst.instanceMatrix.needsUpdate = true;
+  scene.add(bgInst);
+})();
+
+// ââ Streets ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+(function buildStreets() {
+  const roadMat = new THREE.MeshLambertMaterial({ color: 0x2a2a32 });
+  const avenues = [-780, -700, -540, -400, 400, 580, 750, 920];
+  avenues.forEach(ax => {
+    const rd = new THREE.Mesh(new THREE.BoxGeometry(10, 0.4, 5800), roadMat);
+    rd.position.set(ax, 0.3, 0);
+    scene.add(rd);
+  });
+  const crossZ = [
+    -2000,-1920,-1840,-1680,-1520,-1360,-1200,-1040,
+    -880,-720,-560,-400,-240,-80,80,240,400,560,720,880,1040,1200,1360,1520,1680,1840,2000
+  ];
+  crossZ.forEach(sz => {
+    const rd = new THREE.Mesh(new THREE.BoxGeometry(3600, 0.4, 8), roadMat);
+    rd.position.set(0, 0.3, sz);
+    scene.add(rd);
+  });
+  const parkRoadMat = new THREE.MeshLambertMaterial({ color: 0xd4c8a0 });
+  const wDrive = new THREE.Mesh(new THREE.BoxGeometry(6, 0.5, 4020), parkRoadMat);
+  wDrive.position.set(-370, 0.4, 0);
+  scene.add(wDrive);
+  const eDrive = new THREE.Mesh(new THREE.BoxGeometry(6, 0.5, 4020), parkRoadMat);
+  eDrive.position.set(370, 0.4, 0);
+  scene.add(eDrive);
+  [-360, -80, 240, 880].forEach(tz => {
+    const tr = new THREE.Mesh(new THREE.BoxGeometry(820, 0.5, 8), parkRoadMat);
+    tr.position.set(0, 0.4, tz);
+    scene.add(tr);
+  });
+  const resMat = new THREE.MeshLambertMaterial({ color: 0x4488bb, transparent: true, opacity: 0.85 });
+  const reservoir = new THREE.Mesh(new THREE.PlaneGeometry(370, 440), resMat);
+  reservoir.rotation.x = -Math.PI / 2;
+  reservoir.position.set(0, 0.6, 665);
+  scene.add(reservoir);
+})();
+
+// ââ Clouds âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+(function buildClouds() {
+  const N = 50;
+  const r = rng(55500);
+  const cloudMat  = new THREE.MeshLambertMaterial({ color: 0xf8fbff, transparent: true, opacity: 0.88, depthWrite: false });
+  const cloudInst = new THREE.InstancedMesh(new THREE.SphereGeometry(1, 6, 4), cloudMat, N);
+  cloudInst.instanceMatrix.setUsage(THREE.StaticDrawUsage);
+  const dummy = new THREE.Object3D();
+  for (let i = 0; i < N; i++) {
+    dummy.position.set((r()-0.5)*CFG.worldSize*0.9, 220+r()*180, (r()-0.5)*CFG.worldSize*0.9);
+    dummy.scale.set(80+r()*120, 25+r()*20, 55+r()*65);
+    dummy.rotation.y = r() * Math.PI;
+    dummy.updateMatrix();
+    cloudInst.setMatrixAt(i, dummy.matrix);
+  }
+  cloudInst.instanceMatrix.needsUpdate = true;
+  scene.add(cloudInst);
+})();
+
+// ââ Biplane ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+function buildBiplane() {
+  const root = new THREE.Group();
+  const M = {
+    body:  new THREE.MeshLambertMaterial({ color: 0xf0a818 }),
+    wing:  new THREE.MeshLambertMaterial({ color: 0xd08810 }),
+    red:   new THREE.MeshLambertMaterial({ color: 0xcc2230 }),
+    glass: new THREE.MeshLambertMaterial({ color: 0x99ccff, transparent: true, opacity: 0.65 }),
+    metal: new THREE.MeshLambertMaterial({ color: 0x909090 }),
+    dark:  new THREE.MeshLambertMaterial({ color: 0x222222 }),
+    white: new THREE.MeshLambertMaterial({ color: 0xfafafa }),
+  };
+  function part(geo, mat, px=0,py=0,pz=0,rx=0,ry=0,rz=0,sx=1,sy=1,sz=1) {
+    const m = new THREE.Mesh(geo, mat);
+    m.position.set(px, py, pz);
+    m.rotation.set(rx, ry, rz);
+    m.scale.set(sx, sy, sz);
+    root.add(m);
+    return m;
+  }
+  part(new THREE.BoxGeometry(2.0,1.7,8.5), M.body);
+  part(new THREE.CylinderGeometry(0.38,0.95,2.4,8), M.body, 0,0,-5.2, Math.PI/2);
+  part(new THREE.BoxGeometry(1.2,1.05,2.8), M.body, 0,-0.15,3.8);
+  part(new THREE.BoxGeometry(16,0.28,2.5), M.wing, 0,1.9,-0.5);
+  part(new THREE.BoxGeometry(13.5,0.22,2.1), M.wing, 0,-0.2,-0.5);
+  part(new THREE.BoxGeometry(2.4,0.32,2.5), M.red, -3.8,1.91,-0.5);
+  part(new THREE.BoxGeometry(2.4,0.32,2.5), M.red,  3.8,1.91,-0.5);
+  part(new THREE.BoxGeometry(1.2,0.30,2.5), M.white, -7.2,1.91,-0.5);
+  part(new THREE.BoxGeometry(1.2,0.30,2.5), M.white,  7.2,1.91,-0.5);
+  const strutGeo = new THREE.BoxGeometry(0.24,2.1,0.24);
+  for (const sx of [-3.0, 3.0]) for (const sz of [0.3, 1.8]) part(strutGeo, M.metal, sx,0.85,sz);
+  part(new THREE.BoxGeometry(7.2,0.22,1.7), M.wing, 0,0.22,3.5);
+  part(new THREE.BoxGeometry(0.22,2.2,1.8), M.wing, 0,1.2,3.4);
+  part(new THREE.BoxGeometry(0.18,1.6,0.8), M.red, 0,1.0,4.2);
+  part(new THREE.BoxGeometry(1.35,1.0,1.7), M.glass, 0,1.2,0.15);
+  part(new THREE.SphereGeometry(0.45,6,5), M.dark, 0,1.95,0.3);
+  part(new THREE.BoxGeometry(0.7,0.6,0.5), M.dark, 0,1.55,0.3);
+  part(new THREE.TorusGeometry(0.88,0.18,8,12), M.metal, 0,  0,-4.25, Math.PI/2);
+  const propGroup = new THREE.Group();
+  propGroup.position.z = -6.0;
+  const hub = new THREE.Mesh(new THREE.CylinderGeometry(0.32,0.32,0.7,8), M.metal);
+  hub.rotation.x = Math.PI / 2;
+  propGroup.add(hub);
+  const bladeGeo = new THREE.BoxGeometry(0.32,4.2,0.14);
+  const b1 = new THREE.Mesh(bladeGeo, M.dark);
+  const b2 = b1.clone(); b2.rotation.z = Math.PI / 2;
+  const tipGeo = new THREE.BoxGeometry(0.5,0.9,0.14);
+  const t1 = new THREE.Mesh(tipGeo, M.red); t1.position.y = 2.2;
+  const t2 = t1.clone(); t2.position.y = -2.2;
+  const t3 = new THREE.Mesh(tipGeo, M.red); t3.position.x = 2.2;
+  const t4 = t3.clone(); t4.position.x = -2.2;
+  b1.add(t1, t2); b2.add(t3, t4);
+  propGroup.add(b1, b2);
+  root.add(propGroup);
+  root.userData.propeller = propGroup;
+  const wheelGeo = new THREE.TorusGeometry(0.58,0.21,6,10);
+  for (const wx of [-1.7, 1.7]) {
+    part(new THREE.BoxGeometry(0.18,1.5,0.18), M.metal, wx,-1.55,-1.9);
+    part(new THREE.BoxGeometry(3.4,0.18,0.18), M.metal, 0,-2.3,-1.9);
+    const wheel = new THREE.Mesh(wheelGeo, M.dark);
+    wheel.position.set(wx, -2.4, -1.9);
+    wheel.rotation.y = Math.PI / 2;
+    root.add(wheel);
+  }
+  return root;
+}
+
+const biplane = buildBiplane();
+biplane.position.set(0, 300, -500);
+scene.add(biplane);
+
+// ââ Input ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+let rawGamma    = 0, rawBeta = 0, pitchNeutral = 65;
+let touchDir    = 0, smoothTurn = 0, smoothPitch = 0, motionReady = false;
+
+function onOrientation(evt) {
+  rawGamma = evt.gamma ?? 0;
+  rawBeta  = evt.beta  ?? pitchNeutral;
+}
+
+const cvs = renderer.domElement;
+function getTouchDir(cx) { return cx < window.innerWidth * 0.5 ? -1 : 1; }
+const leftEl  = document.getElementById('touch-left');
+const rightEl = document.getElementById('touch-right');
+function showTF(dir) {
+  leftEl.classList.toggle('active',  dir === -1);
+  rightEl.classList.toggle('active', dir ===  1);
+}
+cvs.addEventListener('touchstart', e => { touchDir = getTouchDir(e.touches[0].clientX); showTF(touchDir); }, { passive: true });
+cvs.addEventListener('touchmove',  e => { touchDir = getTouchDir(e.touches[0].clientX); showTF(touchDir); }, { passive: true });
+cvs.addEventListener('touchend',   () => { touchDir = 0; showTF(0); }, { passive: true });
+cvs.addEventListener('mousedown',  e => { touchDir == getTouchDir(e.clientX); showTF(touchDir); });
+cvs.addEventListener('mouseup',    () => { touchDir = 0; showTF(0); });
+cvs.addEventListener('mouseleave', () => { touchDir = 0; showTF(0); });
+
+document.getElementById('startBtn').addEventListener('click', async () => {
+  if (typeof DeviceOrientationEvent !== 'undefined' &&
+      typeof DeviceOrientationEvent.requestPermission === 'function') {
+    try {
+      const perm = await DeviceOrientationEvent.requestPermission();
+      if (perm === 'granted') { window.addEventListener('deviceorientation', onOrientation, true); motionReady = true; }
+    } catch(err) {}
+  } else {
+    window.addEventListener('deviceorientation', onOrientation, true);
+    motionReady = true;
+  }
+  document.getElementById('overlay').style.display = 'none';
+  if (rawBeta !== 0) pitchNeutral = rawBeta;
+  gameStarted = true;
+  clock.start();
+});
+
+// ââ Region HUD âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+const regionEl = document.getElementById('region-label');
+function updateRegion(x, z) {
+  const inPark = x > PARK_W1 && x < PARK_W2 && z > PARK_S && z < PARK_N;
+  if (inPark) {
+    if (z > 440 && z < 890 && x > -190 && x < 190) regionEl.textContent = 'Flying over the Reservoir';
+    else if (z < -1000) regionEl.textContent = 'Central Park South';
+    else if (z > 1000)  regionEl.textContent = 'Central Park North';
+    else                regionEl.textContent = 'Flying over Central Park';
+  } else if (x < PARK_W1) {
+    if (z < -1800)      regionEl.textContent = 'Columbus Circle';
+    else if (z < -800)  regionEl.textContent = 'Upper West Side';
+    else                regionEl.textContent = 'Upper West Side \u00b7 Harlem';
+  } else if (x > PARK_W2) {
+    if (z < -1800)      regionEl.textContent = 'Midtown East \u00b7 5th Ave';
+    else if (z < -800)  regionEl.textContent = 'Upper East Side';
+    else                regionEl.textContent = 'Upper East Side \u00b7 East Harlem';
+  } else if (z < PARK_S) {
+    regionEl.textContent = 'Midtown Manhattan';
+  } else {
+    regionEl.textContent = 'Harlem';
+  }
+}
+
+// ââ Game Loop ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+let gameStarted = false;
+let yaw = Math.PI;
+let bobTime = 0;
+const clock   = new THREE.Clock(false);
+const camPos  = new THREE.Vector3();
+const camLook = new THREE.Vector3();
+
+{
+  const initCamX = biplane.position.x + Math.sin(yaw) * CFG.camDist;
+  const initCamZ = biplane.position.z + Math.cos(yaw) * CFG.camDist;
+  camPos.set(initCamX, biplane.position.y + CFG.camHeight, initCamZ);
+  camLook.copy(biplane.position);
+  camera.position.copy(camPos);
+  camera.lookAt(camLook);
+}
+
+function animate() {
+  requestAnimationFrame(animate);
+  if (!gameStarted) {
+    const t = Date.now() * 0.00018;
+    camera.position.set(
+      biplane.position.x + Math.sin(t) * 40,
+      biplane.position.y + 18,
+      biplane.position.z + Math.cos(t) * 40
+    );
+    camera.lookAt(biplane.position);
+    biplane.userData.propeller.rotation.z += 0.04;
+    renderer.render(scene, camera);
+    return;
+  }
+
+  const dt = Math.min(clock.getDelta(), 0.05);
+
+  let rawInput = 0;
+  if (motionReady && Math.abs(rawGamma) > 1.5) {
+    rawInput = Math.max(-1, Math.min(1, rawGamma / CFG.tiltClamp));
+  } else {
+    rawInput = touchDir;
+  }
+  const targetTurn = rawInput * CFG.turnGain;
+  smoothTurn += (targetTurn - smoothTurn) * CFG.inputSmooth;
+  yaw -= smoothTurn * dt;
+
+  const fwdX = -Math.sin(yaw);
+  const fwdZ = -Math.cos(yaw);
+  biplane.position.x += fwdX * CFG.planeSpeed * dt;
+  biplane.position.z += fwdZ * CFG.planeSpeed * dt;
+
+  bobTime += dt;
+  let rawPitchInput = 0;
+  if (motionReady) {
+    rawPitchInput = Math.max(-1, Math.min(1, (rawBeta - pitchNeutral) / CFG.pitchClamp));
+  }
+  smoothPitch += (rawPitchInput - smoothPitch) * CFG.pitchSmooth;
+  biplane.position.y += smoothPitch * CFG.pitchGain * dt;
+
+  const gH = getHeight(biplane.position.x, biplane.position.z);
+  const floorY = gH + 40;
+  if (biplane.position.y < floorY) biplane.position.y += (floorY - biplane.position.y) * 0.12;
+  if (!motionReady || Math.abs(rawPitchInput) < 0.12) {
+    const wantY = gH + CFG.targetAlt;
+    biplane.position.y += (wantY - biplane.position.y) * CFG.altSmooth;
+  }
+
+  const half = CFG.worldSize * 0.48;
+  if (biplane.position.x >  half) biplane.position.x -= CFG.worldSize * 0.96;
+  if (biplane.position.x < -half) biplane.position.x += CFG.worldSize * 0.96;
+  if (biplane.position.z >  half) biplane.position.z -= CFG.worldSize * 0.96;
+  if (biplane.position.z < -half) biplane.position.z += CFG.worldSize * 0.96;
+
+  biplane.rotation.y = yaw;
+  const targetBank = -smoothTurn * CFG.bankMult;
+  biplane.rotation.z += (targetBank - biplane.rotation.z) * CFG.bankSmooth;
+  biplane.rotation.x  = -smoothPitch * 0.5 + Math.sin(bobTime * 0.55) * 0.018;
+  biplane.userData.propeller.rotation.z += dt * (20 + Math.abs(smoothTurn) * 2);
+
+  const targetCam = new THREE.Vector3(
+    biplane.position.x + Math.sin(yaw) * CFG.camDist,
+    biplane.position.y + CFG.camHeight,
+    biplane.position.z + Math.cos(yaw) * CFG.camDist
+  );
+  camPos.lerp(targetCam, CFG.cameraSmooth);
+  camera.position.copy(camPos);
+
+  const targetLook = new THREE.Vector3(
+    biplane.position.x + fwdX * 18,
+    biplane.position.y - 1,
+    biplane.position.z + fwdZ * 18
+  );
+  camLook.lerp(targetLook, CFG.lookSmooth);
+  camera.lookAt(camLook);
+
+  updateRegion(biplane.position.x, biplane.position.z);
+  renderer.render(scene, camera);
+}
+
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+animate();
+</script>
+</body>
+</html>
