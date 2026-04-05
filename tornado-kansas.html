@@ -196,13 +196,13 @@
 
             tornadoSpeed: 90,
             maxPickupMass: [1, 5, 12, 50, 100, 999],  // per EF
-            pickupRadiusMultiplier: 3,
+            pickupRadiusMultiplier: 7,
 
-            vortexKInward: 50,
-            vortexKRotational: 80,
+            vortexKInward: 220,
+            vortexKRotational: 220,
 
-            orbitDuration: [3, 4, 5],
-            orbitRadiusRange: [1.5, 3],
+            orbitDuration: [8, 10, 12],
+            orbitRadiusRange: [3, 5],
 
             debrisMaxCount: 50,
 
@@ -577,6 +577,7 @@
                     opacity: 0.4,
                 });
                 const funnel = new THREE.Mesh(funnelGeom, funnelMat);
+                funnel.rotation.x = Math.PI;  // flip: tip points down to ground
                 funnel.position.y = tornado.height * 0.4;
                 tornadoVisualGroup.add(funnel);
 
@@ -584,7 +585,8 @@
                 const bandMat = new THREE.MeshLambertMaterial({ color: 0x555555, wireframe: false });
                 for (let i = 0; i < 5; i++) {
                     const bandHeight = (tornado.height * 0.6 * i) / 4;
-                    const bandTopRadius = topRadius - (topRadius - bottomRadius) * (i / 4);
+                    // Rings grow wider toward top (ground=narrow, sky=wide)
+                    const bandTopRadius = bottomRadius + (topRadius - bottomRadius) * (i / 4);
                     const torusGeom = new THREE.TorusGeometry(bandTopRadius * 0.6, bandTopRadius * 0.15, 8, 32);
                     const band = new THREE.Mesh(torusGeom, bandMat);
                     band.rotation.x = Math.PI / 2;
@@ -663,7 +665,7 @@
             const rotForce = tangent.multiplyScalar(forceRotational * getDensity());
 
             obj.velocity.add(inwardForce).add(rotForce);
-            obj.velocity.multiplyScalar(0.95);
+            obj.velocity.multiplyScalar(0.98);
         }
 
         function checkCapture(obj) {
@@ -673,9 +675,9 @@
             if (obj.mass > maxMass) return false;
 
             const dist = obj.position.distanceTo(tornado.position);
-            if (dist < tornado.radius * 0.8) {
+            if (dist < tornado.radius * 1.5) {
                 obj.isCaught = true;
-                obj.orbitRadius = tornado.radius * (1.5 + Math.random() * 1.5);
+                obj.orbitRadius = tornado.radius * (3 + Math.random() * 2);
                 obj.orbitHeight = tornado.height * (0.3 + Math.random() * 0.5);
                 obj.orbitAngle = Math.random() * Math.PI * 2;
                 obj.orbitTime = 0;
@@ -711,21 +713,25 @@
                         shakeScreen();
                     }
                 } else {
-                    // Orbit
-                    obj.orbitAngle += 0.02;
-                    const x = Math.cos(obj.orbitAngle) * obj.orbitRadius;
-                    const z = Math.sin(obj.orbitAngle) * obj.orbitRadius;
+                    // Spiral orbit: speed increases, radius shrinks as object gets sucked in
+                    const orbitSpeed = 0.04 + progress * 0.08;
+                    obj.orbitAngle += orbitSpeed;
+                    const spiralRadius = obj.orbitRadius * (1 - progress * 0.75);
+                    const spiralHeight = obj.orbitHeight * (0.4 + progress * 0.6);
+                    const x = Math.cos(obj.orbitAngle) * spiralRadius;
+                    const z = Math.sin(obj.orbitAngle) * spiralRadius;
                     obj.position.set(
                         tornado.position.x + x,
-                        tornado.position.y + obj.orbitHeight,
+                        tornado.position.y + spiralHeight,
                         tornado.position.z + z
                     );
                     obj.mesh.position.copy(obj.position);
 
-                    // Tumble
-                    obj.mesh.rotation.x += obj.tumble.x;
-                    obj.mesh.rotation.y += obj.tumble.y;
-                    obj.mesh.rotation.z += obj.tumble.z;
+                    // Tumble â faster as it spirals in
+                    const tumbleScale = 1 + progress * 3;
+                    obj.mesh.rotation.x += obj.tumble.x * tumbleScale;
+                    obj.mesh.rotation.y += obj.tumble.y * tumbleScale;
+                    obj.mesh.rotation.z += obj.tumble.z * tumbleScale;
                 }
             });
         }
@@ -737,7 +743,7 @@
         let leftPressed = false, rightPressed = false;
 
         window.addEventListener('deviceorientation', (e) => {
-            tiltX = (e.gamma || 0) / 45;  // -1 to 1
+            tiltX = -(e.gamma || 0) / 45;  // -1 to 1
             tiltY = (e.beta || 0) / 45;
         });
 
@@ -829,7 +835,7 @@
                     .then(permissionState => {
                         if (permissionState === 'granted') {
                             window.addEventListener('deviceorientation', (e) => {
-                                tiltX = (e.gamma || 0) / 45;
+                                tiltX = -(e.gamma || 0) / 45;
                                 tiltY = (e.beta || 0) / 45;
                             });
                         }
