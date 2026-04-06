@@ -3,212 +3,389 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Brett's Morning Dashboard — April 5, 2026</title>
+<title>Brett's Morning Dashboard — April 6, 2026</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-:root{--bg:#0f172a;--card:#1e293b;--accent:#38bdf8;--accent2:#818cf8;--green:#22c55e;--yellow:#eab308;--red:#ef4444;--text:#e2e8f0;--muted:#94a3b8;--border:#334155}
+:root{--bg:#0f172a;--card:#1e293b;--card2:#162032;--accent:#38bdf8;--accent2:#818cf8;--text:#e2e8f0;--muted:#94a3b8;--good:#22c55e;--fair:#eab308;--poor:#ef4444;--border:#334155}
 body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;line-height:1.6;padding:0 0 3rem}
-header{background:linear-gradient(135deg,#0f172a 0%,#1e3a5f 30%,#0f172a 60%,#1a2744 100%);background-size:300% 300%;animation:gradShift 8s ease infinite;padding:2rem 1.5rem 1.5rem;text-align:center;border-bottom:1px solid var(--border)}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+
+/* Header */
+.header{background:linear-gradient(135deg,#0f172a 0%,#1e3a5f 30%,#0f172a 60%,#1a1a4e 100%);background-size:400% 400%;animation:gradShift 12s ease infinite;padding:2rem 1.5rem 1.5rem;text-align:center;border-bottom:1px solid var(--border)}
 @keyframes gradShift{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
-header h1{font-size:1.5rem;font-weight:700;background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-header p{color:var(--muted);font-size:.85rem;margin-top:.25rem}
+.header h1{font-size:1.5rem;font-weight:700;letter-spacing:.02em}
+.header .date{color:var(--muted);font-size:.85rem;margin-top:.25rem}
+
+/* Cards */
 .container{max-width:720px;margin:0 auto;padding:1rem}
-.card{background:var(--card);border-radius:12px;border:1px solid var(--border);margin-bottom:1.25rem;overflow:hidden}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;margin-bottom:1.25rem;overflow:hidden}
 .card-header{padding:1rem 1.25rem;display:flex;align-items:center;gap:.6rem;font-weight:700;font-size:1.05rem;border-bottom:1px solid var(--border)}
-.card-header .icon{font-size:1.3rem}
 .card-body{padding:1rem 1.25rem}
-.wave-svg{width:100%;height:50px;display:block}
-.wave-svg path{fill:var(--accent);opacity:.15;animation:waveMove 4s ease-in-out infinite alternate}
-@keyframes waveMove{0%{d:path("M0 30 Q90 10 180 30 T360 30 T540 30 T720 30 V60 H0 Z")}100%{d:path("M0 25 Q90 40 180 20 T360 35 T540 22 T720 30 V60 H0 Z")}}
-.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:.75rem;margin-bottom:1rem}
-.stat{background:var(--bg);border-radius:8px;padding:.75rem;text-align:center}
-.stat .label{font-size:.7rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:.2rem}
-.stat .value{font-size:1.1rem;font-weight:700;color:var(--accent)}
-table{width:100%;border-collapse:collapse;font-size:.82rem;margin-top:.75rem}
-th,td{padding:.5rem .6rem;text-align:left;border-bottom:1px solid var(--border)}
-th{color:var(--muted);font-weight:600;font-size:.7rem;text-transform:uppercase;letter-spacing:.04em}
-.badge{display:inline-block;padding:2px 8px;border-radius:999px;font-size:.7rem;font-weight:700;text-transform:uppercase}
-.badge-good{background:rgba(34,197,94,.15);color:var(--green)}
-.badge-fair{background:rgba(234,179,8,.15);color:var(--yellow)}
-.badge-poor{background:rgba(239,68,68,.15);color:var(--red)}
-.badge-new{background:rgba(56,189,248,.15);color:var(--accent);font-size:.65rem;margin-left:.4rem;vertical-align:middle}
-.source-links{display:flex;gap:1rem;flex-wrap:wrap;margin-top:.75rem;font-size:.8rem}
-.source-links a{color:var(--accent);text-decoration:none;transition:opacity .2s}
-.source-links a:hover{opacity:.7}
-details{border-bottom:1px solid var(--border)}
-details:last-child{border-bottom:none}
-summary{padding:.75rem 1.25rem;cursor:pointer;font-weight:600;font-size:.9rem;list-style:none;display:flex;align-items:center;gap:.5rem;transition:background .2s}
-summary:hover{background:rgba(255,255,255,.03)}
-summary::before{content:"▶";font-size:.6rem;color:var(--muted);transition:transform .2s;flex-shrink:0}
-details[open] summary::before{transform:rotate(90deg)}
+
+/* Badges */
+.badge{display:inline-block;padding:.15rem .55rem;border-radius:6px;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.badge-good{background:var(--good);color:#052e16}
+.badge-fair{background:var(--fair);color:#422006}
+.badge-poor{background:var(--poor);color:#fff}
+.badge-new{background:#f472b6;color:#1e1e2e;margin-left:.4rem}
+
+/* Surf wave SVG */
+.wave-container{position:relative;height:48px;overflow:hidden;margin:-1rem -1.25rem 1rem;border-radius:0}
+.wave-container svg{position:absolute;bottom:0;width:200%;height:48px;animation:waveSlide 6s linear infinite}
+@keyframes waveSlide{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+/* Forecast table */
+.forecast-table{width:100%;border-collapse:collapse;margin:.75rem 0;font-size:.85rem}
+.forecast-table th,.forecast-table td{padding:.45rem .5rem;text-align:center;border-bottom:1px solid var(--border)}
+.forecast-table th{color:var(--muted);font-weight:600;font-size:.75rem;text-transform:uppercase}
+.forecast-table td:first-child{text-align:left;font-weight:600}
+
+/* Details / collapsible */
+details{margin-bottom:.65rem;border:1px solid var(--border);border-radius:8px;background:var(--card2);overflow:hidden}
+details[open]{border-color:var(--accent)}
+summary{cursor:pointer;padding:.7rem 1rem;font-weight:600;font-size:.9rem;list-style:none;display:flex;align-items:center;gap:.5rem;user-select:none}
 summary::-webkit-details-marker{display:none}
-.story-body{padding:.5rem 1.25rem 1rem 2.2rem;color:var(--muted);font-size:.85rem;line-height:1.7}
-.story-body a{color:var(--accent);text-decoration:none}
-.story-body a:hover{text-decoration:underline}
-.best-window{background:linear-gradient(90deg,rgba(34,197,94,.08),rgba(34,197,94,.02));border-left:3px solid var(--green);padding:.75rem 1rem;border-radius:0 8px 8px 0;margin-bottom:.75rem;font-size:.85rem}
-.best-window strong{color:var(--green)}
-.big-story-tag{color:var(--red);font-size:.7rem;text-transform:uppercase;font-weight:700;letter-spacing:.05em}
-@media(max-width:480px){.stat-grid{grid-template-columns:repeat(2,1fr)}header h1{font-size:1.25rem}table{font-size:.75rem}}
+summary::before{content:"▶";font-size:.65rem;color:var(--accent);transition:transform .2s}
+details[open] summary::before{transform:rotate(90deg)}
+details .detail-body{padding:.5rem 1rem 1rem;font-size:.85rem;color:var(--muted);line-height:1.7}
+details .detail-body a{font-size:.8rem}
+
+/* Source links */
+.sources{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.75rem}
+.source-link{display:inline-block;padding:.3rem .7rem;border:1px solid var(--border);border-radius:6px;font-size:.75rem;font-weight:600;color:var(--accent);transition:background .15s}
+.source-link:hover{background:rgba(56,189,248,.1);text-decoration:none}
+
+/* Stat grid */
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.6rem;margin-bottom:.75rem}
+.stat{background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:.6rem .75rem}
+.stat-label{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.stat-value{font-size:1.1rem;font-weight:700;margin-top:.1rem}
+
+/* Highlight box */
+.highlight{background:linear-gradient(135deg,rgba(56,189,248,.1),rgba(129,140,248,.1));border:1px solid var(--accent);border-radius:8px;padding:.75rem 1rem;margin:.75rem 0;font-size:.85rem}
+.highlight strong{color:var(--accent)}
+
+/* Big story */
+.big-story-card{border-color:#ef4444}
+.big-story-card .card-header{border-bottom-color:#ef4444}
+
+/* Market context */
+.market-ctx{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:.75rem}
+.market-pill{background:var(--card2);border:1px solid var(--border);border-radius:20px;padding:.3rem .75rem;font-size:.78rem;font-weight:600}
+.market-pill.up{color:var(--good);border-color:var(--good)}
+.market-pill.down{color:var(--poor);border-color:var(--poor)}
+.market-pill.neutral{color:var(--fair);border-color:var(--fair)}
+
+/* Footer */
+.footer{text-align:center;color:var(--muted);font-size:.75rem;margin-top:2rem;padding:0 1rem}
 </style>
 </head>
 <body>
 
-<header>
-<h1>Good Morning, Brett</h1>
-<p>Sunday, April 5, 2026 — Cannon Beach, OR</p>
-</header>
+<div class="header">
+  <h1>Good Morning, Brett</h1>
+  <div class="date">Monday, April 6, 2026 — Cannon Beach, OR</div>
+</div>
 
 <div class="container">
 
-<!-- ==================== SURF REPORT ==================== -->
+<!-- ===================== SURF REPORT ===================== -->
 <div class="card">
-<div class="card-header"><span class="icon">🌊</span> Surf Report — Cannon Beach</div>
-<svg class="wave-svg" viewBox="0 0 720 60" preserveAspectRatio="none">
-<path d="M0 30 Q90 10 180 30 T360 30 T540 30 T720 30 V60 H0 Z"/>
-</svg>
-<div class="card-body">
+  <div class="card-header">
+    <span>🌊</span> Surf Report — Cannon Beach, OR
+  </div>
+  <div class="card-body">
 
-<div class="stat-grid">
-<div class="stat"><div class="label">Wave Height</div><div class="value">2–6 ft</div></div>
-<div class="stat"><div class="label">Period</div><div class="value">10–11s</div></div>
-<div class="stat"><div class="label">Swell Dir</div><div class="value">NW / WSW</div></div>
-<div class="stat"><div class="label">Wind</div><div class="value">9 mph N</div></div>
-<div class="stat"><div class="label">Water Temp</div><div class="value">53°F</div></div>
-<div class="stat"><div class="label">Tide</div><div class="value">9.2ft H → -0.6ft L</div></div>
+    <div class="wave-container">
+      <svg viewBox="0 0 1200 48" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M0 28 Q75 10 150 28 T300 28 T450 28 T600 28 T750 28 T900 28 T1050 28 T1200 28 V48 H0Z" fill="rgba(56,189,248,0.12)"/>
+        <path d="M0 34 Q75 20 150 34 T300 34 T450 34 T600 34 T750 34 T900 34 T1050 34 T1200 34 V48 H0Z" fill="rgba(56,189,248,0.07)"/>
+      </svg>
+    </div>
+
+    <div class="stat-grid">
+      <div class="stat">
+        <div class="stat-label">Wave Height</div>
+        <div class="stat-value">2–4 ft face</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Sets</div>
+        <div class="stat-value">4–6 ft</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Period</div>
+        <div class="stat-value">10–14 sec</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Wind</div>
+        <div class="stat-value">~10 mph NNW</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Water Temp</div>
+        <div class="stat-value">52.9°F</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Swell Dir</div>
+        <div class="stat-value">NW / WSW</div>
+      </div>
+    </div>
+
+    <div class="stat-grid">
+      <div class="stat">
+        <div class="stat-label">High Tide</div>
+        <div class="stat-value">9.2 ft @ 3:04 AM</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Low Tide</div>
+        <div class="stat-value">-0.6 ft @ 9:19 AM</div>
+      </div>
+    </div>
+
+    <div class="highlight">
+      <strong>Best Window Today:</strong> Mid-morning around the low tide (9–11 AM) — incoming tide with residual swell energy. Cross-shore NNW winds create some chop, so earlier is better before winds pick up.
+    </div>
+
+    <h3 style="font-size:.9rem;margin:.75rem 0 .5rem;color:var(--muted)">5-Day Forecast</h3>
+    <table class="forecast-table">
+      <thead>
+        <tr><th>Day</th><th>Surf</th><th>Wind</th><th>Rating</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Mon 4/6</td>
+          <td>2–4 ft</td>
+          <td>10 mph NNW</td>
+          <td><span class="badge badge-fair">Fair</span></td>
+        </tr>
+        <tr>
+          <td>Tue 4/7</td>
+          <td>3–5 ft</td>
+          <td>Moderate W</td>
+          <td><span class="badge badge-fair">Fair</span></td>
+        </tr>
+        <tr>
+          <td>Wed 4/8</td>
+          <td>4–6 ft</td>
+          <td>Variable</td>
+          <td><span class="badge badge-fair">Fair</span></td>
+        </tr>
+        <tr>
+          <td>Thu 4/9</td>
+          <td>5–7 ft</td>
+          <td>SW showers</td>
+          <td><span class="badge badge-good">Good</span></td>
+        </tr>
+        <tr>
+          <td>Fri 4/10</td>
+          <td>4–6 ft</td>
+          <td>Easing</td>
+          <td><span class="badge badge-good">Good</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="highlight">
+      <strong>Best Surf Window This Week:</strong> Thursday 4/9 — building swell from 5–7 ft with improving conditions. Check live forecasts to confirm the trend.
+    </div>
+
+    <p style="font-size:.78rem;color:var(--muted);margin-top:.5rem">
+      <em>Note: Detailed day-by-day forecasts for Tue–Fri are estimates based on Oregon coast swell patterns. Verify with live sources below.</em>
+    </p>
+
+    <div class="sources">
+      <a class="source-link" href="https://www.surfline.com/surf-report/cannon-beach/5849fead4e65fad6a77088f6" target="_blank" rel="noopener">Surfline →</a>
+      <a class="source-link" href="https://www.surf-forecast.com/breaks/Cannon-Beach/forecasts/latest/six_day" target="_blank" rel="noopener">surf-forecast.com →</a>
+      <a class="source-link" href="https://www.ndbc.noaa.gov/station_page.php?station=46029" target="_blank" rel="noopener">NOAA Buoy 46029 →</a>
+    </div>
+
+  </div>
 </div>
 
-<p style="font-size:.85rem;color:var(--muted);margin-bottom:.5rem">Combo NW + WSW swell. Most waves 2–4 ft face, sets reaching 4–6 ft. Cross/sideshore wind from the north at 9 mph. Big tidal swing today: 9.2 ft high at 3:04 AM down to -0.6 ft low at 9:19 AM. Full 4/3mm wetsuit with hood, gloves and boots recommended at 53°F.</p>
-
-<div class="best-window">
-<strong>Best Window:</strong> Friday Apr 6 — Longer period swell (16s) from the west, 6–9 ft faces. The 16-second period will produce the cleanest, most organized waves of the week. Dawn patrol recommended before winds pick up.
-</div>
-
-<table>
-<thead><tr><th>Day</th><th>Surf</th><th>Period</th><th>Swell</th><th>Wind</th><th>Rating</th></tr></thead>
-<tbody>
-<tr><td>Sun 4/5</td><td>2–6 ft</td><td>10s</td><td>NW/WSW</td><td>9 mph N</td><td><span class="badge badge-fair">Fair</span></td></tr>
-<tr><td>Mon 4/6</td><td>6–9 ft</td><td>16s</td><td>W</td><td>Light</td><td><span class="badge badge-good">Good</span></td></tr>
-<tr><td>Tue 4/7</td><td>5–7 ft</td><td>13s</td><td>WNW</td><td>Moderate SW</td><td><span class="badge badge-fair">Fair</span></td></tr>
-<tr><td>Wed 4/8</td><td>4–6 ft</td><td>11s</td><td>NW</td><td>Moderate NW</td><td><span class="badge badge-fair">Fair</span></td></tr>
-<tr><td>Thu 4/9</td><td>3–5 ft</td><td>10s</td><td>NW</td><td>Light N</td><td><span class="badge badge-fair">Fair</span></td></tr>
-</tbody>
-</table>
-
-<div class="source-links">
-<a href="https://www.surfline.com/surf-reports-forecasts-cams/united-states/oregon/clatsop-county/cannon-beach/5717789" target="_blank" rel="noopener">Surfline →</a>
-<a href="https://www.surf-forecast.com/breaks/Cannon-Beach/forecasts/latest/six_day" target="_blank" rel="noopener">surf-forecast.com →</a>
-<a href="https://www.ndbc.noaa.gov/station_page.php?station=46029" target="_blank" rel="noopener">NOAA Buoy 46029 →</a>
-</div>
-
-</div>
-</div>
-
-<!-- ==================== BUSINESS & MARKET NEWS ==================== -->
+<!-- ===================== BUSINESS & MARKETS ===================== -->
 <div class="card">
-<div class="card-header"><span class="icon">📈</span> Business & Market News — CNBC</div>
-<div class="card-body" style="padding:0">
+  <div class="card-header">
+    <span>📈</span> Business &amp; Market News — CNBC
+  </div>
+  <div class="card-body">
 
-<details>
-<summary>Oil Tops $110/bbl as Trump Vows to Hit Iran 'Extremely Hard'</summary>
-<div class="story-body">U.S. crude oil prices surged more than 10% to top $110 per barrel after President Trump's primetime address on the Iran war. Trump said the U.S. will strike Iran "extremely hard" for the next two to three weeks, rattling global markets and sending stock futures tumbling. Retail gas could hit $4.25–$4.45/gal within two weeks.<br><a href="https://www.cnbc.com/2026/04/02/trumps-iran-war-speech-oil-price-strait-hormuz.html" target="_blank" rel="noopener">Read on CNBC →</a></div>
-</details>
+    <div class="market-ctx">
+      <span class="market-pill up">S&amp;P Futures ↑</span>
+      <span class="market-pill neutral">Crude ~$110/bbl</span>
+      <span class="market-pill up">S&amp;P +6% Last Week</span>
+      <span class="market-pill up">Jobs: +178K March</span>
+    </div>
 
-<details>
-<summary>Trump's Hormuz Deadline: April 6 — 'Time Is Running Out'</summary>
-<div class="story-body">President Trump set an April 6 deadline for Iran to reopen the Strait of Hormuz, through which roughly 20% of the global oil supply normally passes. Traffic has plunged from ~150 vessels/day to 10–20. Iran has set up a de facto "toll booth" charging for safe passage — at least two vessels have paid in yuan.<br><a href="https://fortune.com/2026/03/26/trump-iran-war-oil-strait-april-6-hormuz/" target="_blank" rel="noopener">Read on Fortune →</a></div>
-</details>
+    <details>
+      <summary>Trump Iran Ultimatum Threatens Market Volatility</summary>
+      <div class="detail-body">
+        President Trump issued strong threats against Iran, warning over the Strait of Hormuz with a Tuesday 8 PM ET deadline. However, signals of a possible deal emerged through mediators, creating mixed investor sentiment with crude remaining elevated near $110/barrel.
+        <br><a href="https://www.cnbc.com/2026/04/06/cnbc-daily-open-trump-iran-war-strait-of-hormuz-deadline.html" target="_blank" rel="noopener">Read on CNBC →</a>
+      </div>
+    </details>
 
-<details>
-<summary>IEA Warns Oil Supply Crunch Will Worsen in April</summary>
-<div class="story-body">The International Energy Agency warned that the oil supply disruption from the Strait of Hormuz closure will intensify in April, and is weighing releasing more strategic reserves. More than 600 million barrels are at risk if the situation persists.<br><a href="https://www.cnbc.com/2026/04/01/oil-price-iea-fatih-birol-brent-iran-strait-hormuz.html" target="_blank" rel="noopener">Read on CNBC →</a></div>
-</details>
+    <details>
+      <summary>S&amp;P 500 Futures Point Higher Amid Iran Deal Hopes</summary>
+      <div class="detail-body">
+        Markets ticked higher Monday morning with optimism for a possible ceasefire resolution. Investors are cautiously hopeful about a 45-day ceasefire agreement being negotiated between the U.S. and Iran, following a strong week that saw the S&amp;P gain nearly 6%.
+        <br><a href="https://www.cnbc.com/2026/04/06/trump-iran-deadline-investors-markets-trade-deal-war-.html" target="_blank" rel="noopener">Read on CNBC →</a>
+      </div>
+    </details>
 
-<details>
-<summary>Wall Street Snaps 5-Week Losing Streak; Jobs Beat Expectations</summary>
-<div class="story-body">U.S. payrolls rose 178,000 in March, beating expectations, with unemployment at 4.3%. The Dow closed at 46,504.67 (−0.13%), while the S&P 500 edged up 0.11% to 6,582.69 and the Nasdaq gained 0.18%. Wall Street ended a five-week losing streak despite energy-driven volatility.<br><a href="https://www.cnbc.com/2026/03/31/stock-market-today-live-updates.html" target="_blank" rel="noopener">Read on CNBC →</a></div>
-</details>
+    <details>
+      <summary>Morning Squawk: Iran Talks, Apple's 50th, OpenAI Podcast Deal</summary>
+      <div class="detail-body">
+        CNBC's morning rundown covers ongoing U.S.-Iran negotiations, Apple celebrating its 50th anniversary as a public company, and OpenAI acquiring TBPN podcast — reflecting the mix of geopolitical risk and corporate milestones dominating the conversation today.
+        <br><a href="https://www.cnbc.com/2026/04/06/5-things-to-know-before-the-bell-monday.html" target="_blank" rel="noopener">Read on CNBC →</a>
+      </div>
+    </details>
 
-<details>
-<summary>Stock Market Outlook: April 6–10 Week Ahead</summary>
-<div class="story-body">Markets face a pivotal week with Trump's Hormuz deadline hitting tomorrow (April 6). Brent crude at ~$108, WTI at ~$106. Bank of America released top Q2 stock picks. Nike remains the most oversold stock on Wall Street after volatile trading.<br><a href="https://www.cnbc.com/2026/04/03/stock-market-next-week-outlook-for-april-6-10-2026.html" target="_blank" rel="noopener">Read on CNBC →</a></div>
-</details>
+    <details>
+      <summary>AI Start-ups Tackle Retail's Biggest Problems</summary>
+      <div class="detail-body">
+        AI-focused start-ups are developing virtual try-on technology and other solutions to address critical retail margin challenges. The trend reflects the tech sector's push to create practical AI applications solving real business problems.
+        <br><a href="https://www.cnbc.com/2026/04/05/ai-retail-start-ups-virtual-try-on-tech-margins.html" target="_blank" rel="noopener">Read on CNBC →</a>
+      </div>
+    </details>
 
-<details>
-<summary>Defense Budget: Trump Asks Congress for Record $1.5 Trillion</summary>
-<div class="story-body">President Trump's annual budget requests the largest defense spending increase in decades at $1.5 trillion, as the Iran conflict enters its second month with two U.S. aircraft down and Iranian drone strikes hitting Gulf refineries including Kuwait's largest.<br><a href="https://www.cnbc.com/2026/04/02/trump-iran-escalation-asian-stocks-oil-prices-markets.html" target="_blank" rel="noopener">Read on CNBC →</a></div>
-</details>
+    <details>
+      <summary>BlackRock Launches QQQ Competitor ETF (Ticker: IQQ)</summary>
+      <div class="detail-body">
+        BlackRock filed for a new ETF tracking the Nasdaq 100 index, directly competing with Invesco's QQQ Trust. The move signals continued competition in the ETF space and strong investor demand for tech-heavy index exposure.
+        <br><a href="https://www.cnbc.com/markets/" target="_blank" rel="noopener">Read on CNBC →</a>
+      </div>
+    </details>
 
+    <details>
+      <summary>Senate to Hold Fed Chair Nomination Hearing for Kevin Warsh</summary>
+      <div class="detail-body">
+        The Senate Banking Committee is scheduled to hold a nomination hearing on April 16 for Kevin Warsh, Trump's pick for the next Federal Reserve chair. This leadership transition could significantly shift monetary policy direction.
+        <br><a href="https://www.cnbc.com/2026/04/06/5-things-to-know-before-the-bell-monday.html" target="_blank" rel="noopener">Read on CNBC →</a>
+      </div>
+    </details>
+
+  </div>
 </div>
+
+<!-- ===================== BIG STORY ===================== -->
+<div class="card big-story-card">
+  <div class="card-header">
+    <span>🔴</span> Big Story of the Week
+  </div>
+  <div class="card-body">
+
+    <h3 style="font-size:1rem;margin-bottom:.5rem">U.S.-Israeli War with Iran — Week 6</h3>
+    <p style="font-size:.85rem;color:var(--muted);line-height:1.7;margin-bottom:.75rem">
+      The military conflict between the U.S., Israel, and Iran is now in its sixth week and continues to escalate. Key developments: U.S. forces rescued American service members after an F-15E was shot down over Iran; Iran rejected a proposed 45-day ceasefire; Israel struck Iranian petrochemical facilities destroying roughly 85% of export capacity; and the conflict is expanding into Lebanon.
+    </p>
+    <p style="font-size:.85rem;line-height:1.7;margin-bottom:.5rem">
+      <strong style="color:var(--accent)">Why it matters:</strong> The Strait of Hormuz standoff directly impacts global energy prices (crude at ~$110), Trump's Tuesday deadline introduces a major binary outcome for markets, and the geographic expansion into Lebanon signals this is far from contained.
+    </p>
+    <p style="font-size:.85rem;line-height:1.7;margin-bottom:.75rem">
+      <strong style="color:var(--fair)">Prediction:</strong> Likely to <strong>grow</strong> — failed ceasefire talks, geographic expansion, and an active U.S. military commitment all point to a protracted situation.
+    </p>
+
+    <div class="sources">
+      <a class="source-link" href="https://www.cnn.com/2026/04/06/world/live-news/iran-war-us-trump-oil" target="_blank" rel="noopener">CNN Live Updates →</a>
+      <a class="source-link" href="https://www.cnn.com/2026/04/05/middleeast/iran-us-israel-war-what-we-know-week-6-intl-hnk" target="_blank" rel="noopener">CNN Week 6 Summary →</a>
+      <a class="source-link" href="https://www.aljazeera.com/news/liveblog/2026/4/5/iran-war-live-tehran-rejects-trumps-ultimatum-fire-at-kuwait-oil-complex" target="_blank" rel="noopener">Al Jazeera →</a>
+    </div>
+
+  </div>
 </div>
 
-<!-- ==================== BIG STORY ==================== -->
+<!-- ===================== TECH + GAME DEV ===================== -->
 <div class="card">
-<div class="card-header"><span class="icon">🔥</span> Big Story of the Week</div>
-<div class="card-body">
-<div class="big-story-tag">Dominating the Cycle</div>
-<h3 style="margin:.4rem 0 .6rem;font-size:1.05rem">The U.S.–Iran War & Strait of Hormuz Crisis</h3>
-<p style="font-size:.85rem;color:var(--muted);line-height:1.7">Five weeks in, this story has only escalated. Two U.S. aircraft are down, a downed F-15 crew member was rescued Sunday, Iran is running a toll-booth regime on the strait, and oil has doubled from pre-war levels. Trump's April 6 deadline arrives tomorrow — if Iran doesn't reopen Hormuz, he's threatened to destroy bridges and power plants. Gas prices are up 37% since the war started, and the IEA says it's about to get worse. Every major outlet — CNN, NPR, CNBC, Fortune, Bloomberg, the Irish Times — is running this wall-to-wall. This story grows next week regardless of whether the deadline produces a deal or more escalation.</p>
-<div class="source-links" style="margin-top:.75rem">
-<a href="https://us.cnn.com/2026/04/04/world/live-news/iran-war-us-trump-oil" target="_blank" rel="noopener">CNN →</a>
-<a href="https://www.npr.org/2026/04/03/g-s1-116314/iran-hits-gulf-refineries-as-trump-warns-u-s-will-attack-iranian-bridges-power-plants" target="_blank" rel="noopener">NPR →</a>
-<a href="https://en.wikipedia.org/wiki/2026_Strait_of_Hormuz_crisis" target="_blank" rel="noopener">Wikipedia →</a>
+  <div class="card-header">
+    <span>🎮</span> Tech + Game Dev
+  </div>
+  <div class="card-body">
+
+    <details>
+      <summary>
+        Apple Launches Business Platform on April 14 — 50th Anniversary
+        <span class="badge badge-new">NEW</span>
+      </summary>
+      <div class="detail-body">
+        Apple is launching an all-in-one business platform on April 14 to help companies manage devices, reach customers, and equip teams. This coincides with Apple's 50th anniversary. AirPods Max 2 also shipped early April with an upgraded H2 processor.
+        <br><a href="https://macdailynews.com/2026/04/06/whats-coming-from-apple-in-april-2026-m5-mac-rumors-new-apple-tv-shows-and-apple-arcade-games/" target="_blank" rel="noopener">Read more →</a>
+      </div>
+    </details>
+
+    <details>
+      <summary>
+        Samsung &amp; Google Android XR Challenge Meta in Smart Glasses
+        <span class="badge badge-new">NEW</span>
+      </summary>
+      <div class="detail-body">
+        Samsung has confirmed AR glasses launching in 2026 as part of Google's Android XR initiative, with collabs from Warby Parker and Gentle Monster. Xreal's Project Aura running Android XR is also set for this year. Apple rumored for late 2026 AI glasses.
+        <br><a href="https://vr.org/articles/smart-glasses-2026-year-they-finally-make-sense" target="_blank" rel="noopener">Read more →</a>
+      </div>
+    </details>
+
+    <details>
+      <summary>
+        Meta Quest April Releases: TMNT, Forefront, One More Delve
+        <span class="badge badge-new">NEW</span>
+      </summary>
+      <div class="detail-body">
+        Multiple major titles launching on Meta Quest in April including Teenage Mutant Ninja Turtles: Empire City (April 30, $24.99), Forefront's 32-player tactical battles (April 23), and One More Delve dungeon crawler (April 27). Meta Horizon+ continues rotating free titles.
+        <br><a href="https://www.uploadvr.com/new-vr-games-releases-april-2026-quest-playstation-vr2-and-pc-vr/" target="_blank" rel="noopener">Read more →</a>
+      </div>
+    </details>
+
+    <details>
+      <summary>Three.js Transitions to WebGPU as Default Renderer</summary>
+      <div class="detail-body">
+        Three.js r171 made WebGPU production-ready across all browsers with zero configuration. The latest release features a WebGPU default renderer offering 2x performance over WebGL, enabling 1,000,000+ particle systems (vs 50K limit). Library maintains 2.7M weekly NPM downloads.
+        <br><a href="https://www.utsubo.com/blog/threejs-2026-what-changed" target="_blank" rel="noopener">Read more →</a>
+      </div>
+    </details>
+
+    <details>
+      <summary>Vibe Coding Goes Mainstream — 92% Developer Adoption</summary>
+      <div class="detail-body">
+        AI-assisted development ("vibe coding") is now the standard workflow in 2026 with 92% of US developers adopting it. Tools like Rosebud AI let developers describe game concepts in natural language and generate playable prototypes. Projected market: $8.5 billion.
+        <br><a href="https://www.nxcode.io/resources/news/what-is-vibe-coding-complete-guide-ai-development-2026" target="_blank" rel="noopener">Read more →</a>
+      </div>
+    </details>
+
+    <details>
+      <summary>
+        Trust Becomes the Real Bottleneck for Vibe Coding
+        <span class="badge badge-new">NEW</span>
+      </summary>
+      <div class="detail-body">
+        As vibe coding accelerates development, security vulnerabilities are emerging: 45% of AI code contains security flaws and developers spend 66% of time reviewing/debugging. Trust in AI-generated code is now the limiting factor for enterprise adoption.
+        <br><a href="https://fortune.com/2026/04/02/in-the-age-of-vibe-coding-trust-is-the-real-bottleneck/" target="_blank" rel="noopener">Read more →</a>
+      </div>
+    </details>
+
+    <details>
+      <summary>Advanced Water &amp; Environmental Shaders Dominate Game Graphics</summary>
+      <div class="detail-body">
+        New shader projects like Eclipse Shaders 26.1 and IterationRP showcase advanced water physics with reflections, ripples, underwater fog, and dynamic wave displacement. AI-assisted shader generation enables complex water effects without manual coding.
+        <br><a href="https://www.aadhu.com/2026/04/eclipse-shaders-26-1-1-20-1-advanced-sky-and-environmental-effects/" target="_blank" rel="noopener">Read more →</a>
+      </div>
+    </details>
+
+    <details>
+      <summary>Micro 4/3 Market Shaken: Songdian Debuts at CP+ 2026</summary>
+      <div class="detail-body">
+        Chinese camera maker Songdian (Shenzhen Sonida Digital) is debuting its first Micro 4/3 camera at CP+ 2026, challenging OM System and Panasonic. OM System plans new PEN series releases while the Panasonic GH7 and G9 II remain flagship options.
+        <br><a href="https://www.digitalcameraworld.com/cameras/mirrorless-cameras/om-system-and-panasonic-might-be-mia-but-could-this-camera-company-and-magnetic-lenses-save-the-day-for-micro-four-thirds" target="_blank" rel="noopener">Read more →</a>
+      </div>
+    </details>
+
+  </div>
 </div>
-</div>
-</div>
-
-<!-- ==================== TECH + GAME DEV ==================== -->
-<div class="card">
-<div class="card-header"><span class="icon">🎮</span> Tech + Game Dev</div>
-<div class="card-body" style="padding:0">
-
-<details>
-<summary>Meta Building Prescription Ray-Ban Smart Glasses <span class="badge badge-new">NEW</span></summary>
-<div class="story-body">FCC filings reveal Meta and EssilorLuxottica are preparing two new Ray-Ban smart glasses models in rectangular and rounded styles, designed to be sold through traditional prescription eyewear channels. A major accessibility upgrade for the platform.<br><a href="https://www.tomsguide.com/computing/smart-glasses/meta-is-finally-building-ray-ban-smart-glasses-designed-for-prescription-lenses" target="_blank" rel="noopener">Read on Tom's Guide →</a></div>
-</details>
-
-<details>
-<summary>Samsung Confirms Android XR 'Galaxy Glasses' for 2026</summary>
-<div class="story-body">Samsung's smart glasses (codename EB-O200) will feature an eye-level camera, Gemini AI integration, and a 245mAh battery. Samsung exec Jay Kim confirmed the AI will understand where you're looking. With Google's AI and Samsung's manufacturing, this creates a serious Meta rival.<br><a href="https://www.business-standard.com/technology/tech-news/samsung-vs-meta-ray-ban-rival-ai-glasses-for-2026-what-to-expect-126030900347_1.html" target="_blank" rel="noopener">Read on Business Standard →</a></div>
-</details>
-
-<details>
-<summary>Apple Pivots: AI Smart Glasses, Not Full AR, Coming Late 2026</summary>
-<div class="story-body">Bloomberg and Ming-Chi Kuo confirm Apple is targeting AI smart glasses (closer to Meta Ray-Bans than Vision Pro) for late 2026/early 2027. Titanium frames, prescription-compatible, with cameras, microphones, and an upgraded Siri. Expected at $499–$1,000.<br><a href="https://www.tomsguide.com/computing/smart-glasses/apples-long-rumored-ar-smart-glasses-finally-have-a-launch-window-and-the-display-could-change-everything" target="_blank" rel="noopener">Read on Tom's Guide →</a></div>
-</details>
-
-<details>
-<summary>OM System PEN F Revival — Can It Save Micro Four Thirds?</summary>
-<div class="story-body">OM System is reportedly reviving the PEN F successor alongside the rumored OM-1 III flagship and Tough TG-8. Meanwhile, Chinese newcomer Songdian is debuting a Micro Four Thirds camera at CP+ 2026, creating unexpected competition in the MFT space.<br><a href="https://www.thephoblographer.com/2026/03/23/om-system-is-reportedly-reviving-the-pen-successor-soon/" target="_blank" rel="noopener">Read on The Phoblographer →</a></div>
-</details>
-
-<details>
-<summary>Three.js 2026: WebGPU Production-Ready, Vibe Coding Explosion</summary>
-<div class="story-body">WebGPU now works on ALL major browsers (including Safari/iOS since Sept 2025). Three.js r171+ ships WebGPURenderer with automatic WebGL fallback — no bundler config or polyfills needed. NPM downloads hit 2.7M/week (270x Babylon.js). Vibe coding — describing games to AI instead of writing code — was Collins Dictionary's Word of the Year 2025.<br><a href="https://www.utsubo.com/blog/threejs-2026-what-changed" target="_blank" rel="noopener">Read on Utsubo →</a></div>
-</details>
-
-<details>
-<summary>Meta Quest: Horizon Worlds Shutting Down on Headset</summary>
-<div class="story-body">Meta is winding down Horizon Worlds on Quest headsets — removed from the Store by March 31, fully gone by June 15, 2026. VR social will shift to the Horizon mobile app. Meanwhile, April brings Among Us 3D (Apr 7), Birdseed VR full release (Apr 30), and new Horizon+ monthly titles.<br><a href="https://www.uploadvr.com/meta-horizon-april-2026-games-update/" target="_blank" rel="noopener">Read on UploadVR →</a></div>
-</details>
-
-<details>
-<summary>Stylized Water Shaders in Godot 4.6 — Sea of Thieves Inspired</summary>
-<div class="story-body">A detailed walkthrough on building stylized 3D water shaders using Godot 4.6's GLSL-like shader language, inspired by Sea of Thieves. Covers Gerstner wave displacement in vertex shaders, Beer-Lambert absorption for underwater effects, and refraction. Techniques are transferable to Three.js/WebGPU.<br><a href="https://gameidea.org/2026/02/01/creating-a-stylized-3d-water-shader/" target="_blank" rel="noopener">Read on GameIdea →</a></div>
-</details>
-
-<details>
-<summary>5 Three.js Games Vibe-Coded with AI — Rosebud AI Showcase</summary>
-<div class="story-body">Rosebud AI published examples of full Three.js games created entirely through vibe coding — describing gameplay to AI and iterating on visual output. Demonstrates how Three.js's simple setup and strong documentation make it the go-to library for AI-assisted game prototyping.<br><a href="https://lab.rosebud.ai/blog/three-js-game-examples-vibe-coded" target="_blank" rel="noopener">Read on Rosebud AI →</a></div>
-</details>
-
-</div>
-</div>
 
 </div>
 
-<footer style="text-align:center;padding:1.5rem;color:var(--muted);font-size:.75rem">
-Built by Claude · Data sourced at ~8:00 AM PT · <a href="https://www.surfline.com/surf-reports-forecasts-cams/united-states/oregon/clatsop-county/cannon-beach/5717789" style="color:var(--accent);text-decoration:none" target="_blank" rel="noopener">Check live surf →</a>
-</footer>
+<div class="footer">
+  Built by Claude — Morning Dashboard for Brett — Updated April 6, 2026<br>
+  Data sourced from Surfline, surf-forecast.com, NOAA, CNBC, CNN, and others. Verify live conditions before paddling out.
+</div>
 
 </body>
 </html>
