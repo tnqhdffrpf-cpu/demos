@@ -3,311 +3,230 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Brett's Morning Dashboard — April 7, 2026</title>
+<title>Brett's Morning Dashboard — April 8, 2026</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-:root{--bg:#0f172a;--card:#1e293b;--border:#334155;--text:#e2e8f0;--muted:#94a3b8;--accent:#38bdf8;--green:#22c55e;--yellow:#eab308;--red:#ef4444;--orange:#f97316}
-body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;line-height:1.6;padding:0 0 3rem}
-a{color:var(--accent);text-decoration:none}
-a:hover{text-decoration:underline}
+body{background:#0f172a;color:#e2e8f0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;line-height:1.6;padding:0 0 3rem}
+header{position:relative;overflow:hidden;padding:2.5rem 1.25rem 2rem;text-align:center;background:linear-gradient(135deg,#0f172a,#1e293b,#0f172a);background-size:400% 400%;animation:grad 8s ease infinite}
+@keyframes grad{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+header h1{font-size:1.5rem;font-weight:700;letter-spacing:.5px;color:#f8fafc}
+header p{font-size:.85rem;color:#94a3b8;margin-top:.35rem}
+.cards{max-width:720px;margin:0 auto;padding:0 1rem}
+.card{background:#1e293b;border-radius:14px;margin:1.25rem 0;padding:1.25rem 1.25rem 1rem;border:1px solid #334155}
+.card-title{font-size:1.1rem;font-weight:700;color:#38bdf8;margin-bottom:.75rem;display:flex;align-items:center;gap:.5rem}
+.card-title .icon{font-size:1.3rem}
 
-/* HEADER */
-.header{background:linear-gradient(135deg,#0f172a,#1e3a5f,#0f172a);background-size:400% 400%;animation:gradShift 8s ease infinite;padding:2rem 1.25rem 1.5rem;text-align:center;border-bottom:1px solid var(--border)}
-@keyframes gradShift{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
-.header h1{font-size:1.5rem;font-weight:700;letter-spacing:.02em}
-.header .sub{color:var(--muted);font-size:.85rem;margin-top:.25rem}
+/* Surf SVG wave */
+.wave-wrap{width:100%;height:48px;margin-bottom:.5rem;overflow:hidden;border-radius:8px}
+.wave-wrap svg{width:100%;height:100%}
+.wave-path{fill:none;stroke:#38bdf8;stroke-width:2;opacity:.45}
+.wave-path2{fill:none;stroke:#0ea5e9;stroke-width:1.5;opacity:.3}
+@keyframes waveMove{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+.wave-anim{animation:waveMove 4s linear infinite}
 
-/* CARDS */
-.container{max-width:720px;margin:0 auto;padding:1rem}
-.card{background:var(--card);border:1px solid var(--border);border-radius:12px;margin-bottom:1.25rem;overflow:hidden}
-.card-head{padding:1rem 1.25rem;font-size:1.1rem;font-weight:600;display:flex;align-items:center;gap:.5rem;border-bottom:1px solid var(--border)}
-.card-body{padding:1rem 1.25rem}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:.5rem .75rem;margin:.5rem 0}
+.grid2 .label{font-size:.75rem;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px}
+.grid2 .val{font-size:1rem;font-weight:600;color:#f1f5f9}
 
-/* BADGES */
-.badge{display:inline-block;padding:2px 8px;border-radius:6px;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
-.badge-good{background:#166534;color:#bbf7d0}
-.badge-fair{background:#854d0e;color:#fef08a}
-.badge-poor{background:#991b1b;color:#fecaca}
-.badge-new{background:#7c3aed;color:#ede9fe;margin-left:6px}
+table{width:100%;border-collapse:collapse;margin:.75rem 0;font-size:.82rem}
+th{text-align:left;padding:.45rem .4rem;color:#94a3b8;font-weight:600;border-bottom:1px solid #334155;font-size:.72rem;text-transform:uppercase;letter-spacing:.4px}
+td{padding:.45rem .4rem;border-bottom:1px solid #1e293b}
+.badge{display:inline-block;padding:1px 8px;border-radius:10px;font-size:.7rem;font-weight:700;text-transform:uppercase}
+.badge-good{background:#065f46;color:#6ee7b7}
+.badge-fair{background:#78350f;color:#fbbf24}
+.badge-poor{background:#7f1d1d;color:#fca5a5}
 
-/* SURF WAVE SVG */
-.surf-wave-wrap{position:relative;height:48px;overflow:hidden;border-radius:0 0 12px 12px}
-.surf-wave-wrap svg{position:absolute;bottom:0;width:200%;height:48px;animation:waveSlide 6s linear infinite}
-@keyframes waveSlide{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+.best-window{background:#0c4a6e;border:1px solid #0ea5e9;border-radius:10px;padding:.75rem 1rem;margin:.75rem 0;font-size:.85rem}
+.best-window strong{color:#38bdf8}
 
-/* DETAILS / SUMMARY */
-details{border-top:1px solid var(--border)}
-details:first-of-type{border-top:none}
-summary{padding:.85rem 1.25rem;cursor:pointer;font-weight:500;display:flex;align-items:center;gap:.5rem;list-style:none}
-summary::-webkit-details-marker{display:none}
-summary::before{content:"▶";font-size:.65rem;color:var(--muted);transition:transform .2s}
+.sources{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.75rem}
+.sources a{font-size:.75rem;color:#38bdf8;text-decoration:none;background:#0f172a;padding:4px 10px;border-radius:8px;border:1px solid #1e3a5f}
+.sources a:hover{background:#1e3a5f}
+
+details{margin:.4rem 0;border-radius:8px;overflow:hidden}
+summary{cursor:pointer;padding:.6rem .75rem;background:#0f172a;border-radius:8px;font-weight:600;font-size:.9rem;list-style:none;display:flex;align-items:center;gap:.5rem;border:1px solid #334155;transition:background .2s}
+summary:hover{background:#1a2744}
+summary::before{content:"▶";font-size:.65rem;color:#64748b;transition:transform .2s;display:inline-block}
 details[open] summary::before{transform:rotate(90deg)}
-details .detail-body{padding:0 1.25rem 1rem;color:var(--muted);font-size:.9rem}
-details .detail-body p{margin-bottom:.5rem}
+summary::-webkit-details-marker{display:none}
+.story-body{padding:.6rem .75rem .75rem;font-size:.85rem;color:#cbd5e1;line-height:1.65}
+.story-body a{color:#38bdf8;text-decoration:none}
+.story-body a:hover{text-decoration:underline}
 
-/* FORECAST TABLE */
-.forecast-table{width:100%;border-collapse:collapse;font-size:.82rem;margin-top:.75rem}
-.forecast-table th,.forecast-table td{padding:.5rem .4rem;text-align:center;border-bottom:1px solid var(--border)}
-.forecast-table th{color:var(--muted);font-weight:600;font-size:.72rem;text-transform:uppercase;letter-spacing:.03em}
-.forecast-table td{color:var(--text)}
-.best-row{background:rgba(56,189,248,.08)}
+.new-badge{background:#dc2626;color:#fff;font-size:.6rem;font-weight:800;padding:2px 6px;border-radius:6px;text-transform:uppercase;letter-spacing:.5px;margin-left:.35rem;vertical-align:middle}
 
-/* METRICS ROW */
-.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:.5rem;margin-bottom:.75rem}
-.metric{background:var(--bg);border-radius:8px;padding:.6rem .5rem;text-align:center}
-.metric .val{font-size:1.1rem;font-weight:700;color:var(--accent)}
-.metric .lbl{font-size:.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-top:2px}
+.futures{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;margin:.5rem 0}
+.fut-card{background:#0f172a;border-radius:8px;padding:.55rem;text-align:center;border:1px solid #334155}
+.fut-name{font-size:.7rem;color:#94a3b8;text-transform:uppercase}
+.fut-val{font-size:1rem;font-weight:700;color:#4ade80}
 
-/* SOURCES ROW */
-.sources{display:flex;flex-wrap:wrap;gap:.75rem;margin-top:.75rem;font-size:.8rem}
+.big-story-box{background:linear-gradient(135deg,#1e1b4b,#1e293b);border:1px solid #6366f1;border-radius:12px;padding:1rem;margin:.5rem 0}
+.big-story-box p{font-size:.85rem;color:#c7d2fe;margin-bottom:.5rem;line-height:1.65}
+.big-story-box .pred{font-style:italic;color:#a5b4fc}
+.big-story-box .src-links{margin-top:.5rem}
+.big-story-box .src-links a{color:#818cf8;font-size:.8rem;text-decoration:none;margin-right:.75rem}
+.big-story-box .src-links a:hover{text-decoration:underline}
 
-/* MARKET STRIP */
-.market-strip{display:flex;gap:.75rem;flex-wrap:wrap;padding:.75rem 1.25rem;background:var(--bg);border-radius:8px;margin-bottom:.75rem;font-size:.82rem}
-.market-strip .idx{font-weight:600}
-.market-strip .up{color:var(--green)}
-.market-strip .dn{color:var(--red)}
-
-/* STORY LINK */
-.story-link{display:inline-block;margin-top:.35rem;font-size:.82rem;font-weight:500}
-
-/* HIGHLIGHT BOX */
-.highlight{background:rgba(56,189,248,.06);border-left:3px solid var(--accent);padding:.75rem 1rem;border-radius:0 8px 8px 0;margin-bottom:.75rem;font-size:.9rem}
-
-/* TIMESTAMP */
-.timestamp{text-align:center;color:var(--muted);font-size:.72rem;margin-top:2rem}
+footer{text-align:center;padding:2rem 1rem .5rem;font-size:.7rem;color:#475569}
 </style>
 </head>
 <body>
 
-<div class="header">
-  <h1>Good Morning, Brett</h1>
-  <div class="sub">Tuesday, April 7, 2026 — Your daily briefing</div>
-</div>
+<header>
+<h1>Good Morning, Brett</h1>
+<p>Wednesday, April 8, 2026</p>
+</header>
 
-<div class="container">
+<div class="cards">
 
 <!-- ============ 1. SURF REPORT ============ -->
 <div class="card">
-  <div class="card-head">🌊 Surf Report — Cannon Beach, OR</div>
-  <div class="card-body">
+<div class="card-title"><span class="icon">🌊</span> Surf Report — Cannon Beach, OR</div>
 
-    <div class="highlight">
-      Best window this week: <strong>Wednesday–Thursday</strong> — swell fills in from the WNW with lighter winds and longer periods expected mid-week.
-    </div>
-
-    <div class="metrics">
-      <div class="metric"><div class="val">2–4 ft</div><div class="lbl">Wave Height</div></div>
-      <div class="metric"><div class="val">10 s</div><div class="lbl">Period</div></div>
-      <div class="metric"><div class="val">N 9 mph</div><div class="lbl">Wind</div></div>
-      <div class="metric"><div class="val">53°F</div><div class="lbl">Water Temp</div></div>
-      <div class="metric"><div class="val">NW/WSW</div><div class="lbl">Swell Dir</div></div>
-      <div class="metric"><div class="val">-0.6 ft</div><div class="lbl">Low Tide 9:19a</div></div>
-    </div>
-
-    <p style="font-size:.85rem;color:var(--muted);margin-bottom:.25rem">Sources agree on 2–4 ft faces with occasional 4–6 ft sets. NW and WSW swell mixing. Northerly cross-shore winds. Full winter wetsuit + boots/gloves recommended at 53°F.</p>
-
-    <table class="forecast-table">
-      <thead>
-        <tr><th>Day</th><th>Waves</th><th>Period</th><th>Wind</th><th>Rating</th></tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><strong>Tue 4/7</strong></td><td>2–4 ft</td><td>10 s</td><td>N 9 mph</td>
-          <td><span class="badge badge-fair">Fair</span></td>
-        </tr>
-        <tr>
-          <td><strong>Wed 4/8</strong></td><td>3–5 ft</td><td>12 s</td><td>E 5 mph</td>
-          <td><span class="badge badge-good">Good</span></td>
-        </tr>
-        <tr class="best-row">
-          <td><strong>Thu 4/9</strong></td><td>4–6 ft</td><td>13 s</td><td>SE 4 mph</td>
-          <td><span class="badge badge-good">Good</span> ★</td>
-        </tr>
-        <tr>
-          <td><strong>Fri 4/10</strong></td><td>3–5 ft</td><td>11 s</td><td>S 8 mph</td>
-          <td><span class="badge badge-fair">Fair</span></td>
-        </tr>
-        <tr>
-          <td><strong>Sat 4/11</strong></td><td>2–3 ft</td><td>9 s</td><td>NW 12 mph</td>
-          <td><span class="badge badge-poor">Poor</span></td>
-        </tr>
-      </tbody>
-    </table>
-
-    <div class="sources">
-      <a href="https://www.surfline.com/surf-reports-forecasts-cams/united-states/oregon/clatsop-county/cannon-beach/5717789" target="_blank" rel="noopener">Surfline →</a>
-      <a href="https://www.surf-forecast.com/breaks/Cannon-Beach/forecasts/latest/six_day" target="_blank" rel="noopener">surf-forecast.com →</a>
-      <a href="https://www.ndbc.noaa.gov/station_page.php?station=46029" target="_blank" rel="noopener">NOAA Buoy 46029 →</a>
-    </div>
-  </div>
-
-  <div class="surf-wave-wrap">
-    <svg viewBox="0 0 1200 48" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M0,28 Q75,8 150,28 T300,28 T450,28 T600,28 T750,28 T900,28 T1050,28 T1200,28 L1200,48 L0,48 Z" fill="rgba(56,189,248,0.12)"/>
-      <path d="M0,34 Q75,18 150,34 T300,34 T450,34 T600,34 T750,34 T900,34 T1050,34 T1200,34 L1200,48 L0,48 Z" fill="rgba(56,189,248,0.07)"/>
-    </svg>
-  </div>
+<div class="wave-wrap">
+<svg viewBox="0 0 800 48" preserveAspectRatio="none">
+<g class="wave-anim">
+<path class="wave-path" d="M0 28 Q50 10 100 28 T200 28 T300 28 T400 28 T500 28 T600 28 T700 28 T800 28 T900 28 T1000 28 T1100 28 T1200 28 T1300 28 T1400 28 T1500 28 T1600 28"/>
+<path class="wave-path2" d="M0 32 Q50 18 100 32 T200 32 T300 32 T400 32 T500 32 T600 32 T700 32 T800 32 T900 32 T1000 32 T1100 32 T1200 32 T1300 32 T1400 32 T1500 32 T1600 32"/>
+</g>
+</svg>
 </div>
 
-<!-- ============ 2. BUSINESS & MARKET NEWS ============ -->
-<div class="card">
-  <div class="card-head">📈 Business &amp; Market News</div>
-  <div class="card-body">
-
-    <div class="market-strip">
-      <span><span class="idx">S&amp;P 500</span> <span class="up">▲ 0.44%</span> 6,611</span>
-      <span><span class="idx">Dow</span> <span class="up">▲ 0.36%</span> 46,669</span>
-      <span><span class="idx">Nasdaq</span> <span class="up">▲ 0.54%</span> 21,996</span>
-    </div>
-    <p style="font-size:.82rem;color:var(--muted);margin-bottom:.5rem">Pre-market futures mixed. Markets rebounded Monday on ceasefire hopes despite geopolitical uncertainty. UBS cut S&amp;P year-end target to 7,500.</p>
-
-    <details>
-      <summary>Trump Iran Deadline Triggers Market Volatility <span class="badge badge-new">NEW</span></summary>
-      <div class="detail-body">
-        <p>President Trump set a deadline for Iran to reopen the Strait of Hormuz, threatening destruction of Iranian infrastructure if demands aren't met. Despite initial selloffs, markets rallied on emerging ceasefire hopes.</p>
-        <a class="story-link" href="https://www.cnbc.com/2026/04/07/cnbc-daily-open-trump-says-iran-can-be-taken-out-in-one-night.html" target="_blank" rel="noopener">Read on CNBC →</a>
-      </div>
-    </details>
-
-    <details>
-      <summary>Oil Surges Past $115 on Middle East Escalation <span class="badge badge-new">NEW</span></summary>
-      <div class="detail-body">
-        <p>Crude oil climbed sharply to $116/barrel as the U.S.–Iran conflict intensified around Kharg Island and the Strait of Hormuz, putting pressure on growth-sensitive sectors and raising fuel cost concerns.</p>
-        <a class="story-link" href="https://finance.yahoo.com/news/live/stock-market-today-oil-surges-futures-fall-as-trump-ratchets-up-threats-against-iran-002656735.html" target="_blank" rel="noopener">Read more →</a>
-      </div>
-    </details>
-
-    <details>
-      <summary>Apple Foldable iPhone Hits Engineering Snags; Tech Weakens</summary>
-      <div class="detail-body">
-        <p>Major tech stocks declined with Nvidia, Tesla, and Apple all down. Apple sold off on reports its foldable iPhone encountered engineering challenges. Broader tech faced headwinds as investors rotated out of growth stocks.</p>
-        <a class="story-link" href="https://finance.yahoo.com/news/live/stock-market-today-dow-s-p-500-nasdaq-gain-ahead-of-trump-deadline-for-iran-deal/" target="_blank" rel="noopener">Read more →</a>
-      </div>
-    </details>
-
-    <details>
-      <summary>Novo Nordisk Launches Wegovy HD — Healthcare Rallies</summary>
-      <div class="detail-body">
-        <p>Novo Nordisk launched Wegovy HD (7.2 mg injectable — triple the previous dose) with FDA priority approval. UnitedHealth surged ~8% pre-market and CVS ~7%, reflecting investor optimism in expanded weight-loss drug market.</p>
-        <a class="story-link" href="https://finance.yahoo.com/news/live/stock-market-today-dow-s-p-500-nasdaq-gain-ahead-of-trump-deadline-for-iran-deal/" target="_blank" rel="noopener">Read more →</a>
-      </div>
-    </details>
-
-    <details>
-      <summary>Ackman Bids €55.8B for Universal Music Group</summary>
-      <div class="detail-body">
-        <p>Bill Ackman's Pershing Square announced a massive €55.8 billion bid to acquire Universal Music Group and take it public on the NYSE. UMG stock surged over 10% on the announcement.</p>
-        <a class="story-link" href="https://finance.yahoo.com/news/live/stock-market-today-dow-s-p-500-nasdaq-gain-ahead-of-trump-deadline-for-iran-deal/" target="_blank" rel="noopener">Read more →</a>
-      </div>
-    </details>
-
-    <details>
-      <summary>Artemis II Crew Surpasses Apollo 13 Distance Record</summary>
-      <div class="detail-body">
-        <p>The Artemis II astronauts set a new record as the farthest humans from Earth, surpassing the Apollo 13 distance record of 248,655 miles set in 1970. A major milestone in NASA's return to the Moon.</p>
-        <a class="story-link" href="https://www.cnbc.com/" target="_blank" rel="noopener">Read on CNBC →</a>
-      </div>
-    </details>
-
-  </div>
+<div class="grid2">
+<div><span class="label">Wave Height</span><br><span class="val">2–4 ft (sets 4–6 ft)</span></div>
+<div><span class="label">Period</span><br><span class="val">10 sec NW</span></div>
+<div><span class="label">Wind</span><br><span class="val">9–10 mph NNW</span></div>
+<div><span class="label">Water Temp</span><br><span class="val">52.9 °F / 11.6 °C</span></div>
+<div><span class="label">Tide</span><br><span class="val">High 9.2 ft 3:04 AM · Low −0.6 ft 9:19 AM</span></div>
+<div><span class="label">Swell Dir</span><br><span class="val">NW + WSW split</span></div>
 </div>
 
-<!-- ============ 3. BIG STORY OF THE WEEK ============ -->
+<table>
+<thead><tr><th>Day</th><th>Waves</th><th>Wind</th><th>Period</th><th>Rating</th></tr></thead>
+<tbody>
+<tr><td><strong>Wed 4/8</strong></td><td>2–4 ft (6 ft sets)</td><td>9 mph NNW</td><td>10s</td><td><span class="badge badge-fair">Fair</span></td></tr>
+<tr><td>Thu 4/9</td><td>5–6 ft</td><td>5 kt NW</td><td>9s NW / 13s W</td><td><span class="badge badge-good">Good</span></td></tr>
+<tr><td>Fri 4/10</td><td>~5 ft</td><td>5–10 kt W</td><td>8s NW / 11s W</td><td><span class="badge badge-fair">Fair</span></td></tr>
+<tr><td>Sat 4/11</td><td>~4 ft</td><td>5–10 kt W</td><td>8s NW</td><td><span class="badge badge-poor">Poor</span></td></tr>
+<tr style="background:#0c4a6e22"><td><strong>Sun 4/12</strong></td><td>5–6 ft</td><td>5–10 kt N</td><td>9s NW / 12s W</td><td><span class="badge badge-good">Good</span></td></tr>
+<tr style="background:#0c4a6e22"><td><strong>Mon 4/13</strong></td><td>5–6 ft</td><td>5–10 kt N</td><td>9s NW / 15s W</td><td><span class="badge badge-good">Good</span></td></tr>
+</tbody>
+</table>
+
+<div class="best-window">
+<strong>Best Window:</strong> Sunday Apr 12 – Monday Apr 13 — Consistent 5–6 ft NW swell, 9–15 sec period, light N offshore wind. Thursday Apr 9 is also solid with a 13-sec W swell mixing in.
+</div>
+
+<div class="sources">
+<a href="https://www.surfline.com/surf-reports-forecasts-cams/united-states/oregon/clatsop-county/cannon-beach/5717789" target="_blank" rel="noopener">Surfline →</a>
+<a href="https://www.surf-forecast.com/breaks/Cannon-Beach/forecasts/latest/six_day" target="_blank" rel="noopener">surf-forecast.com →</a>
+<a href="https://www.ndbc.noaa.gov/station_page.php?station=46029" target="_blank" rel="noopener">NOAA Buoy 46029 →</a>
+</div>
+</div>
+
+<!-- ============ 2. BUSINESS & MARKETS ============ -->
 <div class="card">
-  <div class="card-head">🔥 Big Story of the Week</div>
-  <div class="card-body">
-    <h3 style="font-size:1rem;margin-bottom:.5rem">Iran–U.S. War Escalation: Trump's Ultimatum</h3>
-    <p style="font-size:.9rem;margin-bottom:.75rem">
-      The U.S.–Iran conflict has entered its most critical phase. President Trump set an 8 PM ET deadline tonight for Iran to reopen the Strait of Hormuz, threatening total destruction of Iranian infrastructure. Oil at $116/barrel is rippling through global markets, airlines are raising fees, and over 1,400 casualties have been reported in Lebanon alone. This is the story that's defining the week — and likely the month.
-    </p>
-    <p style="font-size:.85rem;color:var(--muted);margin-bottom:.75rem">
-      <strong style="color:var(--orange)">Prediction: GROWS.</strong> Active military escalation, imminent presidential deadlines, regional expansion into Lebanon, and global energy consequences ensure this dominates coverage regardless of tonight's outcome.
-    </p>
-    <div class="sources">
-      <a href="https://www.cnn.com/2026/04/07/world/live-news/iran-war-trump-us-israel" target="_blank" rel="noopener">CNN →</a>
-      <a href="https://www.npr.org/2026/04/05/nx-s1-5774368/iran-war-updates" target="_blank" rel="noopener">NPR →</a>
-      <a href="https://www.nbcnews.com/world/iran/live-blog/live-updates-iran-war-trump-deadline-hormuz-oil-ceasefire-israel-rcna266833" target="_blank" rel="noopener">NBC News →</a>
-    </div>
-  </div>
+<div class="card-title"><span class="icon">📈</span> Business & Markets — CNBC</div>
+
+<div class="futures">
+<div class="fut-card"><div class="fut-name">Dow Futures</div><div class="fut-val">+2.25%</div></div>
+<div class="fut-card"><div class="fut-name">S&P 500</div><div class="fut-val">+2.45%</div></div>
+<div class="fut-card"><div class="fut-name">Nasdaq 100</div><div class="fut-val">+3.2%</div></div>
+</div>
+
+<details>
+<summary>Markets Rally on Trump–Iran Ceasefire Deal</summary>
+<div class="story-body">U.S. stock futures surged Wednesday after President Trump announced an 11th-hour two-week ceasefire with Iran, brokered by Pakistan. The pause avoids strikes on Iranian civilian infrastructure and reopens the Strait of Hormuz question. Dow futures jumped over 1,000 points. <a href="https://www.cnbc.com/2026/04/08/cnbc-daily-open-trumps-truce-sparks-global-relief-rally.html" target="_blank" rel="noopener">Read on CNBC →</a></div>
+</details>
+
+<details>
+<summary>Oil Crashes 13–15% on Ceasefire News</summary>
+<div class="story-body">WTI crude plunged 15% to $95.75/barrel and Brent dropped 13% to $94.40 as the ceasefire removed the geopolitical risk premium that had been driving energy prices higher throughout the five-week conflict. <a href="https://www.cnbc.com/2026/04/08/daily-open-trump-iran-pause-strait-hormuz-oil-markets.html" target="_blank" rel="noopener">Read on CNBC →</a></div>
+</details>
+
+<details>
+<summary>Global Equity Rally: Europe +4%, Korea +7%</summary>
+<div class="story-body">The ceasefire triggered a broad global relief rally. Europe's Stoxx 600 surged 4%, South Korea's Kospi jumped 7% to 5,872, and the Kosdaq rose 5.1%. Investors rotated out of safe havens and back into risk assets across all major markets. <a href="https://www.cnbc.com/2026/04/07/stock-market-today-live-updates.html" target="_blank" rel="noopener">Read on CNBC →</a></div>
+</details>
+
+<details>
+<summary>S&P 500 Closed +0.08% at 6,616 on Monday</summary>
+<div class="story-body">The S&P 500 eked out a small gain on Monday ahead of the ceasefire announcement, closing at 6,616.85. Markets had been cautiously optimistic as diplomatic signals emerged, though most of the big move came in overnight futures. <a href="https://www.cnbc.com/2026/04/06/stock-market-today-live-updates.html" target="_blank" rel="noopener">Read on CNBC →</a></div>
+</details>
+
+<details>
+<summary>EIA Raises Gas Price Forecast to $4.30/Gallon Peak</summary>
+<div class="story-body">Even with the ceasefire, the EIA sharply raised its gasoline price forecast, expecting a peak of $4.30/gallon in April due to lingering supply disruptions and refinery margin pressures from the five-week conflict. Prices may ease if the ceasefire holds. <a href="https://www.cnbc.com/markets/" target="_blank" rel="noopener">Read on CNBC →</a></div>
+</details>
+</div>
+
+<!-- ============ 3. BIG STORY ============ -->
+<div class="card">
+<div class="card-title"><span class="icon">🔥</span> Big Story of the Week</div>
+
+<div class="big-story-box">
+<p><strong>US–Iran Conflict Reaches Ceasefire After 38 Days</strong></p>
+<p>The five-week US–Iran conflict dominated the global news cycle as it escalated to strikes on Iran's Kharg Island oil hub, threats against civilian infrastructure, and the closure of the Strait of Hormuz. Pakistan brokered a two-week ceasefire announced overnight, sending markets surging and oil prices tumbling. Chairman of the Joint Chiefs Gen. Dan Caine said the US remains "combat ready" despite the pause.</p>
+<p class="pred">Prediction: This story grows, not fades. The two-week ceasefire window is fragile — underlying tensions over nuclear capabilities, oil transit, and regional alliances remain unresolved. Expect continued coverage through late April at minimum.</p>
+<div class="src-links">
+<a href="https://www.cnn.com/2026/04/07/world/live-news/iran-war-trump-us-israel" target="_blank" rel="noopener">CNN →</a>
+<a href="https://abc7news.com/live-updates/iran-war-strait-hormuz-ceasefire-trump-stock-market/18847792/" target="_blank" rel="noopener">ABC News →</a>
+<a href="https://www.cnbc.com/2026/04/08/cnbc-daily-open-trumps-truce-sparks-global-relief-rally.html" target="_blank" rel="noopener">CNBC →</a>
+</div>
+</div>
 </div>
 
 <!-- ============ 4. TECH + GAME DEV ============ -->
 <div class="card">
-  <div class="card-head">🎮 Tech + Game Dev</div>
-  <div class="card-body">
+<div class="card-title"><span class="icon">🎮</span> Tech + Game Dev</div>
 
-    <details>
-      <summary>Three.js WebGPU Hits Cross-Browser Production Ready <span class="badge badge-new">NEW</span></summary>
-      <div class="detail-body">
-        <p>Three.js achieved production-ready WebGPU support across all major browsers (Firefox 147, Safari iOS 26). The r184 release delivers 10x performance improvements with particle systems supporting 1M+ units vs 50K in WebGL.</p>
-        <a class="story-link" href="https://www.utsubo.com/blog/threejs-2026-what-changed" target="_blank" rel="noopener">Read more →</a>
-      </div>
-    </details>
+<details>
+<summary>Apple Foldable iPhone on Track for September 2026 <span class="new-badge">NEW</span></summary>
+<div class="story-body">Apple's first foldable smartphone remains on schedule to ship alongside the iPhone 18 Pro and Pro Max this September. Bloomberg reports the development timeline is holding steady for what will be Apple's biggest hardware shakeup in years. <a href="https://www.bloomberg.com/news/articles/2026-04-07/apple-s-foldable-iphone-remains-on-track-for-september-debut" target="_blank" rel="noopener">Read on Bloomberg →</a></div>
+</details>
 
-    <details>
-      <summary>Samsung Confirms Android XR Smart Glasses for 2026 <span class="badge badge-new">NEW</span></summary>
-      <div class="detail-body">
-        <p>Samsung officially confirmed its Android XR smart glasses will ship this year, designed for everyday indoor/outdoor wear. Positioned to compete directly with Meta Ray-Ban at a competitive price point.</p>
-        <a class="story-link" href="https://www.tomsguide.com/computing/smart-glasses/samsung-just-confirmed-its-android-xr-smart-glasses-will-launch-this-year-heres-how-they-can-beat-ray-ban-meta" target="_blank" rel="noopener">Read more →</a>
-      </div>
-    </details>
+<details>
+<summary>Samsung Confirms Android XR Glasses Shipping 2026 <span class="new-badge">NEW</span></summary>
+<div class="story-body">Samsung officially confirmed its Android XR smart glasses will ship this year, directly challenging Meta's Ray-Ban displays. The Galaxy Glasses are designed for all-day wear with larger battery capacity than competitors. <a href="https://www.tomsguide.com/computing/smart-glasses/samsung-just-confirmed-its-android-xr-smart-glasses-will-launch-this-year-heres-how-they-can-beat-ray-ban-meta" target="_blank" rel="noopener">Read on Tom's Guide →</a></div>
+</details>
 
-    <details>
-      <summary>Google Returns to Smart Glasses with Samsung &amp; Warby Parker</summary>
-      <div class="detail-body">
-        <p>Google is re-entering smart glasses via a multi-partner strategy with Samsung, Warby Parker, and Gentle Monster for 2026, plus an audio-only version for accessibility — a direct challenge to Meta's dominance.</p>
-        <a class="story-link" href="https://virtual.reality.news/news/android-xr-glasses-beat-meta-ray-ban-in-3-key-areas/" target="_blank" rel="noopener">Read more →</a>
-      </div>
-    </details>
+<details>
+<summary>Panasonic Lumix G100 II Coming with Phase-Detect AF <span class="new-badge">NEW</span></summary>
+<div class="story-body">At CP+ 2026, Panasonic confirmed continued investment in Micro Four Thirds with a G100 II featuring a 25.1MP sensor, phase-detect autofocus, and 4K 60p 10-bit video. Good news for the MFT ecosystem. <a href="https://petapixel.com/2026/03/25/what-is-panasonics-path-to-success-in-micro-four-thirds/" target="_blank" rel="noopener">Read on PetaPixel →</a></div>
+</details>
 
-    <details>
-      <summary>Apple at 50: New Apple Business Platform Launches</summary>
-      <div class="detail-body">
-        <p>Apple celebrated its 50th anniversary by launching Apple Business — an all-in-one enterprise platform with integrated device management, customer tools, and support services. AirPods Max 2 also shipped with upgraded H2 chip.</p>
-        <a class="story-link" href="https://www.apple.com/newsroom/2026/03/introducing-apple-business-a-new-all-in-one-platform-for-businesses-of-all-sizes/" target="_blank" rel="noopener">Read more →</a>
-      </div>
-    </details>
+<details>
+<summary>OM System Hints at New PEN Series Camera</summary>
+<div class="story-body">OM System has indicated plans to launch a new PEN series camera for Micro Four Thirds, signaling continued investment in the MFT mount despite industry consolidation toward full-frame. <a href="https://www.43rumors.com/" target="_blank" rel="noopener">Read on 43 Rumors →</a></div>
+</details>
 
-    <details>
-      <summary>Meta Quest: Breachers &amp; Vacation Sim Join Horizon+ <span class="badge badge-new">NEW</span></summary>
-      <div class="detail-body">
-        <p>Meta added tactical shooter Breachers, Vacation Simulator, and Prison Boss Prohibition to Horizon+ for April. Meanwhile, Horizon Worlds is transitioning to mobile-only after March 31.</p>
-        <a class="story-link" href="https://www.uploadvr.com/meta-horizon-april-2026-games-update/" target="_blank" rel="noopener">Read more →</a>
-      </div>
-    </details>
+<details>
+<summary>Three.js v190: WebGPU Renderer Now Default <span class="new-badge">NEW</span></summary>
+<div class="story-body">Three.js v190 defaults to WebGPU rendering with 2x performance over legacy WebGL. Full cross-browser support landed in Jan 2026 (Firefox 147 + Safari iOS 26). The March r184 release added optimized memory management for 1M+ particle systems. <a href="https://www.utsubo.com/blog/threejs-2026-what-changed" target="_blank" rel="noopener">Read more →</a></div>
+</details>
 
-    <details>
-      <summary>AI Game Dev Tools Go Mainstream in 2026</summary>
-      <div class="detail-body">
-        <p>AI game development tools matured significantly — Ludo.ai leads market research and asset generation, Unity ML-Agents handles NPC behavior, and GitHub Copilot plugins accelerate coding. AIVA and ElevenLabs automate audio.</p>
-        <a class="story-link" href="https://www.elsner.com/ai-game-development-tools/" target="_blank" rel="noopener">Read more →</a>
-      </div>
-    </details>
+<details>
+<summary>Cursor Sponsors $35K VibeJam: 90% AI-Generated Code <span class="new-badge">NEW</span></summary>
+<div class="story-body">Cursor (now at $29.3B valuation, $1.2B ARR) and Bolt.new are sponsoring the 2026 VibeJam game jam with $35,000 in prizes. The catch: games must use at least 90% AI-generated code, showcasing how vibe coding is becoming viable for real game dev. <a href="https://daily.dev/blog/vibe-coding-how-ai-changing-developers-code" target="_blank" rel="noopener">Read more →</a></div>
+</details>
 
-    <details>
-      <summary>YoloLiv's First MFT Lens: 18mm f/1.4 Prime</summary>
-      <div class="detail-body">
-        <p>YoloLiv announced its first Micro Four Thirds lens — a unique 18mm f/1.4 prime for the YoloCam S7 streaming camera. Signals renewed third-party interest in the MFT mount ecosystem.</p>
-        <a class="story-link" href="https://petapixel.com/2026/03/11/yololiv-is-making-a-unique-18mm-f-1-4-micro-four-thirds-lens/" target="_blank" rel="noopener">Read more →</a>
-      </div>
-    </details>
+<details>
+<summary>Meta Quest April 2026: Breachers, Vacation Sim, WRATH VR <span class="new-badge">NEW</span></summary>
+<div class="story-body">Meta's Horizon+ April catalog adds Breachers (ballistic shooter), Vacation Simulator, and Prison Boss Prohibition, plus exclusives Vendetta Forever and The House of Da Vinci VR. WRATH: Aeon of Ruin VR launches April 9. <a href="https://www.uploadvr.com/meta-horizon-april-2026-games-update/" target="_blank" rel="noopener">Read on UploadVR →</a></div>
+</details>
 
-    <details>
-      <summary>Stylized Water Shaders: Gerstner Waves Tutorial</summary>
-      <div class="detail-body">
-        <p>A comprehensive tutorial on modern water shader techniques using vertex displacement with Gerstner-like waves and fragment shader normals. Covers refraction, reflection, caustics, and surface tension for real-time game rendering.</p>
-        <a class="story-link" href="https://gameidea.org/2026/02/01/creating-a-stylized-3d-water-shader/" target="_blank" rel="noopener">Read more →</a>
-      </div>
-    </details>
+<details>
+<summary>AirPods Max 2 Ships with H2 Processor</summary>
+<div class="story-body">Apple's AirPods Max 2 began shipping in early April with the upgraded H2 chip replacing the H1, bringing improvements to active noise cancellation and spatial audio features. <a href="https://www.apple.com/newsroom/2026/03/apple-introduces-airpods-max-2-powered-by-h2/" target="_blank" rel="noopener">Read on Apple →</a></div>
+</details>
 
-  </div>
 </div>
 
-</div><!-- /container -->
-
-<div class="timestamp">
-  Dashboard generated by Claude · April 7, 2026 · Sources verified at build time
 </div>
+
+<footer>
+Auto-generated by Brett's Morning Dashboard · April 8, 2026 · Sources: Surfline, NOAA, surf-forecast.com, CNBC, CNN, Bloomberg, UploadVR
+</footer>
 
 </body>
 </html>
