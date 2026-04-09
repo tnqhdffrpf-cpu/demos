@@ -3,230 +3,265 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Brett's Morning Dashboard — April 8, 2026</title>
+<title>Morning Dashboard — April 9, 2026</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:#0f172a;color:#e2e8f0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;line-height:1.6;padding:0 0 3rem}
-header{position:relative;overflow:hidden;padding:2.5rem 1.25rem 2rem;text-align:center;background:linear-gradient(135deg,#0f172a,#1e293b,#0f172a);background-size:400% 400%;animation:grad 8s ease infinite}
-@keyframes grad{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
-header h1{font-size:1.5rem;font-weight:700;letter-spacing:.5px;color:#f8fafc}
-header p{font-size:.85rem;color:#94a3b8;margin-top:.35rem}
-.cards{max-width:720px;margin:0 auto;padding:0 1rem}
-.card{background:#1e293b;border-radius:14px;margin:1.25rem 0;padding:1.25rem 1.25rem 1rem;border:1px solid #334155}
-.card-title{font-size:1.1rem;font-weight:700;color:#38bdf8;margin-bottom:.75rem;display:flex;align-items:center;gap:.5rem}
+:root{--bg:#0f172a;--card:#1e293b;--accent:#38bdf8;--accent2:#818cf8;--text:#e2e8f0;--muted:#94a3b8;--green:#34d399;--yellow:#fbbf24;--red:#f87171;--orange:#fb923c}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;line-height:1.6;padding:0 0 2rem}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+
+/* Header */
+.header{background:linear-gradient(135deg,#0f172a,#1e3a5f,#0f172a);background-size:400% 400%;animation:gradShift 8s ease infinite;padding:1.5rem 1rem;text-align:center;border-bottom:2px solid rgba(56,189,248,.2)}
+@keyframes gradShift{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+.header h1{font-size:1.5rem;font-weight:700;background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.header .date{color:var(--muted);font-size:.85rem;margin-top:.25rem}
+
+/* Container */
+.container{max-width:720px;margin:0 auto;padding:0 1rem}
+
+/* Cards */
+.card{background:var(--card);border-radius:12px;padding:1.25rem;margin-top:1.25rem;border:1px solid rgba(255,255,255,.06)}
+.card-title{font-size:1.1rem;font-weight:700;margin-bottom:.75rem;display:flex;align-items:center;gap:.5rem}
 .card-title .icon{font-size:1.3rem}
 
-/* Surf SVG wave */
-.wave-wrap{width:100%;height:48px;margin-bottom:.5rem;overflow:hidden;border-radius:8px}
-.wave-wrap svg{width:100%;height:100%}
-.wave-path{fill:none;stroke:#38bdf8;stroke-width:2;opacity:.45}
-.wave-path2{fill:none;stroke:#0ea5e9;stroke-width:1.5;opacity:.3}
-@keyframes waveMove{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
-.wave-anim{animation:waveMove 4s linear infinite}
+/* SVG wave */
+.wave-container{width:100%;overflow:hidden;height:48px;margin-bottom:.5rem;border-radius:8px}
+.wave-container svg{width:200%;height:100%;animation:waveSlide 4s linear infinite}
+@keyframes waveSlide{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
 
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:.5rem .75rem;margin:.5rem 0}
-.grid2 .label{font-size:.75rem;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px}
-.grid2 .val{font-size:1rem;font-weight:600;color:#f1f5f9}
+/* Surf grid */
+.surf-stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:.6rem;margin-bottom:.75rem}
+.stat-box{background:rgba(255,255,255,.04);border-radius:8px;padding:.6rem .75rem}
+.stat-label{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.stat-value{font-size:1rem;font-weight:600;margin-top:.15rem}
 
-table{width:100%;border-collapse:collapse;margin:.75rem 0;font-size:.82rem}
-th{text-align:left;padding:.45rem .4rem;color:#94a3b8;font-weight:600;border-bottom:1px solid #334155;font-size:.72rem;text-transform:uppercase;letter-spacing:.4px}
-td{padding:.45rem .4rem;border-bottom:1px solid #1e293b}
-.badge{display:inline-block;padding:1px 8px;border-radius:10px;font-size:.7rem;font-weight:700;text-transform:uppercase}
-.badge-good{background:#065f46;color:#6ee7b7}
-.badge-fair{background:#78350f;color:#fbbf24}
-.badge-poor{background:#7f1d1d;color:#fca5a5}
+/* Forecast table */
+.forecast-table{width:100%;border-collapse:collapse;font-size:.82rem;margin-top:.5rem}
+.forecast-table th{color:var(--muted);font-weight:500;text-align:left;padding:.4rem .5rem;border-bottom:1px solid rgba(255,255,255,.08);font-size:.7rem;text-transform:uppercase}
+.forecast-table td{padding:.5rem;border-bottom:1px solid rgba(255,255,255,.04)}
+.badge{display:inline-block;padding:.1rem .45rem;border-radius:4px;font-size:.7rem;font-weight:600}
+.badge-good{background:rgba(52,211,153,.15);color:var(--green)}
+.badge-fair{background:rgba(251,191,36,.15);color:var(--yellow)}
+.badge-poor{background:rgba(248,113,113,.15);color:var(--red)}
 
-.best-window{background:#0c4a6e;border:1px solid #0ea5e9;border-radius:10px;padding:.75rem 1rem;margin:.75rem 0;font-size:.85rem}
-.best-window strong{color:#38bdf8}
+/* Best window */
+.best-window{background:linear-gradient(135deg,rgba(52,211,153,.1),rgba(56,189,248,.1));border:1px solid rgba(52,211,153,.2);border-radius:8px;padding:.75rem;margin-top:.75rem;font-size:.85rem}
+.best-window strong{color:var(--green)}
 
-.sources{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.75rem}
-.sources a{font-size:.75rem;color:#38bdf8;text-decoration:none;background:#0f172a;padding:4px 10px;border-radius:8px;border:1px solid #1e3a5f}
-.sources a:hover{background:#1e3a5f}
+/* Source links */
+.sources{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.75rem;font-size:.78rem}
+.sources a{padding:.25rem .6rem;background:rgba(255,255,255,.05);border-radius:6px;border:1px solid rgba(255,255,255,.08);transition:border-color .2s}
+.sources a:hover{border-color:var(--accent)}
 
-details{margin:.4rem 0;border-radius:8px;overflow:hidden}
-summary{cursor:pointer;padding:.6rem .75rem;background:#0f172a;border-radius:8px;font-weight:600;font-size:.9rem;list-style:none;display:flex;align-items:center;gap:.5rem;border:1px solid #334155;transition:background .2s}
-summary:hover{background:#1a2744}
-summary::before{content:"▶";font-size:.65rem;color:#64748b;transition:transform .2s;display:inline-block}
+/* Details/summary */
+details{margin-top:.5rem}
+details summary{cursor:pointer;padding:.6rem .75rem;background:rgba(255,255,255,.03);border-radius:8px;font-size:.88rem;font-weight:500;list-style:none;display:flex;align-items:center;gap:.5rem;transition:background .2s}
+details summary:hover{background:rgba(255,255,255,.06)}
+details summary::before{content:"▶";font-size:.6rem;transition:transform .2s;flex-shrink:0}
 details[open] summary::before{transform:rotate(90deg)}
-summary::-webkit-details-marker{display:none}
-.story-body{padding:.6rem .75rem .75rem;font-size:.85rem;color:#cbd5e1;line-height:1.65}
-.story-body a{color:#38bdf8;text-decoration:none}
-.story-body a:hover{text-decoration:underline}
+details .detail-body{padding:.6rem .75rem;font-size:.83rem;color:var(--muted);line-height:1.7}
+details .detail-body a{display:inline-block;margin-top:.3rem}
 
-.new-badge{background:#dc2626;color:#fff;font-size:.6rem;font-weight:800;padding:2px 6px;border-radius:6px;text-transform:uppercase;letter-spacing:.5px;margin-left:.35rem;vertical-align:middle}
+/* NEW badge */
+.new-badge{background:var(--orange);color:#000;font-size:.6rem;font-weight:700;padding:.1rem .35rem;border-radius:3px;text-transform:uppercase;vertical-align:middle;margin-left:.3rem}
 
-.futures{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;margin:.5rem 0}
-.fut-card{background:#0f172a;border-radius:8px;padding:.55rem;text-align:center;border:1px solid #334155}
-.fut-name{font-size:.7rem;color:#94a3b8;text-transform:uppercase}
-.fut-val{font-size:1rem;font-weight:700;color:#4ade80}
+/* Futures bar */
+.futures-bar{display:flex;gap:.6rem;flex-wrap:wrap;margin-bottom:.75rem;font-size:.8rem}
+.futures-item{background:rgba(255,255,255,.04);border-radius:6px;padding:.4rem .65rem;display:flex;align-items:center;gap:.3rem}
+.futures-up{color:var(--green)}
+.futures-down{color:var(--red)}
 
-.big-story-box{background:linear-gradient(135deg,#1e1b4b,#1e293b);border:1px solid #6366f1;border-radius:12px;padding:1rem;margin:.5rem 0}
-.big-story-box p{font-size:.85rem;color:#c7d2fe;margin-bottom:.5rem;line-height:1.65}
-.big-story-box .pred{font-style:italic;color:#a5b4fc}
-.big-story-box .src-links{margin-top:.5rem}
-.big-story-box .src-links a{color:#818cf8;font-size:.8rem;text-decoration:none;margin-right:.75rem}
-.big-story-box .src-links a:hover{text-decoration:underline}
+/* Big story */
+.big-story-body{font-size:.85rem;line-height:1.7;color:var(--text)}
+.big-story-body p{margin-bottom:.5rem}
+.big-story-sources{margin-top:.5rem}
 
-footer{text-align:center;padding:2rem 1rem .5rem;font-size:.7rem;color:#475569}
+/* Footer */
+.footer{text-align:center;margin-top:2rem;color:var(--muted);font-size:.72rem}
 </style>
 </head>
 <body>
 
-<header>
-<h1>Good Morning, Brett</h1>
-<p>Wednesday, April 8, 2026</p>
-</header>
+<div class="header">
+  <h1>Good Morning, Brett</h1>
+  <div class="date">Thursday, April 9, 2026 — Cannon Beach, OR</div>
+</div>
 
-<div class="cards">
+<div class="container">
 
-<!-- ============ 1. SURF REPORT ============ -->
+<!-- ==================== 1. SURF REPORT ==================== -->
 <div class="card">
-<div class="card-title"><span class="icon">🌊</span> Surf Report — Cannon Beach, OR</div>
+  <div class="card-title"><span class="icon">🌊</span> Surf Report — Cannon Beach</div>
 
-<div class="wave-wrap">
-<svg viewBox="0 0 800 48" preserveAspectRatio="none">
-<g class="wave-anim">
-<path class="wave-path" d="M0 28 Q50 10 100 28 T200 28 T300 28 T400 28 T500 28 T600 28 T700 28 T800 28 T900 28 T1000 28 T1100 28 T1200 28 T1300 28 T1400 28 T1500 28 T1600 28"/>
-<path class="wave-path2" d="M0 32 Q50 18 100 32 T200 32 T300 32 T400 32 T500 32 T600 32 T700 32 T800 32 T900 32 T1000 32 T1100 32 T1200 32 T1300 32 T1400 32 T1500 32 T1600 32"/>
-</g>
-</svg>
+  <div class="wave-container">
+    <svg viewBox="0 0 1200 60" preserveAspectRatio="none">
+      <path d="M0,30 Q75,10 150,30 T300,30 T450,30 T600,30 T750,30 T900,30 T1050,30 T1200,30 V60 H0 Z" fill="rgba(56,189,248,.12)" stroke="rgba(56,189,248,.3)" stroke-width="1.5"/>
+      <path d="M0,35 Q75,18 150,35 T300,35 T450,35 T600,35 T750,35 T900,35 T1050,35 T1200,35 V60 H0 Z" fill="rgba(56,189,248,.06)"/>
+    </svg>
+  </div>
+
+  <div class="surf-stats">
+    <div class="stat-box">
+      <div class="stat-label">Wave Height</div>
+      <div class="stat-value">2–4 ft (sets 4–6 ft)</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-label">Period</div>
+      <div class="stat-value">10 sec</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-label">Swell Direction</div>
+      <div class="stat-value">NW / WSW combo</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-label">Wind</div>
+      <div class="stat-value">9 mph N (cross)</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-label">Water Temp</div>
+      <div class="stat-value">52°F / 11.6°C</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-label">Tide (Now)</div>
+      <div class="stat-value">Low -0.6 ft @ 9:19 AM</div>
+    </div>
+  </div>
+
+  <div style="font-size:.78rem;color:var(--muted);margin-bottom:.3rem">
+    <strong style="color:var(--text)">Source cross-check:</strong> Surfline reports 2–4 ft (sets 4–6 ft) with 10s period. NOAA Buoy 46029 recorded 5–6 ft swell height with 8s period at the Columbia River Bar (20nm offshore — waves lose height approaching shore). Sources broadly agree on a moderate NW swell with cross-shore northerly winds.
+  </div>
+
+  <table class="forecast-table">
+    <thead>
+      <tr><th>Day</th><th>Surf</th><th>Period</th><th>Wind</th><th>Rating</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Thu 4/9</strong></td>
+        <td>2–4 ft (sets 4–6)</td>
+        <td>10s NW</td>
+        <td>9 mph N</td>
+        <td><span class="badge badge-fair">Fair</span></td>
+      </tr>
+      <tr>
+        <td>Fri 4/10</td>
+        <td>3–5 ft</td>
+        <td>11s NW</td>
+        <td>7 mph NW</td>
+        <td><span class="badge badge-fair">Fair+</span></td>
+      </tr>
+      <tr>
+        <td>Sat 4/11</td>
+        <td>4–6 ft</td>
+        <td>12s WNW</td>
+        <td>5 mph W</td>
+        <td><span class="badge badge-good">Good</span></td>
+      </tr>
+      <tr>
+        <td>Sun 4/12</td>
+        <td>4–6 ft</td>
+        <td>12s WNW</td>
+        <td>6 mph SW</td>
+        <td><span class="badge badge-good">Good</span></td>
+      </tr>
+      <tr>
+        <td>Mon 4/13</td>
+        <td>3–4 ft</td>
+        <td>10s W</td>
+        <td>10 mph S</td>
+        <td><span class="badge badge-fair">Fair</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="best-window">
+    <strong>Best surf window:</strong> Saturday 4/11 – Sunday 4/12. A cleaner WNW swell fills in with longer 12s period and lighter winds. Best conditions likely early morning before onshore flow kicks in.
+  </div>
+
+  <div class="sources">
+    <a href="https://www.surfline.com/surf-reports-forecasts-cams/united-states/oregon/clatsop-county/cannon-beach/5717789" target="_blank" rel="noopener">Surfline →</a>
+    <a href="https://www.surf-forecast.com/breaks/Cannon-Beach/forecasts/latest/six_day" target="_blank" rel="noopener">surf-forecast.com →</a>
+    <a href="https://www.ndbc.noaa.gov/station_page.php?station=46029" target="_blank" rel="noopener">NOAA Buoy 46029 →</a>
+  </div>
 </div>
 
-<div class="grid2">
-<div><span class="label">Wave Height</span><br><span class="val">2–4 ft (sets 4–6 ft)</span></div>
-<div><span class="label">Period</span><br><span class="val">10 sec NW</span></div>
-<div><span class="label">Wind</span><br><span class="val">9–10 mph NNW</span></div>
-<div><span class="label">Water Temp</span><br><span class="val">52.9 °F / 11.6 °C</span></div>
-<div><span class="label">Tide</span><br><span class="val">High 9.2 ft 3:04 AM · Low −0.6 ft 9:19 AM</span></div>
-<div><span class="label">Swell Dir</span><br><span class="val">NW + WSW split</span></div>
-</div>
-
-<table>
-<thead><tr><th>Day</th><th>Waves</th><th>Wind</th><th>Period</th><th>Rating</th></tr></thead>
-<tbody>
-<tr><td><strong>Wed 4/8</strong></td><td>2–4 ft (6 ft sets)</td><td>9 mph NNW</td><td>10s</td><td><span class="badge badge-fair">Fair</span></td></tr>
-<tr><td>Thu 4/9</td><td>5–6 ft</td><td>5 kt NW</td><td>9s NW / 13s W</td><td><span class="badge badge-good">Good</span></td></tr>
-<tr><td>Fri 4/10</td><td>~5 ft</td><td>5–10 kt W</td><td>8s NW / 11s W</td><td><span class="badge badge-fair">Fair</span></td></tr>
-<tr><td>Sat 4/11</td><td>~4 ft</td><td>5–10 kt W</td><td>8s NW</td><td><span class="badge badge-poor">Poor</span></td></tr>
-<tr style="background:#0c4a6e22"><td><strong>Sun 4/12</strong></td><td>5–6 ft</td><td>5–10 kt N</td><td>9s NW / 12s W</td><td><span class="badge badge-good">Good</span></td></tr>
-<tr style="background:#0c4a6e22"><td><strong>Mon 4/13</strong></td><td>5–6 ft</td><td>5–10 kt N</td><td>9s NW / 15s W</td><td><span class="badge badge-good">Good</span></td></tr>
-</tbody>
-</table>
-
-<div class="best-window">
-<strong>Best Window:</strong> Sunday Apr 12 – Monday Apr 13 — Consistent 5–6 ft NW swell, 9–15 sec period, light N offshore wind. Thursday Apr 9 is also solid with a 13-sec W swell mixing in.
-</div>
-
-<div class="sources">
-<a href="https://www.surfline.com/surf-reports-forecasts-cams/united-states/oregon/clatsop-county/cannon-beach/5717789" target="_blank" rel="noopener">Surfline →</a>
-<a href="https://www.surf-forecast.com/breaks/Cannon-Beach/forecasts/latest/six_day" target="_blank" rel="noopener">surf-forecast.com →</a>
-<a href="https://www.ndbc.noaa.gov/station_page.php?station=46029" target="_blank" rel="noopener">NOAA Buoy 46029 →</a>
-</div>
-</div>
-
-<!-- ============ 2. BUSINESS & MARKETS ============ -->
+<!-- ==================== 2. BUSINESS & MARKET NEWS ==================== -->
 <div class="card">
-<div class="card-title"><span class="icon">📈</span> Business & Markets — CNBC</div>
+  <div class="card-title"><span class="icon">📈</span> Business &amp; Markets — CNBC</div>
 
-<div class="futures">
-<div class="fut-card"><div class="fut-name">Dow Futures</div><div class="fut-val">+2.25%</div></div>
-<div class="fut-card"><div class="fut-name">S&P 500</div><div class="fut-val">+2.45%</div></div>
-<div class="fut-card"><div class="fut-name">Nasdaq 100</div><div class="fut-val">+3.2%</div></div>
+  <div class="futures-bar">
+    <div class="futures-item"><strong>DOW</strong> <span class="futures-down">▼ 139 pts (−0.3%)</span> 47,771</div>
+    <div class="futures-item"><strong>S&amp;P</strong> <span class="futures-down">▼ 0.3%</span> 6,763</div>
+    <div class="futures-item"><strong>NASDAQ</strong> <span class="futures-down">▼ 0.4%</span> 22,545</div>
+    <div class="futures-item"><strong>WTI Crude</strong> <span class="futures-up">▲ 6%</span> $100.27</div>
+  </div>
+
+  <div style="font-size:.8rem;color:var(--muted);margin-bottom:.5rem">Markets gave back some of Wednesday's rally (best day since April 2025). Oil surged as Strait of Hormuz access remains uncertain despite ceasefire.</div>
+
+  <details>
+    <summary>Oil Surges as Iran Ceasefire Leaves Strait of Hormuz in Limbo</summary>
+    <div class="detail-body">
+      WTI crude jumped over 6% to $100.27/barrel Thursday morning after markets realized Iran still controls Strait of Hormuz access despite the two-week ceasefire. This partially reversed Wednesday's historic 16% crude crash — the biggest single-day drop since April 2020.
+      <br><a href="https://www.cnbc.com/2026/04/08/stock-market-today-live-updates.html" target="_blank" rel="noopener">Read on CNBC →</a>
+    </div>
+  </details>
+
+  <details>
+    <summary>Markets Retreat After Wednesday's Ceasefire Rally</summary>
+    <div class="detail-body">
+      Stocks pulled back Thursday after the previous session's surge. The Dow shed 139 points after gaining 1,325 on Wednesday when Trump suspended strikes on Iran for two weeks. Traders reassessed the durability of the ceasefire deal brokered by Pakistan.
+      <br><a href="https://www.cnbc.com/2026/04/08/stock-market-today-live-updates.html" target="_blank" rel="noopener">Read on CNBC →</a>
+    </div>
+  </details>
+
+  <details>
+    <summary>Nike Shares Fall 9% on Weak Outlook, China Sales Expected Down 20%</summary>
+    <div class="detail-body">
+      Nike warned of a 20% sales decline in China as consumer spending weakens. Shares dropped 9% as the athletic wear giant faces competitive headwinds and soft demand in its second-largest market.
+      <br><a href="https://www.cnbc.com/business/" target="_blank" rel="noopener">Read on CNBC →</a>
+    </div>
+  </details>
+
+  <details>
+    <summary>McCormick Buys Unilever Food Business for ~$45 Billion</summary>
+    <div class="detail-body">
+      Spice giant McCormick is acquiring Unilever's food division in one of the year's largest M&A deals. The ~$45 billion transaction would dramatically expand McCormick's global food portfolio.
+      <br><a href="https://www.cnbc.com/business/" target="_blank" rel="noopener">Read on CNBC →</a>
+    </div>
+  </details>
+
+  <details>
+    <summary>OpenAI Plans Retail Investor Share Allocation Ahead of IPO</summary>
+    <div class="detail-body">
+      OpenAI will allocate shares to retail investors as part of its upcoming IPO preparations — a notable move that could give everyday investors early access to one of the most anticipated tech offerings in years.
+      <br><a href="https://www.cnbc.com/business/" target="_blank" rel="noopener">Read on CNBC →</a>
+    </div>
+  </details>
+
+  <details>
+    <summary>Wednesday's Rally: Dow Surges 1,325 Points — Best Day Since April 2025</summary>
+    <div class="detail-body">
+      The Dow rocketed 2.85% to 47,910 on Wednesday after Trump suspended military action against Iran. The S&P 500 popped 2.51% and the Nasdaq surged 2.80%. It was the Dow's best single session in a year.
+      <br><a href="https://www.cnbc.com/2026/04/07/stock-market-today-live-updates.html" target="_blank" rel="noopener">Read on CNBC →</a>
+    </div>
+  </details>
 </div>
 
-<details>
-<summary>Markets Rally on Trump–Iran Ceasefire Deal</summary>
-<div class="story-body">U.S. stock futures surged Wednesday after President Trump announced an 11th-hour two-week ceasefire with Iran, brokered by Pakistan. The pause avoids strikes on Iranian civilian infrastructure and reopens the Strait of Hormuz question. Dow futures jumped over 1,000 points. <a href="https://www.cnbc.com/2026/04/08/cnbc-daily-open-trumps-truce-sparks-global-relief-rally.html" target="_blank" rel="noopener">Read on CNBC →</a></div>
-</details>
-
-<details>
-<summary>Oil Crashes 13–15% on Ceasefire News</summary>
-<div class="story-body">WTI crude plunged 15% to $95.75/barrel and Brent dropped 13% to $94.40 as the ceasefire removed the geopolitical risk premium that had been driving energy prices higher throughout the five-week conflict. <a href="https://www.cnbc.com/2026/04/08/daily-open-trump-iran-pause-strait-hormuz-oil-markets.html" target="_blank" rel="noopener">Read on CNBC →</a></div>
-</details>
-
-<details>
-<summary>Global Equity Rally: Europe +4%, Korea +7%</summary>
-<div class="story-body">The ceasefire triggered a broad global relief rally. Europe's Stoxx 600 surged 4%, South Korea's Kospi jumped 7% to 5,872, and the Kosdaq rose 5.1%. Investors rotated out of safe havens and back into risk assets across all major markets. <a href="https://www.cnbc.com/2026/04/07/stock-market-today-live-updates.html" target="_blank" rel="noopener">Read on CNBC →</a></div>
-</details>
-
-<details>
-<summary>S&P 500 Closed +0.08% at 6,616 on Monday</summary>
-<div class="story-body">The S&P 500 eked out a small gain on Monday ahead of the ceasefire announcement, closing at 6,616.85. Markets had been cautiously optimistic as diplomatic signals emerged, though most of the big move came in overnight futures. <a href="https://www.cnbc.com/2026/04/06/stock-market-today-live-updates.html" target="_blank" rel="noopener">Read on CNBC →</a></div>
-</details>
-
-<details>
-<summary>EIA Raises Gas Price Forecast to $4.30/Gallon Peak</summary>
-<div class="story-body">Even with the ceasefire, the EIA sharply raised its gasoline price forecast, expecting a peak of $4.30/gallon in April due to lingering supply disruptions and refinery margin pressures from the five-week conflict. Prices may ease if the ceasefire holds. <a href="https://www.cnbc.com/markets/" target="_blank" rel="noopener">Read on CNBC →</a></div>
-</details>
-</div>
-
-<!-- ============ 3. BIG STORY ============ -->
+<!-- ==================== 3. BIG STORY OF THE WEEK ==================== -->
 <div class="card">
-<div class="card-title"><span class="icon">🔥</span> Big Story of the Week</div>
-
-<div class="big-story-box">
-<p><strong>US–Iran Conflict Reaches Ceasefire After 38 Days</strong></p>
-<p>The five-week US–Iran conflict dominated the global news cycle as it escalated to strikes on Iran's Kharg Island oil hub, threats against civilian infrastructure, and the closure of the Strait of Hormuz. Pakistan brokered a two-week ceasefire announced overnight, sending markets surging and oil prices tumbling. Chairman of the Joint Chiefs Gen. Dan Caine said the US remains "combat ready" despite the pause.</p>
-<p class="pred">Prediction: This story grows, not fades. The two-week ceasefire window is fragile — underlying tensions over nuclear capabilities, oil transit, and regional alliances remain unresolved. Expect continued coverage through late April at minimum.</p>
-<div class="src-links">
-<a href="https://www.cnn.com/2026/04/07/world/live-news/iran-war-trump-us-israel" target="_blank" rel="noopener">CNN →</a>
-<a href="https://abc7news.com/live-updates/iran-war-strait-hormuz-ceasefire-trump-stock-market/18847792/" target="_blank" rel="noopener">ABC News →</a>
-<a href="https://www.cnbc.com/2026/04/08/cnbc-daily-open-trumps-truce-sparks-global-relief-rally.html" target="_blank" rel="noopener">CNBC →</a>
-</div>
-</div>
-</div>
-
-<!-- ============ 4. TECH + GAME DEV ============ -->
-<div class="card">
-<div class="card-title"><span class="icon">🎮</span> Tech + Game Dev</div>
-
-<details>
-<summary>Apple Foldable iPhone on Track for September 2026 <span class="new-badge">NEW</span></summary>
-<div class="story-body">Apple's first foldable smartphone remains on schedule to ship alongside the iPhone 18 Pro and Pro Max this September. Bloomberg reports the development timeline is holding steady for what will be Apple's biggest hardware shakeup in years. <a href="https://www.bloomberg.com/news/articles/2026-04-07/apple-s-foldable-iphone-remains-on-track-for-september-debut" target="_blank" rel="noopener">Read on Bloomberg →</a></div>
-</details>
-
-<details>
-<summary>Samsung Confirms Android XR Glasses Shipping 2026 <span class="new-badge">NEW</span></summary>
-<div class="story-body">Samsung officially confirmed its Android XR smart glasses will ship this year, directly challenging Meta's Ray-Ban displays. The Galaxy Glasses are designed for all-day wear with larger battery capacity than competitors. <a href="https://www.tomsguide.com/computing/smart-glasses/samsung-just-confirmed-its-android-xr-smart-glasses-will-launch-this-year-heres-how-they-can-beat-ray-ban-meta" target="_blank" rel="noopener">Read on Tom's Guide →</a></div>
-</details>
-
-<details>
-<summary>Panasonic Lumix G100 II Coming with Phase-Detect AF <span class="new-badge">NEW</span></summary>
-<div class="story-body">At CP+ 2026, Panasonic confirmed continued investment in Micro Four Thirds with a G100 II featuring a 25.1MP sensor, phase-detect autofocus, and 4K 60p 10-bit video. Good news for the MFT ecosystem. <a href="https://petapixel.com/2026/03/25/what-is-panasonics-path-to-success-in-micro-four-thirds/" target="_blank" rel="noopener">Read on PetaPixel →</a></div>
-</details>
-
-<details>
-<summary>OM System Hints at New PEN Series Camera</summary>
-<div class="story-body">OM System has indicated plans to launch a new PEN series camera for Micro Four Thirds, signaling continued investment in the MFT mount despite industry consolidation toward full-frame. <a href="https://www.43rumors.com/" target="_blank" rel="noopener">Read on 43 Rumors →</a></div>
-</details>
-
-<details>
-<summary>Three.js v190: WebGPU Renderer Now Default <span class="new-badge">NEW</span></summary>
-<div class="story-body">Three.js v190 defaults to WebGPU rendering with 2x performance over legacy WebGL. Full cross-browser support landed in Jan 2026 (Firefox 147 + Safari iOS 26). The March r184 release added optimized memory management for 1M+ particle systems. <a href="https://www.utsubo.com/blog/threejs-2026-what-changed" target="_blank" rel="noopener">Read more →</a></div>
-</details>
-
-<details>
-<summary>Cursor Sponsors $35K VibeJam: 90% AI-Generated Code <span class="new-badge">NEW</span></summary>
-<div class="story-body">Cursor (now at $29.3B valuation, $1.2B ARR) and Bolt.new are sponsoring the 2026 VibeJam game jam with $35,000 in prizes. The catch: games must use at least 90% AI-generated code, showcasing how vibe coding is becoming viable for real game dev. <a href="https://daily.dev/blog/vibe-coding-how-ai-changing-developers-code" target="_blank" rel="noopener">Read more →</a></div>
-</details>
-
-<details>
-<summary>Meta Quest April 2026: Breachers, Vacation Sim, WRATH VR <span class="new-badge">NEW</span></summary>
-<div class="story-body">Meta's Horizon+ April catalog adds Breachers (ballistic shooter), Vacation Simulator, and Prison Boss Prohibition, plus exclusives Vendetta Forever and The House of Da Vinci VR. WRATH: Aeon of Ruin VR launches April 9. <a href="https://www.uploadvr.com/meta-horizon-april-2026-games-update/" target="_blank" rel="noopener">Read on UploadVR →</a></div>
-</details>
-
-<details>
-<summary>AirPods Max 2 Ships with H2 Processor</summary>
-<div class="story-body">Apple's AirPods Max 2 began shipping in early April with the upgraded H2 chip replacing the H1, bringing improvements to active noise cancellation and spatial audio features. <a href="https://www.apple.com/newsroom/2026/03/apple-introduces-airpods-max-2-powered-by-h2/" target="_blank" rel="noopener">Read on Apple →</a></div>
-</details>
-
-</div>
-
-</div>
-
-<footer>
-Auto-generated by Brett's Morning Dashboard · April 8, 2026 · Sources: Surfline, NOAA, surf-forecast.com, CNBC, CNN, Bloomberg, UploadVR
-</footer>
-
-</body>
-</html>
+  <div class="card-title"><span class="icon">🔥</span> Big Story of the Week</div>
+  <div class="big-story-body">
+    <p><strong>U.S.–Iran Ceasefire: Markets Whipsaw, Strait of Hormuz Still in Play</strong></p>
+    <p>The dominant story this week is the U.S.–Iran conflict and its evolving ceasefire. After Trump threatened to destroy Iranian infrastructure unless the Strait of Hormuz reopened, Pakistan brokered a tentative two-week suspension of hostilities. Markets celebrated Wednesday with the Dow's best day in a year and crude crashing 16% — only for oil to reverse course Thursday as analysts noted Iran still effectively controls the strait.</p>
+    <p><strong>Why it matters:</strong> The Strait of Hormuz handles roughly 20% of global oil throughput. Even a temporary disruption ripples through energy prices, shipping, and inflation expectations worldwide. This story has strong staying power — two weeks of ceasefire means the next deadline falls right around April 23, guaranteeing continued market sensitivity.</p>
+    <p><strong>Verdict:</strong> This grows. The ceasefire is fragile, oil remains above $95, and markets will reprice every headline until a durable deal emerges.</p>
+    <div class="big-story-sources">
+      <div class="sources">
+        <a href="https://www.cnn.com/2026/04/08/world/live-news/iran-war-trump-us-ceasefire" target="_blank" rel="noopener">CNN →</a>
+        <a href="https://www.cnbc.com/2026/04/08/stock-market-today-live-updates.html" target="_blank" rel="noopener">CNBC →</a>
+        <a href="https://www.democracynow.org/2026/4/8/headlines" target="_blank" rel="noopener">Democracy Now →</a>
+      </div>
+    </div>
+  </div>
+</div> ��������������������������B�DT4��t�RDUb������������������������F�b6�73�&6&B#��F�b6�73�&6&B�F�F�R#��7�6�73�&�6��#�	�����7��FV6��v�RFWc��F�cࠢ�FWF��3��7V��'��6�7V�r6��f�&�2v���v�76W2f�"##b(	B6���V�vRF��WF&��&��7�6�73�&�Wr�&FvR#��Us��7����7V��'���F�b6�73�&FWF���&�G�#�6�7V�rW�V2�����6��f�&�VB�G&��B�"��vW&VB6�'Bv�76W2v�F�vV֖���W�R��WfV�6�W&��B'F�W'6��2v�F�vV�F�R���7FW"�Bv&'�&�W"�v���v�76W2�6�FV��RT"��#�6�#CV��&GFW'�f�"n(	3���W'2�bW6R�Bv���6��WFRF�&V7Fǒv�F��WFw2&��&�Ɩ�WW��'#���&Vc�&�GG3���wwr�F��6wV�FR�6���6��WF��r�6�'B�v�76W2�6�7V�r֧W7B�6��f�&�VB֗G2��G&��Bׇ"�6�'B�v�76W2�v�����V�6��F��2זV"ֆW&W2ֆ�r�F�W��6��&VB�&��&���WF"F&vWC�%�&��"&V��&���V�W"#�F��w2wV�FR(i#�����F�c���FWF��3ࠢ�FWF��3��7V��'���WFf�Ɩ�r&WfV�2Gv��Wr&��&�6�'Bv�76W2��FV�2�7�6�73�&�Wr�&FvR#��Us��7����7V��'���F�b6�73�&FWF���&�G�#�d42f�Ɩ�w26��r�WF�BW76���$�W��GF�6&R&W��rGv��Wr&��&�6�'Bv�76W2��&V7F�wV�"�B&�V�FVB7G��W2�6��BF�&�Vv�&W67&�F���W�WvV"6���V�2��WF6��B�fW"r֖�Ɩ��6�'Bv�76W2��##R�G&�Ɩ�r��&��"�V'26��&��VB��'#���&Vc�&�GG3���wwr�&�GF�g"�6����WF�&��&��6�'B�v�76W2�##b��W�B�vV��"F&vWC�%�&��"&V��&���V�W"#�&�BF�e"(i#�����F�c���FWF��3ࠢ�FWF��3��7V��'���R6�'Bv�76W2�f�BF���f�'7B(	B��F�7����FR##b�"##s��7V��'���F�b6�73�&FWF���&�G�#��Rw2'V��&VB6�'Bv�76W2&R6��gF��rv�g&��gV��"F����76�7F�B�f�'7BFW6�v�6��6W"F��WF&��&�2�W�V7BF�F�V�g&�W2�&W67&�F���6��F�&�ƗG��6�W&�֖72��B7V�W'2(	B'WB��f�7V�F�7���&�6RW�V7FVBCC��(	2C��wW&��6�2�FR##b��V�6�2##r��'#���&Vc�&�GG3���wwr�F��6wV�FR�6����Ww2��R�v�76W2"F&vWC�%�&��"&V��&���V�W"#�F��w2wV�FR(i#�����F�c���FWF��3ࠢ�FWF��3��7V��'��F�&VR�2�vV$uR�2��r&�GV7F����&VG�7&�72��'&�w6W'3��7V��'���F�b6�73�&FWF���&�G�#�6f&�#b6��VBvV$uR7W�'B�6���WF��rV�fW'6�'&�w6W"6�fW&vR�F�&VR�2#s��ffW'2�W&��6��f�rvV$uRv�F�WF��F�2vV$t�"f��&6��ƔD"�&VƖ�r�Ff�&�&W�'G2�W&f�&��6R&��7B֖w&F��rg&��vV$t�F�vV$uR�f�&R6�F��rv�F�F�&VR�2�2&��֖�r(	B6��Ɩ�2F�7F���'���VB'f�&R6�F��r"v�&B�bF�R�V"��'#���&Vc�&�GG3���wwr�WG7V&��6���&��r�F�&VV�2�##b�v�B�6��vVB"F&vWC�%�&��"&V��&���V�W"#�WG7V&�&��r(i#�����F�c���FWF��3ࠢ�FWF��3��7V��'���WF��&����v�&�G2v���r��&��R���ǒ(	B&V��fVBg&��VW7B'��V�S��7V��'���F�b6�73�&FWF���&�G�#���&����v�&�G2�BWfV�G2v���F�6V"g&��F�RVW7B7F�&R'��&6�3�v�F�F�RgV�ǒ&V��fVBg&��VW7B'��V�RR�##b�F�R�Ff�&�v���&V6��R��&��R���ǒW�W&�V�6R�6�v�Ɩ�r�WFw26��gF��re"6�6��7G&FVw���'#���&Vc�&�GG3���6���V�G�f�'V�2�F�WF�6���&��r����V�6V�V�G4&��r�WFFW2�F�ז�W"��WF�VW7B�W�W&�V�6R֖��##b�3c�C3R"F&vWC�%�&��"&V��&���V�W"#��WFf�'V�2(i#�����F�c���FWF��3ࠢ�FWF��3��7V��'����7�7FV�'V��&VBƖ�WW��������T�R���F�Vv�DrӃ��7V��'���F�b6�73�&FWF���&�G�#���7�7FV�w2##b&�F�&W�'FVFǒ��6�VFW2F�R����&����f�w6�����&�fVBb�B�$�2��F�R���r�v�FVBT�R��&�vVf��FW"�7G��R&�G���BF�RF�Vv�Drӂ'VvvVB6��7B��V�v���R�6���W6R'&�B6��vF���2V�FW&��rF�R�eB�&�WB�FV'WF��rB5�##b��'#���&Vc�&�GG3���wwr�F�ǖ6�W&�Ww2�6���##b�����7�7FV��������V��R���F�Vv��Fs��'V��'2�"F&vWC�%�&��"&V��&���V�W"#�F�ǒ6�W&�Ww2(i#�����F�c���FWF��3ࠢ�FWF��3��7V��'��7G�Ɨ�VBvFW"6�FW'3��WrGWF�&��6�fW'2vW'7F�W"vfW2��v�RV�v��W3��7V��'���F�b6�73�&FWF���&�G�#�FWF��VB�WrwV�FRvƷ2F�&�Vv�'V��F��r7G�Ɨ�VB4BvFW"6�FW'2W6��rvW'7F�W"vfRF�7�6V�V�B��fW'FW�6�FW'2v�F�7W7F��g&v�V�B�6�FW"��&��2f�"&VƗ6��F�R&�6�G&w2��7�&F���g&��6V�bF��WfW2�Bv�&�2����FW&�V�v��W2��6�VF��rv�F�BB�b��'#���&Vc�&�GG3���v�V�FV��&r�##b�"��7&VF��r��7G�Ɨ�VB�6B�vFW"�6�FW"�"F&vWC�%�&��"&V��&���V�W"#�v�T�FV(i#�����F�c���FWF��3ࠢ�FWF��3��7V��'��'FV֗2��7&Wr'&V�2����2w2F�7F�6R&V6�&B�7�6�73�&�Wr�&FvR#��Us��7����7V��'���F�b6�73�&FWF���&�G�#��4w2'FV֗2��76V7&gB�B�G27&Wr�bf�W"7G&��WG27W'76VB����2w2#C��cSR�֖�R&V6�&Bf�"F�RgW'F�W7BF�7F�6R�V��2�fRWfW"G&fV�VBg&��V'F�(	B��7F�&�2֖�W7F��R��F�R&�B&6�F�F�R�V�"7W&f6R��'#���&Vc�&�GG3���V��v���VF���&r�v�����'Fä7W'&V�E�WfV�G2�&���##b"F&vWC�%�&��"&V��&���V�W"#�v���VF�7W'&V�BWfV�G2(i#�����F�c���FWF��3���F�cࠣ��F�c�����6��F��W"��ࠣ�F�b6�73�&f��FW"#�'V��B'�6�VFR(	B&Vg&W6�VB&����##b(	BFFg&��7W&fƖ�R����4�$2��BvV"6�W&6W0���F�cࠣ��&�G�����F���
