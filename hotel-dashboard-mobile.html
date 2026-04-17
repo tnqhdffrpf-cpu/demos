@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>The Meridian — Manager Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{height:100%}
+body{font-family:'Inter',sans-serif;font-size:14px;background:#f0f2f5;color:#1a1a2e;min-height:100%;padding-bottom:calc(64px + env(safe-area-inset-bottom))}
+:root{--navy:#0f172a;--navy2:#1e293b;--gold:#d4a843}
+
+/* TOP HEADER */
+#topbar{background:var(--navy);padding:0 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;height:52px;border-bottom:1px solid rgba(255,255,255,0.06)}
+.tb-logo{font-size:13px;font-weight:700;color:#e8c55a;letter-spacing:.06em;text-transform:uppercase}
+.tb-logo span{display:block;font-size:9px;color:#64748b;letter-spacing:.1em;font-weight:400;margin-top:1px}
+.tb-tabs{display:flex;gap:2px}
+.tb-tab{padding:5px 12px;border-radius:5px;font-size:11px;font-weight:600;letter-spacing:.05em;cursor:pointer;color:#64748b;text-transform:uppercase;transition:all .15s;user-select:none}
+.tb-tab.active{background:#e8c55a;color:#0f172a}
+.tb-right{display:flex;gap:6px;align-items:center}
+.hdr-btn{background:rgba(255,255,255,0.08);border:none;color:#94a3b8;padding:6px 10px;border-radius:6px;font-size:11px;font-family:inherit;cursor:pointer;display:flex;align-items:center;gap:5px}
+.hdr-btn.on{background:rgba(245,158,11,.2);color:#f59e0b}
+
+/* DEMO BANNER */
+#demo-banner{display:none;background:rgba(245,158,11,.1);border-bottom:1px solid rgba(245,158,11,.25);padding:6px 16px;font-size:11px;color:#f59e0b;font-weight:500;text-align:center}
+#demo-banner.on{display:block}
+
+/* SEARCH BAR */
+.search-bar{padding:10px 16px;background:var(--navy2);border-bottom:1px solid rgba(255,255,255,0.06)}
+.sbox-hdr{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:8px 12px}
+.sbox-hdr svg{color:#475569;width:14px;height:14px;flex-shrink:0}
+.sbox-hdr input{background:none;border:none;outline:none;color:#f1f5f9;font-family:inherit;font-size:13px;width:100%}
+.sbox-hdr input::placeholder{color:#475569}
+
+/* CONTENT */
+#content{padding:12px 14px}
+.page{display:none}
+.page.active{display:block}
+
+/* GREETING */
+.dash-greeting{text-align:center;margin-bottom:16px;padding:14px 0 4px}
+.dash-greeting h1{font-size:22px;font-weight:700;color:#1a1a2e;letter-spacing:-.02em}
+.dash-greeting p{font-size:12px;color:#64748b;margin-top:3px}
+
+/* SECTION LABEL */
+.sec-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#94a3b8;margin-bottom:8px;margin-top:14px}
+
+/* METRIC CARDS GRID */
+.cards-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:4px}
+.cards-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:4px}
+.mcard{border-radius:10px;padding:14px 14px;cursor:pointer;transition:opacity .15s;user-select:none;-webkit-user-select:none}
+.mcard:active{opacity:.85}
+.mcard .mc-num{font-size:32px;font-weight:800;line-height:1;color:#fff;margin-bottom:5px}
+.mcard .mc-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:rgba(255,255,255,0.8)}
+.mcard.queued{background:#fff;border:2px solid #e2e8f0}
+.mcard.queued .mc-num{color:#ef4444}
+.mcard.queued .mc-label{color:#94a3b8}
+.mcard.green{background:#4caf50}
+.mcard.blue{background:#2196f3}
+.mcard.coral{background:#ef5350}
+.mcard.red{background:#c62828}
+.mcard.yellow{background:#ffca28}
+.mcard.yellow .mc-num{color:#1a1a2e}
+.mcard.yellow .mc-label{color:rgba(26,26,46,0.7)}
+.mcard.dblue{background:#1565c0}
+.mcard.dgreen{background:#388e3c}
+.mcard.gray{background:#757575}
+.mcard.sm .mc-num{font-size:26px}
+
+/* OCCUPANCY STRIP */
+.occ-strip{display:flex;background:#fff;border-radius:10px;border:1px solid #e2e8f0;overflow:hidden;margin-bottom:4px}
+.occ-cell{flex:1;padding:10px 6px;text-align:center;border-right:1px solid #f1f5f9}
+.occ-cell:last-child{border-right:none}
+.occ-pct{font-size:18px;font-weight:700;color:#334155;line-height:1}
+.occ-lbl{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:#94a3b8;margin-top:2px}
+
+/* PANEL */
+.panel{background:#fff;border-radius:10px;border:1px solid #e2e8f0;overflow:hidden;margin-bottom:12px}
+.panel-hdr{padding:11px 14px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between}
+.panel-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#64748b}
+.panel-ct{font-size:11px;color:#94a3b8}
+
+/* TABLE SCROLL */
+.tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.data-table{width:100%;border-collapse:collapse;min-width:480px}
+.data-table th{text-align:left;padding:8px 12px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:#94a3b8;border-bottom:1px solid #f1f5f9;white-space:nowrap}
+.data-table td{padding:10px 12px;border-bottom:1px solid #f9fafb;vertical-align:middle;white-space:nowrap}
+.data-table tr:last-child td{border-bottom:none}
+.data-table tr.click{cursor:pointer}
+.data-table tr.click:active td{background:#f8fafc}
+.rnum{font-weight:700;font-size:14px;color:#1565c0}
+.gname{font-weight:500;color:#1a1a2e}
+
+/* BADGES */
+.badge{display:inline-flex;align-items:center;padding:2px 7px;border-radius:20px;font-size:10px;font-weight:600;white-space:nowrap}
+.b-green{background:#dcfce7;color:#166534;border:1px solid #bbf7d0}
+.b-amber{background:#fef9c3;color:#854d0e;border:1px solid #fde047}
+.b-red{background:#fee2e2;color:#991b1b;border:1px solid #fca5a5}
+.b-blue{background:#dbeafe;color:#1e40af;border:1px solid #93c5fd}
+.b-gold{background:#fef3c7;color:#92400e;border:1px solid #fcd34d}
+.b-purple{background:#f3e8ff;color:#6b21a8;border:1px solid #d8b4fe}
+.b-pink{background:#fce7f3;color:#831843;border:1px solid #f9a8d4}
+.b-gray{background:#f1f5f9;color:#475569;border:1px solid #e2e8f0}
+
+/* ARRIVALS PAGE */
+.page-hdr{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;padding-top:10px}
+.page-title{font-size:18px;font-weight:700;color:#1a1a2e}
+.page-sub{font-size:12px;color:#64748b;margin-top:2px}
+.print-btn{background:#fff;border:1px solid #e2e8f0;color:#64748b;padding:7px 12px;border-radius:7px;cursor:pointer;font-family:inherit;font-size:11px;font-weight:500;white-space:nowrap}
+
+.sfbar{margin-bottom:10px}
+.sbox{display:flex;align-items:center;gap:7px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:8px 12px;margin-bottom:8px}
+.sbox input{background:none;border:none;outline:none;color:#1a1a2e;font-family:inherit;font-size:13px;width:100%}
+.sbox input::placeholder{color:#94a3b8}
+.sbox svg{color:#94a3b8;width:14px;height:14px;flex-shrink:0}
+.chips-scroll{display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:2px;scrollbar-width:none}
+.chips-scroll::-webkit-scrollbar{display:none}
+.chip{padding:6px 12px;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;border:1px solid #e2e8f0;background:#fff;color:#64748b;transition:all .12s;white-space:nowrap;user-select:none;flex-shrink:0}
+.chip.on{background:#1565c0;border-color:#1565c0;color:#fff}
+.empty{padding:28px;text-align:center;color:#94a3b8;font-size:13px}
+
+/* ROOMS */
+.floor-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#94a3b8;margin-bottom:10px;padding-bottom:7px;border-bottom:1px solid #e2e8f0}
+.rms-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;margin-bottom:20px}
+.rcard{background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:11px 12px;cursor:pointer;border-left:4px solid #e2e8f0}
+.rcard:active{background:#f8fafc}
+.rcard.cin{border-left-color:#4caf50}
+.rcard.pend{border-left-color:#f59e0b}
+.rcard.vip-c{border-left-color:#d4a843}
+.rc-num{font-size:17px;font-weight:700;color:#1565c0;margin-bottom:2px}
+.rc-name{font-size:11px;font-weight:500;color:#1a1a2e;margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rc-badges{display:flex;flex-wrap:wrap;gap:3px}
+.rc-badges .badge{font-size:9px;padding:2px 5px}
+
+/* ACTIVITY */
+.act-item{display:flex;gap:10px;padding:10px 14px;border-bottom:1px solid #f9fafb}
+.act-item:active{background:#fafbfc}
+.act-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.act-desc{font-size:13px;color:#1a1a2e}
+.act-desc strong{color:#1565c0}
+.act-time{font-size:11px;color:#94a3b8;margin-top:2px}
+
+/* PRIORITY ROWS */
+.prow{padding:11px 14px;border-bottom:1px solid #f9fafb;cursor:pointer}
+.prow:last-child{border-bottom:none}
+.prow:active{background:#f8fafc}
+.prow-top{display:flex;gap:6px;align-items:center}
+.prow-rn{font-size:12px;font-weight:700;color:#1565c0}
+.prow-name{font-size:13px;font-weight:500}
+.prow-txt{font-size:12px;color:#64748b;margin-top:2px}
+
+/* BOTTOM NAV */
+#botnav{position:fixed;bottom:0;left:0;right:0;background:var(--navy);border-top:1px solid rgba(255,255,255,0.08);display:flex;z-index:200;padding-bottom:env(safe-area-inset-bottom)}
+.bnav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 4px;cursor:pointer;color:#475569;font-size:10px;font-weight:500;transition:color .12s;user-select:none}
+.bnav-item.active{color:#e8c55a}
+.bnav-item svg{width:20px;height:20px}
+
+/* GUEST SHEET */
+#gs-ov{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:300;display:none;opacity:0;transition:opacity .25s}
+#gs-ov.on{display:block;opacity:1}
+#gs{position:fixed;left:0;right:0;bottom:-100%;height:92vh;background:#fff;border-radius:16px 16px 0 0;z-index:301;transition:bottom .3s ease;overflow-y:auto;display:flex;flex-direction:column}
+#gs.on{bottom:0}
+.gs-handle{width:36px;height:4px;background:#e2e8f0;border-radius:2px;margin:12px auto 0}
+.gsh{padding:14px 18px 12px;border-bottom:1px solid #f1f5f9;display:flex;align-items:flex-start;justify-content:space-between;position:sticky;top:0;background:#fff;z-index:1}
+.gs-room{font-size:11px;color:#1565c0;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:2px}
+.gs-name{font-size:19px;font-weight:700;color:#1a1a2e}
+.gs-close{background:none;border:none;color:#94a3b8;cursor:pointer;font-size:22px;padding:0;border-radius:4px;line-height:1;width:30px;height:30px;display:flex;align-items:center;justify-content:center}
+.gsb{padding:14px 18px;flex:1}
+.gss-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#94a3b8;margin-bottom:8px;padding-bottom:5px;border-bottom:1px solid #f1f5f9}
+.gsg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.gsf label{font-size:9px;color:#94a3b8;text-transform:uppercase;letter-spacing:.07em;display:block;margin-bottom:2px}
+.gsf span{font-size:13px;color:#1a1a2e;font-weight:500}
+.gsf span.em{color:#94a3b8;font-weight:400;font-style:italic}
+.gs-note{background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:9px 11px;margin-bottom:7px}
+.gs-note.hi{border-left:3px solid #f59e0b}
+.gs-note-txt{font-size:13px;color:#1a1a2e}
+.gs-note-meta{font-size:11px;color:#94a3b8;margin-top:3px}
+.gs-pkg{display:flex;align-items:center;justify-content:space-between;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:8px 11px;margin-bottom:5px}
+.gs-acts{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:14px}
+.act-btn{padding:11px 12px;border-radius:8px;border:1px solid #e2e8f0;background:#f8fafc;color:#475569;cursor:pointer;font-size:12px;font-weight:500;font-family:inherit;text-align:left;display:flex;align-items:center;gap:6px}
+.act-btn:active{background:#e8f0fe}
+.act-btn.ci{background:#dcfce7;border-color:#bbf7d0;color:#166534}
+.act-btn.vipb{background:#fef9c3;border-color:#fde047;color:#854d0e}
+.act-btn.done{opacity:.65}
+.note-form{display:none;margin-top:7px}
+.note-form textarea{width:100%;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;color:#1a1a2e;font-family:inherit;font-size:13px;padding:9px 11px;resize:none;height:70px;outline:none}
+.note-sub{margin-top:5px;padding:10px 14px;background:#1565c0;border:none;border-radius:8px;color:#fff;cursor:pointer;font-size:13px;font-weight:600;font-family:inherit;width:100%}
+
+@media print{#botnav,#topbar,#gs,#gs-ov,#demo-banner,.search-bar{display:none!important}body{padding:0!important;background:#fff!important}}
+</style>
+</head>
+<body>
+
+<header id="topbar">
+  <div class="tb-logo">The Meridian<span>Manager Dashboard</span></div>
+  <div class="tb-tabs">
+    <div class="tb-tab active" data-tab="summary">Summary</div>
+    <div class="tb-tab" data-tab="analytics">Analytics</div>
+  </div>
+  <div class="tb-right">
+    <button class="hdr-btn" id="demo-btn">
+      <svg width="8" height="8" viewBox="0 0 8 8"><circle cx="4" cy="4" r="4" fill="currentColor"/></svg>
+      Demo
+    </button>
+  </div>
+</header>
+
+<div id="demo-banner">Warning: Demo Mode — Guest names anonymized</div>
+
+<div class="search-bar">
+  <div class="sbox-hdr">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <input id="global-search" type="text" placeholder="Search name, room, confirmation..." oninput="onGlobalSearch()">
+  </div>
+</div>
+
+<div id="content">
+
+  <!-- DASHBOARD PAGE -->
+  <div class="page active" id="page-dashboard">
+    <div class="dash-greeting">
+      <h1>Good Afternoon, Brett</h1>
+      <p>Friday, April 17, 2026 &nbsp;&bull;&nbsp; Afternoon Shift</p>
+    </div>
+
+    <div class="sec-label">Guests</div>
+    <div class="cards-grid" id="guest-cards-top"></div>
+    <div class="cards-grid" id="guest-cards-bot"></div>
+
+    <div class="sec-label">Occupancy</div>
+    <div class="occ-strip">
+      <div class="occ-cell"><div class="occ-pct">87%</div><div class="occ-lbl">Today</div></div>
+      <div class="occ-cell"><div class="occ-pct">94%</div><div class="occ-lbl">Next 2d</div></div>
+      <div class="occ-cell"><div class="occ-pct">82%</div><div class="occ-lbl">MTD</div></div>
+      <div class="occ-cell"><div class="occ-pct">71%</div><div class="occ-lbl">YTD</div></div>
+    </div>
+
+    <div class="sec-label">Rooms</div>
+    <div class="cards-grid-3" id="room-cards"></div>
+
+    <div class="panel" style="margin-top:14px">
+      <div class="panel-hdr">
+        <div class="panel-title">Today's Arrivals</div>
+        <div class="panel-ct" id="arr-ct"></div>
+      </div>
+      <div class="tbl-wrap">
+        <table class="data-table">
+          <thead><tr>
+            <th>Rm</th><th>Guest</th><th>Status</th><th>ETA</th><th>Nts</th><th>Flags</th>
+          </tr></thead>
+          <tbody id="dash-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-hdr"><div class="panel-title">Priority Notes</div><div class="panel-ct" id="pn-ct"></div></div>
+      <div id="pn-body"></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-hdr"><div class="panel-title">Special Occasions</div><div class="panel-ct" id="occ-ct"></div></div>
+      <div id="occ-body"></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-hdr"><div class="panel-title">Dinner Reservations</div><div class="panel-ct" id="din-ct"></div></div>
+      <div id="din-body"></div>
+    </div>
+  </div>
+
+  <!-- ARRIVALS PAGE -->
+  <div class="page" id="page-arrivals">
+    <div class="page-hdr">
+      <div><div class="page-title">Today's Arrivals</div><div class="page-sub" id="arr-sub"></div></div>
+      <button class="print-btn" onclick="window.print()">Print</button>
+    </div>
+    <div class="sfbar">
+      <div class="sbox">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input id="arr-search" type="text" placeholder="Search room or guest..." oninput="filterArr()">
+      </div>
+      <div class="chips-scroll" id="arr-chips"></div>
+    </div>
+    <div class="panel">
+      <div class="tbl-wrap">
+        <table class="data-table">
+          <thead><tr>
+            <th>Rm</th><th>Guest</th><th>Nts</th><th>Status</th><th>ETA</th><th>Tags</th><th>Notes</th>
+          </tr></thead>
+          <tbody id="arr-tbody"></tbody>
+        </table>
+      </div>
+      <div id="arr-empty" class="empty" style="display:none">No guests match.</div>
+    </div>
+  </div>
+
+  <!-- ROOMS PAGE -->
+  <div class="page" id="page-rooms">
+    <div class="page-hdr"><div><div class="page-title">Room Map</div><div class="page-sub">Tap for guest details</div></div></div>
+    <div id="rooms-container"></div>
+  </div>
+
+  <!-- ACTIVITY PAGE -->
+  <div class="page" id="page-activity">
+    <div class="page-hdr">
+      <div><div class="page-title">Activity Log</div><div class="page-sub">April 17, 2026</div></div>
+    </div>
+    <div class="chips-scroll" id="act-chips" style="margin-bottom:10px"></div>
+    <div class="panel"><div id="act-feed"></div></div>
+  </div>
+
+</div>
+
+<!-- BOTTOM NAV -->
+<nav id="botnav">
+  <div class="bnav-item active" data-page="dashboard">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+    Dashboard
+  </div>
+  <div class="bnav-item" data-page="arrivals">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    Arrivals
+  </div>
+  <div class="bnav-item" data-page="rooms">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    Rooms
+  </div>
+  <div class="bnav-item" data-page="activity">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+    Activity
+  </div>
+</nav>
+
+<!-- GUEST SHEET -->
+<div id="gs-ov" onclick="closeGS()"></div>
+<div id="gs">
+  <div class="gs-handle"></div>
+  <div class="gsh">
+    <div>
+      <div class="gs-room" id="gs-room"></div>
+      <div class="gs-name" id="gs-name"></div>
+      <div style="margin-top:6px" id="gs-badges"></div>
+    </div>
+    <button class="gs-close" onclick="closeGS()">&#x2715;</button>
+  </div>
+  <div class="gsb" id="gs-body"></div>
+</div>
+
+<script>
+var DEMO_MAP = {Austin:'Fletcher',Brush:'Hartwell',Steele:'Donovan',Bolio:'Marquez',Chamberlain:'Whitfield',Anderson:'Pemberton',Singla:'Okafor',Beard:'Stafford',McGovern:'Callahan',Greer:'Langley',Carlson:'Nordstrom',Ammon:'Hargrove',Watson:'Sutherland',Heaton:'Prescott',Cluff:'Ashworth',Armitage:'Blackwood',Umoto:'Tanaka',Laughton:'Cavendish',Catalan:'Morales',Delaney:'Falconer',Harnes:'Vickers',Engel:'Hartmann',Issac:'Rajan',Hodgson:'Ashford',Oelrich:'Brennan',Moyers:'Langford',Forrester:'Kingsley',Richardson:'Ashton',Lundberg:'Magnusson',Powers:'Thornton',Mallen:'Byrne',Edmonson:'Worthington',Casillas:'Delgado'};
+var demo = localStorage.getItem('m-demo') === 'true';
+var sortK = 'roomNumber', sortA = true, arrFilter = 'all', arrQ = '', actFilter = 'all';
+var overrides = JSON.parse(localStorage.getItem('m-ov') || '{}');
+
+var RAW = [
+  {id:'g101',rn:'101',name:'Austin',past:false,nights:1,occ:2,cin:true,eta:'2:30 PM',cinT:'2:38 PM',vip:false,occ2:null,dietary:null,pref:null,vehicle:'Blue Tesla Model 3 7TRK291',phone:'503-555-0142',pkg:[],notes:[],din:null,spa:null,hk:'clean'},
+  {id:'g103',rn:'103',name:'Brush',past:false,nights:2,occ:2,cin:true,eta:'3:00 PM',cinT:'3:12 PM',vip:false,occ2:null,dietary:null,pref:null,vehicle:null,phone:'541-555-0287',pkg:[],notes:[],din:{t:'7:00 PM',sz:2},spa:null,hk:'clean'},
+  {id:'g107',rn:'107',name:'Steele',past:false,nights:2,occ:2,cin:true,eta:'2:00 PM',cinT:'2:05 PM',vip:false,occ2:null,dietary:'Vegetarian',pref:'Quiet room',vehicle:null,phone:'971-555-0031',pkg:[{id:'p1',desc:'Wine delivery (2 bottles)',recv:'1:45 PM',st:'waiting'}],notes:[{id:'n1',txt:'Left extra wine glasses per request',ts:'3:00 PM',auth:'Room Svc',hi:false}],din:{t:'8:30 PM',sz:2},spa:null,hk:'clean'},
+  {id:'g109',rn:'109',name:'Bolio',past:false,nights:3,occ:2,cin:true,eta:'4:00 PM',cinT:null,vip:false,occ2:'anniversary',occNote:'Celebrating 25th anniversary',dietary:null,pref:'King bed, ocean view',vehicle:'White RAV4 XYZ-882',phone:'503-555-0419',pkg:[{id:'p2',desc:'Anniversary flowers from concierge',recv:'10:00 AM',st:'waiting'}],notes:[{id:'n2',txt:'Anniversary amenity placed. Champagne on ice.',ts:'11:30 AM',auth:'Front Desk',hi:true}],din:{t:'7:00 PM',sz:2},spa:{t:'3:00 PM',svc:'Couples Massage (90 min)'},hk:'priority'},
+  {id:'g111',rn:'111',name:'Chamberlain',past:false,nights:2,occ:2,cin:true,eta:'1:30 PM',cinT:'1:44 PM',vip:false,occ2:null,dietary:null,pref:null,vehicle:null,phone:'503-555-0556',pkg:[],notes:[],din:null,spa:null,hk:'clean'},
+  {id:'g115',rn:'115',name:'Jones, J',past:false,nights:1,occ:1,cin:false,eta:'8:00 PM',cinT:null,vip:false,occ2:null,dietary:null,pref:'Late arrival, hold key',vehicle:null,phone:'206-555-0774',pkg:[],notes:[{id:'n3',txt:'Late arrival - key envelope prepared for night staff',ts:'4:00 PM',auth:'Front Desk',hi:true}],din:null,spa:null,hk:'clean'},
+  {id:'g117',rn:'117',name:'Anderson',past:false,nights:3,occ:1,cin:false,eta:'7:00 PM',cinT:null,vip:false,occ2:null,dietary:null,pref:null,vehicle:null,phone:'360-555-0393',pkg:[],notes:[{id:'n4',txt:'Traveling solo, requested extra towels',ts:'2:00 PM',auth:'HK',hi:false}],din:null,spa:null,hk:'needs-attention'},
+  {id:'g121',rn:'121',name:'Singla',past:false,nights:3,occ:2,cin:true,eta:'12:30 PM',cinT:'12:45 PM',vip:false,occ2:null,dietary:'Halal',pref:null,vehicle:'Gray Camry 4PBW910',phone:'425-555-0811',pkg:[],notes:[],din:{t:'6:30 PM',sz:2},spa:null,hk:'clean'},
+  {id:'g124',rn:'124',name:'Beard',past:false,nights:2,occ:2,cin:true,eta:'2:15 PM',cinT:'2:21 PM',vip:false,occ2:null,dietary:null,pref:null,vehicle:null,phone:'503-555-0202',pkg:[],notes:[],din:null,spa:{t:'5:30 PM',svc:'Swedish Massage'},hk:'clean'},
+  {id:'g126',rn:'126',name:'McGovern',past:false,nights:2,occ:2,cin:true,eta:'3:30 PM',cinT:'3:38 PM',vip:false,occ2:null,dietary:null,pref:null,vehicle:'Red Jeep Wrangler',phone:'503-555-0367',pkg:[{id:'p3',desc:'Luggage held at desk',recv:'9:00 AM',st:'waiting'}],notes:[],din:null,spa:null,hk:'clean'},
+  {id:'g127',rn:'127',name:'Greer',past:false,nights:1,occ:2,cin:false,eta:'5:30 PM',cinT:null,vip:false,occ2:null,dietary:null,pref:null,vehicle:null,phone:'503-555-0498',pkg:[],notes:[],din:{t:'8:00 PM',sz:2},spa:null,hk:'clean'},
+  {id:'g129',rn:'129',name:'Carlson',past:false,nights:2,occ:2,cin:false,eta:'6:00 PM',cinT:null,vip:false,occ2:null,dietary:'Dairy-free',pref:null,vehicle:null,phone:'503-555-0541',pkg:[],notes:[],din:null,spa:null,hk:'clean'},
+  {id:'g201',rn:'201',name:'Ammon',past:false,nights:2,occ:2,cin:false,eta:'5:45 PM',cinT:null,vip:false,occ2:null,dietary:null,pref:null,vehicle:null,phone:'208-555-0612',pkg:[],notes:[],din:null,spa:null,hk:'clean'},
+  {id:'g202',rn:'202',name:'Watson',past:false,nights:3,occ:2,cin:true,eta:'1:00 PM',cinT:'1:08 PM',vip:false,occ2:null,dietary:null,pref:null,vehicle:'Silver Honda CR-V',phone:'971-555-0723',pkg:[],notes:[],din:{t:'7:30 PM',sz:2},spa:null,hk:'clean'},
+  {id:'g203',rn:'203',name:'Heaton',past:false,nights:2,occ:2,cin:true,eta:'12:00 PM',cinT:'12:15 PM',vip:false,occ2:null,dietary:null,pref:null,vehicle:null,phone:'503-555-0834',pkg:[{id:'p4',desc:'Amazon parcel (medium box)',recv:'11:00 AM',st:'waiting'}],notes:[],din:null,spa:null,hk:'clean'},
+  {id:'g205',rn:'205',name:'Cluff',past:true,nights:1,occ:2,cin:false,eta:'6:00 PM',cinT:null,vip:false,occ2:null,dietary:null,pref:'Upstairs, quiet room',vehicle:null,phone:'503-555-0945',pkg:[],notes:[{id:'n5',txt:'Feather-free pillows. Upstairs preferred.',ts:'9:00 AM',auth:'Front Desk',hi:true}],din:null,spa:null,hk:'needs-attention'},
+  {id:'g207',rn:'207',name:'Armitage',past:false,nights:3,occ:2,cin:false,eta:'4:30 PM',cinT:null,vip:false,occ2:null,dietary:null,pref:null,vehicle:null,phone:'541-555-0056',pkg:[],notes:[],din:{t:'9:00 PM',sz:2},spa:null,hk:'clean'},
+  {id:'g209',rn:'209',name:'Umoto',past:true,nights:2,occ:2,cin:false,eta:'5:30 PM',cinT:null,vip:false,occ2:null,dietary:'Gluten free',pref:'Room 209 specifically',vehicle:'Black Subaru',phone:'503-555-0167',pkg:[],notes:[{id:'n6',txt:'Always books rm 209. GF amenities confirmed.',ts:'10:30 AM',auth:'Front Desk',hi:true}],din:null,spa:{t:'6:00 PM',svc:'Deep Tissue Massage'},hk:'clean'},
+  {id:'g217',rn:'217',name:'Brooks, T & J',past:false,nights:3,occ:2,cin:false,eta:'3:30 PM',cinT:null,vip:false,occ2:'birthday',occNote:"T's birthday - booked by J as a surprise",dietary:null,pref:null,vehicle:null,phone:'206-555-0278',pkg:[{id:'p5',desc:'Birthday cake from Bakery on Fifth - refrigerated',recv:'1:00 PM',st:'waiting'}],notes:[{id:'n7',txt:'Birthday surprise - do NOT mention to T. Cake in kitchen fridge.',ts:'1:15 PM',auth:'Front Desk',hi:true}],din:{t:'7:00 PM',sz:2},spa:null,hk:'priority'},
+  {id:'g219',rn:'219',name:'Laughton',past:false,nights:1,occ:2,cin:true,eta:'2:00 PM',cinT:'2:11 PM',vip:false,occ2:null,dietary:null,pref:null,vehicle:null,phone:'503-555-0389',pkg:[],notes:[],din:null,spa:null,hk:'clean'},
+  {id:'g220',rn:'220',name:'Catalan',past:false,nights:2,occ:2,cin:true,eta:'1:45 PM',cinT:'1:52 PM',vip:false,occ2:null,dietary:'Vegan',pref:null,vehicle:'Orange Prius 8DKJ445',phone:'503-555-0491',pkg:[],notes:[],din:{t:'6:00 PM',sz:2},spa:null,hk:'clean'},
+  {id:'g221',rn:'221',name:'Delaney',past:false,nights:3,occ:1,cin:false,eta:'6:30 PM',cinT:null,vip:false,occ2:null,dietary:null,pref:'No adjoining rooms',vehicle:null,phone:'503-555-0512',pkg:[],notes:[],din:null,spa:null,hk:'clean'},
+  {id:'g223',rn:'223',name:'Harnes',past:false,nights:3,occ:2,cin:false,eta:'5:00 PM',cinT:null,vip:false,occ2:null,dietary:null,pref:null,vehicle:null,phone:'503-555-0623',pkg:[],notes:[{id:'n8',txt:'Nut allergy flagged with kitchen. No nut amenities.',ts:'8:00 AM',auth:'Front Desk',hi:true}],din:null,spa:null,hk:'clean'},
+  {id:'g226',rn:'226',name:'Jones, J',past:false,nights:2,occ:2,cin:true,eta:'3:00 PM',cinT:'3:08 PM',vip:false,occ2:null,dietary:null,pref:null,vehicle:null,phone:'503-555-0734',pkg:[],notes:[],din:null,spa:null,hk:'clean'},
+  {id:'g227',rn:'227',name:'Engel',past:false,nights:2,occ:2,cin:true,eta:'2:45 PM',cinT:'2:52 PM',vip:false,occ2:null,dietary:null,pref:null,vehicle:'White BMW 3-series',phone:'503-555-0845',pkg:[],notes:[],din:{t:'8:00 PM',sz:2},spa:null,hk:'clean'},
+  {id:'g229',rn:'229',name:'Issac',past:false,nights:3,occ:2,cin:true,eta:'1:15 PM',cinT:'1:22 PM',vip:false,occ2:null,dietary:null,pref:null,vehicle:null,phone:'503-555-0956',pkg:[{id:'p6',desc:'FedEx overnight envelope',recv:'10:30 AM',st:'waiting'}],notes:[],din:{t:'7:30 PM',sz:2},spa:null,hk:'clean'},
+  {id:'g302',rn:'302',name:'Hodgson',past:false,nights:3,occ:2,cin:true,eta:'2:00 PM',cinT:'2:18 PM',vip:true,occ2:null,dietary:null,pref:'Late checkout approved 12pm',vehicle:'Black Lincoln Navigator',phone:'503-555-0167',pkg:[{id:'p7',desc:'Business documents - courier delivery',recv:'8:00 AM',st:'delivered'}],notes:[{id:'n9',txt:'Corporate VIP. Late checkout approved 12pm. Executive breakfast included.',ts:'9:00 AM',auth:'Front Desk',hi:true}],din:{t:'8:00 PM',sz:2},spa:null,hk:'clean'},
+  {id:'g303',rn:'303',name:'Oelrich',past:false,nights:2,occ:2,cin:true,eta:'1:00 PM',cinT:'1:14 PM',vip:false,occ2:null,dietary:null,pref:null,vehicle:'Red Ford F-150 9CAT822',phone:'503-555-0278',pkg:[],notes:[],din:null,spa:{t:'3:30 PM',svc:'Facial (60 min)'},hk:'clean'},
+  {id:'g304',rn:'304',name:'Moyers',past:false,nights:2,occ:2,cin:false,eta:'5:15 PM',cinT:null,vip:false,occ2:null,dietary:null,pref:null,vehicle:null,phone:'503-555-0389',pkg:[],notes:[],din:null,spa:null,hk:'clean'},
+  {id:'g305',rn:'305',name:'Forrester',past:false,nights:3,occ:1,cin:true,eta:'11:30 AM',cinT:'11:45 AM',vip:false,occ2:null,dietary:'Kosher',pref:null,vehicle:null,phone:'212-555-0491',pkg:[],notes:[{id:'n10',txt:'Kosher dietary - no pork in welcome tray. Confirmed with kitchen.',ts:'10:00 AM',auth:'Front Desk',hi:true}],din:{t:'6:30 PM',sz:1},spa:null,hk:'clean'},
+  {id:'g306',rn:'306',name:'Richardson',past:true,nights:2,occ:2,cin:true,eta:'4:00 PM',cinT:'4:05 PM',vip:false,occ2:null,dietary:null,pref:'3rd stay this year - upgrade if avail',vehicle:'Gray Volvo XC60',phone:'503-555-0512',pkg:[],notes:[{id:'n11',txt:'Loyal guest - 3rd stay in 2026. Oceanview upgrade applied.',ts:'3:45 PM',auth:'Front Desk',hi:false}],din:null,spa:null,hk:'clean'},
+  {id:'g307',rn:'307',name:'Lundberg',past:true,nights:2,occ:2,cin:false,eta:'7:00 PM',cinT:null,vip:false,occ2:null,dietary:null,pref:'2nd floor, away from elevator',vehicle:null,phone:'503-555-0623',pkg:[],notes:[{id:'n12',txt:'Feather-free pillows. 2nd floor away from elevator.',ts:'2:30 PM',auth:'Front Desk',hi:true}],din:null,spa:null,hk:'needs-attention'},
+  {id:'g308',rn:'308',name:'Powers',past:true,nights:1,occ:2,cin:false,eta:'6:30 PM',cinT:null,vip:false,occ2:null,dietary:null,pref:null,vehicle:null,phone:'503-555-0734',pkg:[],notes:[],din:{t:'8:30 PM',sz:2},spa:null,hk:'clean'},
+  {id:'g309',rn:'309',name:'Mallen',past:false,nights:1,occ:2,cin:true,eta:'3:15 PM',cinT:'3:22 PM',vip:false,occ2:null,dietary:null,pref:null,vehicle:'Black Tesla Model Y',phone:'503-555-0845',pkg:[],notes:[],din:null,spa:null,hk:'clean'},
+  {id:'g310',rn:'310',name:'Edmonson',past:true,nights:2,occ:2,cin:true,eta:'5:00 PM',cinT:'5:10 PM',vip:true,occ2:null,dietary:null,pref:'Same suite as last visit',vehicle:'Silver Porsche Cayenne',phone:'503-555-0956',pkg:[],notes:[{id:'n13',txt:'Long-term VIP. Champagne on arrival done. Preferred suite confirmed.',ts:'4:55 PM',auth:'Front Desk',hi:true}],din:null,spa:{t:'4:30 PM',svc:'Hot Stone Massage'},hk:'clean'},
+  {id:'g311',rn:'311',name:'Casillas',past:true,nights:2,occ:2,cin:false,eta:'4:30 PM',cinT:null,vip:false,occ2:'babymoon',occNote:'First baby due August - babymoon',dietary:null,pref:'Low floor for accessibility',vehicle:null,phone:'503-555-0067',pkg:[{id:'p8',desc:'Flower arrangement from family',recv:'12:00 PM',st:'waiting'},{id:'p9',desc:'Spa prenatal gift kit',recv:'2:00 PM',st:'waiting'}],notes:[{id:'n14',txt:'Babymoon - first baby Aug. Rose petal turndown. Low floor.',ts:'11:00 AM',auth:'Front Desk',hi:true}],din:{t:'6:30 PM',sz:2},spa:{t:'5:00 PM',svc:'Prenatal Massage (60 min)'},hk:'priority'}
+];
+
+var ACTIVITY = [
+  {ts:'8:02 AM',type:'check-in',rn:'305',gn:'Forrester',desc:'Guest checked in early.',color:'#4caf50'},
+  {ts:'8:15 AM',type:'note',rn:'305',gn:'Forrester',desc:'Kosher requirement confirmed with kitchen.',color:'#f59e0b'},
+  {ts:'9:00 AM',type:'package',rn:'302',gn:'Hodgson',desc:'Business documents delivered via courier.',color:'#2196f3'},
+  {ts:'9:15 AM',type:'note',rn:'302',gn:'Hodgson',desc:'VIP flag set. Late checkout approved.',color:'#f59e0b'},
+  {ts:'9:30 AM',type:'vip',rn:'302',gn:'Hodgson',desc:'VIP welcome: champagne and fruit basket delivered.',color:'#d4a843'},
+  {ts:'10:00 AM',type:'note',rn:'223',gn:'Harnes',desc:'Nut allergy flagged - kitchen notified.',color:'#f59e0b'},
+  {ts:'10:30 AM',type:'package',rn:'229',gn:'Issac',desc:'FedEx overnight envelope received.',color:'#2196f3'},
+  {ts:'11:00 AM',type:'package',rn:'203',gn:'Heaton',desc:'Amazon parcel received at front desk.',color:'#2196f3'},
+  {ts:'11:30 AM',type:'note',rn:'109',gn:'Bolio',desc:'Anniversary amenity placed - champagne on ice.',color:'#f59e0b'},
+  {ts:'11:45 AM',type:'check-in',rn:'305',gn:'Forrester',desc:'Re-confirmed room assignment.',color:'#4caf50'},
+  {ts:'12:00 PM',type:'package',rn:'311',gn:'Casillas',desc:'Flower arrangement received from family.',color:'#2196f3'},
+  {ts:'12:15 PM',type:'check-in',rn:'203',gn:'Heaton',desc:'Guest checked in - keys issued.',color:'#4caf50'},
+  {ts:'12:45 PM',type:'check-in',rn:'121',gn:'Singla',desc:'Guest checked in. Halal confirmed with kitchen.',color:'#4caf50'},
+  {ts:'1:00 PM',type:'package',rn:'217',gn:'Brooks, T & J',desc:'Birthday cake arrived - placed in kitchen fridge.',color:'#2196f3'},
+  {ts:'1:08 PM',type:'check-in',rn:'202',gn:'Watson',desc:'Guest checked in.',color:'#4caf50'},
+  {ts:'1:14 PM',type:'check-in',rn:'303',gn:'Oelrich',desc:'Guest checked in. Spa 3:30 PM confirmed.',color:'#4caf50'},
+  {ts:'1:22 PM',type:'check-in',rn:'229',gn:'Issac',desc:'Guest checked in. Package at desk notified.',color:'#4caf50'},
+  {ts:'1:44 PM',type:'check-in',rn:'111',gn:'Chamberlain',desc:'Guest checked in.',color:'#4caf50'},
+  {ts:'1:52 PM',type:'check-in',rn:'220',gn:'Catalan',desc:'Guest checked in. Vegan dietary noted.',color:'#4caf50'},
+  {ts:'2:00 PM',type:'package',rn:'311',gn:'Casillas',desc:'Spa prenatal gift kit received from spa team.',color:'#2196f3'},
+  {ts:'2:05 PM',type:'check-in',rn:'107',gn:'Steele',desc:'Guest checked in. Dinner 8:30 PM confirmed.',color:'#4caf50'},
+  {ts:'2:11 PM',type:'check-in',rn:'219',gn:'Laughton',desc:'Guest checked in.',color:'#4caf50'},
+  {ts:'2:21 PM',type:'check-in',rn:'124',gn:'Beard',desc:'Guest checked in. Spa 5:30 PM noted.',color:'#4caf50'},
+  {ts:'2:30 PM',type:'note',rn:'307',gn:'Lundberg',desc:'Feather-free pillows added. 2nd floor confirmed.',color:'#f59e0b'},
+  {ts:'2:38 PM',type:'check-in',rn:'101',gn:'Austin',desc:'Guest checked in.',color:'#4caf50'},
+  {ts:'2:52 PM',type:'check-in',rn:'227',gn:'Engel',desc:'Guest checked in. Dinner 8:00 PM on file.',color:'#4caf50'},
+  {ts:'3:08 PM',type:'check-in',rn:'226',gn:'Jones, J',desc:'Guest checked in.',color:'#4caf50'},
+  {ts:'3:12 PM',type:'check-in',rn:'103',gn:'Brush',desc:'Guest checked in. Dinner 7:00 PM confirmed.',color:'#4caf50'},
+  {ts:'3:22 PM',type:'check-in',rn:'309',gn:'Mallen',desc:'Guest checked in.',color:'#4caf50'},
+  {ts:'3:38 PM',type:'check-in',rn:'126',gn:'McGovern',desc:'Guest checked in.',color:'#4caf50'},
+  {ts:'4:00 PM',type:'eta-update',rn:'115',gn:'Jones, J',desc:'ETA updated to 8:00 PM - key envelope prepared.',color:'#a855f7'},
+  {ts:'4:05 PM',type:'check-in',rn:'306',gn:'Richardson',desc:'Returning guest checked in. Oceanview upgrade applied.',color:'#4caf50'},
+  {ts:'4:55 PM',type:'check-in',rn:'310',gn:'Edmonson',desc:'VIP checked in. Champagne and welcome delivered.',color:'#4caf50'},
+  {ts:'5:10 PM',type:'vip',rn:'310',gn:'Edmonson',desc:'Preferred suite confirmed, spa 4:30 PM on schedule.',color:'#d4a843'}
+];
+
+function getGuests() {
+  return RAW.map(function(g) {
+    var ov = overrides[g.id] || {};
+    var merged = {};
+    for (var k in g) merged[k] = g[k];
+    for (var k in ov) merged[k] = ov[k];
+    merged.notes = (g.notes || []).concat(ov.extraNotes || []);
+    merged.pkg = (g.pkg || []).concat(ov.extraPkg || []);
+    return merged;
+  });
+}
+
+function dn(g) {
+  if (!demo) return g.name;
+  var base = g.name;
+  if (base === 'Jones, J') return 'Garner, J';
+  if (base === 'Brooks, T & J') return 'Mercer, T & J';
+  return DEMO_MAP[base] || base;
+}
+
+function statusBadge(g) {
+  if (g.cin) return '<span class="badge b-green">In</span>';
+  return '<span class="badge b-amber">Pend</span>';
+}
+
+function occBadge(o) {
+  if (!o) return '';
+  var map = {anniversary:'b-pink',birthday:'b-purple',babymoon:'b-blue',honeymoon:'b-gold'};
+  var lbl = {anniversary:'Anniv',birthday:'Bday',babymoon:'Babymoon',honeymoon:'Honeymoon'};
+  return '<span class="badge ' + (map[o]||'b-gray') + '">' + (lbl[o]||o) + '</span>';
+}
+
+function pkgBadge(g) {
+  var w = (g.pkg||[]).filter(function(p){return p.st==='waiting';}).length;
+  if (!w) return '';
+  return '<span class="badge b-blue">Pkg</span>';
+}
+
+function noteBadge(g) {
+  if (!g.notes||!g.notes.length) return '';
+  var hi = g.notes.some(function(n){return n.hi;});
+  return hi ? '<span class="badge b-amber">Note</span>' : '<span class="badge b-gray">Note</span>';
+}
+
+function vipBadge(g) { return g.vip ? '<span class="badge b-gold">VIP</span>' : ''; }
+
+function buildDashboard() {
+  var gs = getGuests();
+  var total = gs.length;
+  var cinCount = gs.filter(function(g){return g.cin;}).length;
+  var pending = gs.filter(function(g){return !g.cin;}).length;
+  var vips = gs.filter(function(g){return g.vip;}).length;
+
+  document.getElementById('guest-cards-top').innerHTML =
+    '<div class="mcard green" onclick="navTo(\'arrivals\')">' +
+      '<div class="mc-num">' + total + '</div><div class="mc-label">Arrivals</div>' +
+    '</div>' +
+    '<div class="mcard queued">' +
+      '<div class="mc-num">' + pending + '</div><div class="mc-label">Queued</div>' +
+    '</div>';
+
+  document.getElementById('guest-cards-bot').innerHTML =
+    '<div class="mcard blue">' +
+      '<div class="mc-num">' + cinCount + '</div><div class="mc-label">Stayovers</div>' +
+    '</div>' +
+    '<div class="mcard yellow sm">' +
+      '<div class="mc-num">' + vips + '</div><div class="mc-label">VIPs</div>' +
+    '</div>';
+
+  document.getElementById('room-cards').innerHTML =
+    '<div class="mcard dblue sm" onclick="navTo(\'rooms\')">' +
+      '<div class="mc-num">' + cinCount + '</div><div class="mc-label">Occupied</div>' +
+    '</div>' +
+    '<div class="mcard dgreen sm">' +
+      '<div class="mc-num">10</div><div class="mc-label">Ready</div>' +
+    '</div>' +
+    '<div class="mcard red sm">' +
+      '<div class="mc-num">' + pending + '</div><div class="mc-label">Not Ready</div>' +
+    '</div>';
+
+  document.getElementById('arr-ct').textContent = total + ' guests';
+
+  var sorted = gs.slice().sort(function(a,b){return a.rn.localeCompare(b.rn,'en',{numeric:true});});
+  document.getElementById('dash-tbody').innerHTML = sorted.map(function(g) {
+    return '<tr class="click" onclick="openGS(\'' + g.id + '\')">' +
+      '<td class="rnum">' + g.rn + '</td>' +
+      '<td class="gname">' + dn(g) + '</td>' +
+      '<td>' + statusBadge(g) + '</td>' +
+      '<td style="color:#64748b">' + (g.eta||'—') + '</td>' +
+      '<td style="color:#64748b">' + g.nights + '</td>' +
+      '<td>' + vipBadge(g) + occBadge(g.occ2) + pkgBadge(g) + noteBadge(g) + '</td>' +
+    '</tr>';
+  }).join('');
+
+  var priNotes = gs.filter(function(g){return g.notes.some(function(n){return n.hi;});});
+  document.getElementById('pn-ct').textContent = priNotes.length;
+  document.getElementById('pn-body').innerHTML = !priNotes.length ? '<div class="empty">No priority notes</div>' :
+    priNotes.slice().sort(function(a,b){return a.rn.localeCompare(b.rn,'en',{numeric:true});}).map(function(g) {
+      var n = g.notes.find(function(n){return n.hi;});
+      return '<div class="prow" onclick="openGS(\'' + g.id + '\')">' +
+        '<div class="prow-top"><span class="prow-rn">' + g.rn + '</span><span class="prow-name">' + dn(g) + '</span></div>' +
+        '<div class="prow-txt">' + n.txt + '</div></div>';
+    }).join('');
+
+  var occ = gs.filter(function(g){return g.occ2;});
+  document.getElementById('occ-ct').textContent = occ.length;
+  document.getElementById('occ-body').innerHTML = !occ.length ? '<div class="empty">No special occasions</div>' :
+    occ.map(function(g) {
+      return '<div class="prow" onclick="openGS(\'' + g.id + '\')">' +
+        '<div class="prow-top"><span class="prow-rn">' + g.rn + '</span><span class="prow-name">' + dn(g) + '</span>' + occBadge(g.occ2) + '</div>' +
+        '<div class="prow-txt">' + (g.occNote||'') + '</div></div>';
+    }).join('');
+
+  var din = gs.filter(function(g){return g.din;}).sort(function(a,b){return (a.din.t||'').localeCompare(b.din.t||'');});
+  document.getElementById('din-ct').textContent = din.length + ' rsvp';
+  document.getElementById('din-body').innerHTML = din.map(function(g) {
+    return '<div class="prow" onclick="openGS(\'' + g.id + '\')">' +
+      '<div class="prow-top"><span class="prow-rn">' + g.rn + '</span><span class="prow-name">' + dn(g) + '</span></div>' +
+      '<div class="prow-txt">' + g.din.t + ' - Party of ' + g.din.sz + '</div></div>';
+  }).join('') || '<div class="empty">No reservations</div>';
+}
+
+var ARR_FILTERS = ['all','checkedin','pending','pastguest','occasion','package','note','vip'];
+var ARR_LABELS = ['All','In','Pending','Return','Occasion','Pkg','Note','VIP'];
+
+function buildArrChips() {
+  document.getElementById('arr-chips').innerHTML = ARR_FILTERS.map(function(f,i) {
+    return '<div class="chip' + (arrFilter===f?' on':'') + '" onclick="setArrFilter(\'' + f + '\')">' + ARR_LABELS[i] + '</div>';
+  }).join('');
+}
+
+function setArrFilter(f) { arrFilter = f; buildArrChips(); renderArr(); }
+function filterArr() { arrQ = document.getElementById('arr-search').value.toLowerCase(); renderArr(); }
+
+function renderArr() {
+  var gs = getGuests();
+  if (arrFilter==='checkedin') gs=gs.filter(function(g){return g.cin;});
+  else if (arrFilter==='pending') gs=gs.filter(function(g){return !g.cin;});
+  else if (arrFilter==='pastguest') gs=gs.filter(function(g){return g.past;});
+  else if (arrFilter==='occasion') gs=gs.filter(function(g){return g.occ2;});
+  else if (arrFilter==='package') gs=gs.filter(function(g){return (g.pkg||[]).some(function(p){return p.st==='waiting';});});
+  else if (arrFilter==='note') gs=gs.filter(function(g){return g.notes.length>0;});
+  else if (arrFilter==='vip') gs=gs.filter(function(g){return g.vip;});
+  if (arrQ) gs=gs.filter(function(g){return dn(g).toLowerCase().indexOf(arrQ)>-1||g.rn.indexOf(arrQ)>-1;});
+  gs.sort(function(a,b){return a.rn.localeCompare(b.rn,'en',{numeric:true});});
+  document.getElementById('arr-sub').textContent = 'April 17, 2026 - ' + gs.length + ' guests';
+  var empty = document.getElementById('arr-empty');
+  if (!gs.length) {document.getElementById('arr-tbody').innerHTML='';empty.style.display='block';return;}
+  empty.style.display='none';
+  document.getElementById('arr-tbody').innerHTML = gs.map(function(g) {
+    return '<tr class="click" onclick="openGS(\'' + g.id + '\')">' +
+      '<td class="rnum">' + g.rn + '</td>' +
+      '<td class="gname">' + dn(g) + (g.past?' <span style="color:#d4a843">*</span>':'') + '</td>' +
+      '<td style="color:#64748b">' + g.nights + '</td>' +
+      '<td>' + statusBadge(g) + '</td>' +
+      '<td style="color:#64748b;white-space:nowrap">' + (g.eta||'—') + '</td>' +
+      '<td>' + vipBadge(g) + occBadge(g.occ2) + '</td>' +
+      '<td>' + pkgBadge(g) + noteBadge(g) + '</td>' +
+    '</tr>';
+  }).join('');
+}
+
+function buildRooms() {
+  var gs = getGuests();
+  var floors = {'1st Floor (100s)':[],'2nd Floor (200s)':[],'3rd Floor (300s)':[]};
+  gs.forEach(function(g){
+    var f = g.rn.charAt(0)==='1'?'1st Floor (100s)':g.rn.charAt(0)==='2'?'2nd Floor (200s)':'3rd Floor (300s)';
+    floors[f].push(g);
+  });
+  var html = '';
+  for (var floor in floors) {
+    var rooms = floors[floor];
+    html += '<div style="margin-bottom:20px"><div class="floor-lbl">' + floor + '</div><div class="rms-grid">';
+    rooms.sort(function(a,b){return a.rn.localeCompare(b.rn,'en',{numeric:true});});
+    rooms.forEach(function(g) {
+      var cls = 'rcard' + (g.vip?' vip-c':g.cin?' cin':' pend');
+      var badges = (g.cin?'<span class="badge b-green">In</span>':'<span class="badge b-amber">Pend</span>') +
+        (g.vip?'<span class="badge b-gold">VIP</span>':'') +
+        (g.occ2?occBadge(g.occ2):'') +
+        ((g.pkg||[]).some(function(p){return p.st==='waiting';})?'<span class="badge b-blue">Pkg</span>':'') +
+        (g.notes.some(function(n){return n.hi;})?'<span class="badge b-amber">!</span>':'');
+      html += '<div class="' + cls + '" onclick="openGS(\'' + g.id + '\')">' +
+        '<div class="rc-num">' + g.rn + '</div>' +
+        '<div class="rc-name">' + dn(g) + '</div>' +
+        '<div class="rc-badges">' + badges + '</div>' +
+      '</div>';
+    });
+    html += '</div></div>';
+  }
+  document.getElementById('rooms-container').innerHTML = html;
+}
+
+var ACT_TYPES = ['all','check-in','package','note','vip','eta-update'];
+var ACT_LBLS = ['All','Check-ins','Packages','Notes','VIP','ETA'];
+
+function buildActChips() {
+  document.getElementById('act-chips').innerHTML = ACT_TYPES.map(function(f,i) {
+    return '<div class="chip' + (actFilter===f?' on':'') + '" onclick="setActFilter(\'' + f + '\')">' + ACT_LBLS[i] + '</div>';
+  }).join('');
+}
+
+function setActFilter(f) { actFilter=f; buildActChips(); renderActivity(); }
+
+function renderActivity() {
+  var entries = actFilter==='all' ? ACTIVITY : ACTIVITY.filter(function(e){return e.type===actFilter;});
+  if (!entries.length) {document.getElementById('act-feed').innerHTML='<div class="empty">No entries match.</div>';return;}
+  document.getElementById('act-feed').innerHTML = entries.map(function(e) {
+    return '<div class="act-item">' +
+      '<div class="act-dot" style="background:' + e.color + '"></div>' +
+      '<div><div class="act-desc">Room <strong>' + e.rn + '</strong> &mdash; ' + e.desc + '</div><div class="act-time">' + e.ts + ' &middot; ' + e.gn + '</div></div>' +
+    '</div>';
+  }).join('');
+}
+
+function openGS(id) {
+  var g = getGuests().find(function(x){return x.id===id;});
+  if (!g) return;
+  document.getElementById('gs-room').textContent = 'Room ' + g.rn;
+  document.getElementById('gs-name').textContent = dn(g);
+  document.getElementById('gs-badges').innerHTML = statusBadge(g) + ' ' + vipBadge(g) + ' ' + occBadge(g.occ2) + (g.past?'<span class="badge b-gray">Returning</span>':'');
+
+  var html = '';
+  html += '<div style="margin-bottom:14px"><div class="gss-title">Stay Information</div>';
+  html += '<div class="gsg">';
+  html += '<div class="gsf"><label>Nights</label><span>' + g.nights + '</span></div>';
+  html += '<div class="gsf"><label>Occupants</label><span>' + g.occ + '</span></div>';
+  html += '<div class="gsf"><label>ETA</label><span>' + (g.eta||'—') + '</span></div>';
+  html += '<div class="gsf"><label>Check-in</label><span class="' + (g.cinT?'':'em') + '">' + (g.cinT||'Not yet') + '</span></div>';
+  html += '<div class="gsf"><label>Phone</label><span>' + (g.phone||'—') + '</span></div>';
+  html += '<div class="gsf"><label>Dietary</label><span class="' + (g.dietary?'':'em') + '">' + (g.dietary||'None') + '</span></div>';
+  html += '</div></div>';
+
+  if (g.pref||g.vehicle) {
+    html += '<div style="margin-bottom:14px"><div class="gss-title">Preferences</div><div class="gsg">';
+    if (g.pref) html += '<div class="gsf" style="grid-column:span 2"><label>Room Preferences</label><span>' + g.pref + '</span></div>';
+    if (g.vehicle) html += '<div class="gsf" style="grid-column:span 2"><label>Vehicle</label><span>' + g.vehicle + '</span></div>';
+    html += '</div></div>';
+  }
+
+  if (g.din||g.spa) {
+    html += '<div style="margin-bottom:14px"><div class="gss-title">Reservations</div>';
+    if (g.din) html += '<div class="gs-note"><div class="gs-note-txt">Dinner: ' + g.din.t + ' - Party of ' + g.din.sz + '</div></div>';
+    if (g.spa) html += '<div class="gs-note"><div class="gs-note-txt">Spa: ' + g.spa.t + ' - ' + g.spa.svc + '</div></div>';
+    html += '</div>';
+  }
+
+  var pkgsWaiting = (g.pkg||[]).filter(function(p){return p.st==='waiting';});
+  if (g.pkg&&g.pkg.length) {
+    html += '<div style="margin-bottom:14px"><div class="gss-title">Packages (' + pkgsWaiting.length + ' waiting)</div>';
+    g.pkg.forEach(function(p) {
+      html += '<div class="gs-pkg"><div><div style="font-size:13px">' + p.desc + '</div><div style="font-size:11px;color:#94a3b8;margin-top:2px">Received ' + p.recv + '</div></div><span class="badge ' + (p.st==='waiting'?'b-amber':'b-green') + '">' + (p.st==='waiting'?'At Desk':'Done') + '</span></div>';
+    });
+    html += '</div>';
+  }
+
+  html += '<div style="margin-bottom:14px"><div class="gss-title">Notes (' + g.notes.length + ')</div><div id="notes-list">';
+  if (g.notes.length) {
+    g.notes.forEach(function(n) {
+      html += '<div class="gs-note' + (n.hi?' hi':'') + '"><div class="gs-note-txt">' + n.txt + '</div><div class="gs-note-meta">' + n.auth + ' - ' + n.ts + '</div></div>';
+    });
+  } else {
+    html += '<div style="color:#94a3b8;font-size:13px;margin-bottom:8px">No notes on file.</div>';
+  }
+  html += '</div>';
+  html += '<div class="note-form" id="nf"><textarea id="ni" placeholder="Add internal note..."></textarea><button class="note-sub" onclick="saveNote(\'' + id + '\')">Save Note</button></div></div>';
+
+  html += '<div class="gs-acts">';
+  html += '<button class="act-btn ci' + (g.cin?' done':'') + '" onclick="markCin(\'' + id + '\')">' + (g.cin?'Checked In':'Check In') + '</button>';
+  html += '<button class="act-btn vipb' + (g.vip?' done':'') + '" onclick="markVip(\'' + id + '\')">' + (g.vip?'VIP Set':'Mark VIP') + '</button>';
+  html += '<button class="act-btn" onclick="document.getElementById(\'nf\').style.display=\'block\'">+ Add Note</button>';
+  html += '<button class="act-btn" onclick="addPkg(\'' + id + '\')">Add Package</button>';
+  html += '</div>';
+  html += '<div style="height:30px"></div>';
+
+  document.getElementById('gs-body').innerHTML = html;
+  document.getElementById('gs-ov').classList.add('on');
+  document.getElementById('gs').classList.add('on');
+  document.getElementById('gs').scrollTop = 0;
+}
+
+function closeGS() {
+  document.getElementById('gs-ov').classList.remove('on');
+  document.getElementById('gs').classList.remove('on');
+}
+
+function saveNote(id) {
+  var t = document.getElementById('ni').value.trim();
+  if (!t) return;
+  if (!overrides[id]) overrides[id]={};
+  if (!overrides[id].extraNotes) overrides[id].extraNotes=[];
+  overrides[id].extraNotes.push({id:'n'+Date.now(),txt:t,ts:new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'}),auth:'Front Desk',hi:false});
+  localStorage.setItem('m-ov',JSON.stringify(overrides));
+  refreshAll(); openGS(id);
+}
+
+function markCin(id) {
+  if (!overrides[id]) overrides[id]={};
+  overrides[id].cin=true;
+  overrides[id].cinT=new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+  localStorage.setItem('m-ov',JSON.stringify(overrides));
+  refreshAll(); openGS(id);
+}
+
+function markVip(id) {
+  if (!overrides[id]) overrides[id]={};
+  overrides[id].vip=true;
+  localStorage.setItem('m-ov',JSON.stringify(overrides));
+  refreshAll(); openGS(id);
+}
+
+function addPkg(id) {
+  var d=prompt('Package description:');
+  if (!d) return;
+  if (!overrides[id]) overrides[id]={};
+  if (!overrides[id].extraPkg) overrides[id].extraPkg=[];
+  overrides[id].extraPkg.push({id:'p'+Date.now(),desc:d,recv:new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'}),st:'waiting'});
+  localStorage.setItem('m-ov',JSON.stringify(overrides));
+  refreshAll(); openGS(id);
+}
+
+function onGlobalSearch() {
+  arrQ = document.getElementById('global-search').value.toLowerCase();
+  if (arrQ) navTo('arrivals');
+  document.getElementById('arr-search').value = arrQ;
+  renderArr();
+}
+
+function navTo(page) {
+  document.querySelectorAll('.bnav-item').forEach(function(el){el.classList.remove('active');});
+  document.querySelectorAll('.page').forEach(function(el){el.classList.remove('active');});
+  var ni = document.querySelector('[data-page="' + page + '"]');
+  if (ni) ni.classList.add('active');
+  var pi = document.getElementById('page-' + page);
+  if (pi) pi.classList.add('active');
+  closeGS();
+  window.scrollTo(0,0);
+}
+
+document.querySelectorAll('.bnav-item').forEach(function(el) {
+  el.addEventListener('click', function() {
+    navTo(el.dataset.page);
+    if (el.dataset.page==='arrivals'){buildArrChips();}
+    if (el.dataset.page==='activity'){buildActChips();renderActivity();}
+    if (el.dataset.page==='rooms'){buildRooms();}
+  });
+});
+
+document.querySelectorAll('.tb-tab').forEach(function(el) {
+  el.addEventListener('click', function() {
+    document.querySelectorAll('.tb-tab').forEach(function(t){t.classList.remove('active');});
+    el.classList.add('active');
+  });
+});
+
+function applyDemo() {
+  var btn = document.getElementById('demo-btn');
+  var banner = document.getElementById('demo-banner');
+  if (demo) { btn.classList.add('on'); banner.classList.add('on'); }
+  else { btn.classList.remove('on'); banner.classList.remove('on'); }
+  refreshAll();
+}
+
+document.getElementById('demo-btn').addEventListener('click', function() {
+  demo=!demo; localStorage.setItem('m-demo',demo); applyDemo();
+});
+
+function refreshAll() {
+  buildDashboard();
+  renderArr();
+  buildRooms();
+}
+
+buildDashboard();
+buildArrChips();
+renderArr();
+buildRooms();
+buildActChips();
+renderActivity();
+applyDemo();
+</script>
+</body>
+</html>
