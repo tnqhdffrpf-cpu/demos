@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Haystack Rock &mdash; Interactive Field Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#04090f;
+  --navy:#081525;
+  --panel:#0b1c35;
+  --border:rgba(80,140,220,0.18);
+  --amber:#f0a030;
+  --sky:#4fc3f7;
+  --purple:#9c7af5;
+  --teal:#2ecfcf;
+  --green:#4caf50;
+  --text:#dce8f8;
+  --muted:#5f88b0;
+  --faint:rgba(255,255,255,0.04);
+}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:'Inter',sans-serif}
+#app{display:flex;width:100%;height:100vh;position:relative;overflow:hidden}
+
+/* ---- STAGE ---- */
+#stage{flex:1;position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden}
+
+/* atmospheric bg */
+#atmo{position:absolute;inset:0;background:
+  radial-gradient(ellipse 80% 50% at 50% 0%,rgba(15,45,90,0.55) 0%,transparent 70%),
+  radial-gradient(ellipse 100% 40% at 50% 100%,rgba(4,18,42,0.9) 0%,transparent 80%);
+  pointer-events:none;z-index:0}
+
+/* star particles */
+#stars{position:absolute;inset:0;pointer-events:none;z-index:0}
+.star{position:absolute;border-radius:50%;background:#fff;animation:twinkle var(--d,3s) var(--dl,0s) infinite alternate}
+@keyframes twinkle{0%{opacity:var(--a1,0.2)}100%{opacity:var(--a2,0.7)}}
+
+/* ---- HEADER ---- */
+#hdr{position:absolute;top:0;left:0;right:0;padding:22px 28px 0;z-index:10;display:flex;align-items:flex-start;justify-content:space-between;pointer-events:none}
+.hdr-left{}
+.loc-label{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.18em;color:var(--muted);text-transform:uppercase}
+.rock-name{font-size:24px;font-weight:700;letter-spacing:-0.03em;color:var(--text);line-height:1;margin-top:3px}
+.rock-sub{font-size:11px;color:var(--muted);margin-top:2px;letter-spacing:0.06em}
+.hdr-right{text-align:right}
+.hdr-stat-val{font-family:'Space Mono',monospace;font-size:30px;font-weight:700;color:var(--amber);line-height:1}
+.hdr-stat-label{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:0.14em;margin-top:3px}
+
+/* ---- HINT ---- */
+#hint{position:absolute;bottom:22px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:9px;font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:0.12em;text-transform:uppercase;z-index:10;transition:opacity 0.5s;pointer-events:none}
+#hint.gone{opacity:0}
+.h-dot{width:6px;height:6px;border-radius:50%;background:var(--sky);animation:hpulse 2s infinite}
+@keyframes hpulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(0.6);opacity:0.4}}
+
+/* ---- BACK BUTTON ---- */
+#back{position:absolute;top:18px;left:50%;transform:translateX(-50%);background:rgba(8,21,37,0.88);border:1px solid var(--border);border-radius:20px;padding:7px 18px;font-size:10px;font-family:'Space Mono',monospace;letter-spacing:0.12em;color:var(--muted);cursor:pointer;z-index:20;display:none;transition:border-color 0.2s,color 0.2s}
+#back:hover{border-color:var(--sky);color:var(--sky)}
+#back.show{display:block}
+
+/* ---- TOOLTIP ---- */
+#tip{position:absolute;background:rgba(4,9,15,0.92);border:1px solid transparent;border-radius:6px;padding:5px 12px;font-size:10px;font-family:'Space Mono',monospace;letter-spacing:0.08em;pointer-events:none;z-index:30;opacity:0;transition:opacity 0.15s;transform:translateX(-50%)}
+#tip.show{opacity:1}
+
+/* ---- SVG WRAP ---- */
+#rwrap{position:relative;width:100%;height:100%;display:flex;align-items:center;justify-content:center;z-index:1}
+#rsvg{height:86vh;max-height:640px;width:auto;transition:transform 0.65s cubic-bezier(0.22,0.61,0.36,1),transform-origin 0.65s cubic-bezier(0.22,0.61,0.36,1);cursor:pointer;filter:drop-shadow(0 24px 64px rgba(0,0,0,0.7)) drop-shadow(0 0 40px rgba(20,80,180,0.18))}
+#rsvg.zoomed{transform:scale(2.3)}
+
+/* zone interactive */
+.zhit{cursor:pointer}
+.zhit rect.halo{opacity:0;transition:opacity 0.22s}
+.zhit:hover rect.halo{opacity:1}
+.zhit.on rect.halo{opacity:1}
+
+/* ---- INFO PANEL ---- */
+#panel{position:absolute;top:0;right:0;width:390px;height:100%;background:var(--panel);border-left:1px solid var(--border);transform:translateX(100%);transition:transform 0.48s cubic-bezier(0.22,0.61,0.36,1);z-index:50;display:flex;flex-direction:column;overflow:hidden}
+#panel.open{transform:translateX(0)}
+#panel-bar{height:4px;width:100%;flex-shrink:0;transition:background 0.3s}
+#panel-scroll{flex:1;overflow-y:auto;padding:28px 26px 40px}
+#panel-scroll::-webkit-scrollbar{width:4px}
+#panel-scroll::-webkit-scrollbar-track{background:transparent}
+#panel-scroll::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:2px}
+.pclose{position:absolute;top:14px;right:14px;width:30px;height:30px;border:1px solid var(--border);border-radius:50%;background:transparent;color:var(--muted);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:border-color 0.2s,color 0.2s}
+.pclose:hover{border-color:var(--sky);color:var(--sky)}
+.ptag{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:0.18em;text-transform:uppercase;margin-bottom:7px;opacity:0.7}
+.ptitle{font-size:27px;font-weight:700;letter-spacing:-0.03em;line-height:1;margin-bottom:5px}
+.pelev{font-family:'Space Mono',monospace;font-size:11px;color:var(--muted);margin-bottom:18px}
+.pdesc{font-size:13px;line-height:1.75;color:rgba(220,232,248,0.78);margin-bottom:22px}
+.psection{font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.14em;margin-bottom:10px}
+.facts{display:flex;flex-direction:column;gap:9px;margin-bottom:22px}
+.fact{background:var(--faint);border:1px solid var(--border);border-radius:8px;padding:11px 13px;display:flex;gap:10px;align-items:flex-start}
+.fact-ico{font-size:15px;flex-shrink:0;margin-top:1px}
+.fact-name{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:3px}
+.fact-body{font-size:12px;line-height:1.6;color:rgba(220,232,248,0.68)}
+.species{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.sp{background:var(--faint);border:1px solid var(--border);border-radius:7px;padding:9px 11px}
+.sp-name{font-size:12px;font-weight:600;color:var(--text)}
+.sp-sci{font-size:10px;font-style:italic;color:var(--muted);margin-top:1px}
+
+/* ---- LEGEND STRIP (bottom) ---- */
+#legend{position:absolute;bottom:18px;left:50%;transform:translateX(-50%);display:flex;gap:18px;align-items:center;z-index:10;transition:opacity 0.4s;pointer-events:none}
+#legend.gone{opacity:0}
+.leg{display:flex;align-items:center;gap:5px}
+.leg-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.leg-label{font-size:10px;font-family:'Space Mono',monospace;letter-spacing:0.06em;color:var(--muted)}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <div id="atmo"></div>
+  <div id="stars"></div>
+
+  <div id="stage">
+    <div id="hdr">
+      <div class="hdr-left">
+        <div class="loc-label">Cannon Beach &middot; Oregon Coast</div>
+        <div class="rock-name">Haystack Rock</div>
+        <div class="rock-sub">Interactive Field Guide &mdash; 5 Ecological Zones</div>
+      </div>
+      <div class="hdr-right">
+        <div class="hdr-stat-val">235<span style="font-size:15px;opacity:0.55">ft</span></div>
+        <div class="hdr-stat-label">72 m above sea level</div>
+      </div>
+    </div>
+
+    <div id="rwrap">
+      <svg id="rsvg" viewBox="0 0 700 680" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+
+          <!-- ROCK SILHOUETTE clip path -->
+          <clipPath id="rc">
+            <path d="M260,28 C267,38 275,52 281,68 C287,84 290,98 294,115 C299,135 304,152 308,172 C313,193 316,212 319,233 C322,254 324,274 326,296 C328,318 330,338 332,360 C334,382 336,402 338,423 C340,444 342,463 344,482 C347,502 349,520 352,538 C355,554 359,568 366,579 C373,590 384,597 397,602 C410,607 424,609 438,611 C452,613 466,615 476,618 L480,640 L40,640 C50,618 64,615 78,613 C92,611 106,609 120,607 C133,604 144,598 151,590 C158,581 162,568 165,554 C168,538 171,521 174,503 C176,484 178,465 180,444 C182,424 184,404 186,382 C188,361 190,340 192,318 C194,297 196,277 199,255 C202,234 205,214 208,193 C211,172 216,153 221,133 C226,113 231,95 237,77 C243,59 251,42 260,28 Z"/>
+          </clipPath>
+
+          <!-- Zone gradient fills -->
+          <linearGradient id="g-sum" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#1c3020"/>
+            <stop offset="100%" stop-color="#162818"/>
+          </linearGradient>
+          <linearGradient id="g-cli" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#152232"/>
+            <stop offset="100%" stop-color="#101d28"/>
+          </linearGradient>
+          <linearGradient id="g-fac" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#18162e"/>
+            <stop offset="100%" stop-color="#111428"/>
+          </linearGradient>
+          <linearGradient id="g-cav" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#091e26"/>
+            <stop offset="100%" stop-color="#061620"/>
+          </linearGradient>
+          <linearGradient id="g-tid" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#0a1c12"/>
+            <stop offset="100%" stop-color="#060f0c"/>
+          </linearGradient>
+
+          <!-- Zone halo colors -->
+          <linearGradient id="h-sum" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#f0a030" stop-opacity="0.28"/>
+            <stop offset="100%" stop-color="#f0a030" stop-opacity="0.06"/>
+          </linearGradient>
+          <linearGradient id="h-cli" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#4fc3f7" stop-opacity="0.22"/>
+            <stop offset="100%" stop-color="#4fc3f7" stop-opacity="0.05"/>
+          </linearGradient>
+          <linearGradient id="h-fac" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#9c7af5" stop-opacity="0.22"/>
+            <stop offset="100%" stop-color="#9c7af5" stop-opacity="0.05"/>
+          </linearGradient>
+          <linearGradient id="h-cav" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#2ecfcf" stop-opacity="0.24"/>
+            <stop offset="100%" stop-color="#2ecfcf" stop-opacity="0.05"/>
+          </linearGradient>
+          <linearGradient id="h-tid" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#4caf50" stop-opacity="0.26"/>
+            <stop offset="100%" stop-color="#4caf50" stop-opacity="0.06"/>
+          </linearGradient>
+
+          <!-- Basalt column pattern -->
+          <pattern id="bpat" x="0" y="0" width="38" height="60" patternUnits="userSpaceOnUse">
+            <line x1="0" y1="0" x2="0" y2="60" stroke="rgba(150,180,230,0.09)" stroke-width="0.8"/>
+            <line x1="13" y1="0" x2="13" y2="60" stroke="rgba(150,180,230,0.06)" stroke-width="0.6"/>
+            <line x1="25" y1="0" x2="25" y2="60" stroke="rgba(150,180,230,0.09)" stroke-width="0.8"/>
+            <line x1="0" y1="20" x2="38" y2="20" stroke="rgba(150,180,230,0.05)" stroke-width="0.5"/>
+            <line x1="0" y1="42" x2="38" y2="42" stroke="rgba(150,180,230,0.05)" stroke-width="0.5"/>
+          </pattern>
+
+          <!-- Rock edge glow filter -->
+          <filter id="rglow" x="-12%" y="-5%" width="130%" height="115%">
+            <feGaussianBlur in="SourceAlpha" stdDeviation="10" result="b"/>
+            <feFlood flood-color="#2a6090" flood-opacity="0.45" result="c"/>
+            <feComposite in="c" in2="b" operator="in" result="s"/>
+            <feMerge><feMergeNode in="s"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+
+          <!-- Zone border glow -->
+          <filter id="zglow" x="-5%" y="-5%" width="110%" height="110%">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="4" result="b"/>
+            <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+
+        </defs>
+
+        <!-- === BACKGROUND SCENE === -->
+        <!-- Night sky gradient -->
+        <rect x="0" y="0" width="700" height="500" fill="#040c18"/>
+        <rect x="0" y="480" width="700" height="200" fill="#060e1c"/>
+
+        <!-- Moon glow -->
+        <ellipse cx="580" cy="80" rx="60" ry="60" fill="rgba(220,235,255,0.04)"/>
+        <ellipse cx="580" cy="80" rx="30" ry="30" fill="rgba(220,235,255,0.06)"/>
+        <ellipse cx="580" cy="80" rx="14" ry="14" fill="rgba(235,245,255,0.18)"/>
+
+        <!-- Atmospheric horizon glow -->
+        <ellipse cx="260" cy="530" rx="200" ry="55" fill="rgba(15,40,80,0.55)"/>
+
+        <!-- Ocean surface -->
+        <rect x="0" y="610" width="700" height="70" fill="#061020"/>
+        <!-- Water shimmer -->
+        <line x1="20" y1="622" x2="90" y2="619" stroke="rgba(79,195,247,0.18)" stroke-width="2" stroke-linecap="round"/>
+        <line x1="30" y1="633" x2="110" y2="630" stroke="rgba(79,195,247,0.08)" stroke-width="1" stroke-linecap="round"/>
+        <line x1="420" y1="625" x2="510" y2="621" stroke="rgba(79,195,247,0.18)" stroke-width="2" stroke-linecap="round"/>
+        <line x1="440" y1="636" x2="520" y2="632" stroke="rgba(79,195,247,0.08)" stroke-width="1" stroke-linecap="round"/>
+        <line x1="560" y1="619" x2="620" y2="617" stroke="rgba(79,195,247,0.12)" stroke-width="1.5" stroke-linecap="round"/>
+        <!-- Moon reflection on water -->
+        <ellipse cx="520" cy="635" rx="45" ry="5" fill="rgba(220,235,255,0.06)"/>
+
+        <!-- Companion sea stacks (background) -->
+        <!-- Right needle -->
+        <path d="M580,640 C581,625 584,610 586,600 C588,610 590,625 591,640 Z" fill="#07101e"/>
+        <ellipse cx="585" cy="640" rx="8" ry="3" fill="#060e1c"/>
+        <!-- Left needle -->
+        <path d="M82,640 C83,618 87,600 89,588 C91,600 94,618 95,640 Z" fill="#07101e"/>
+        <ellipse cx="88" cy="640" rx="8" ry="3" fill="#060e1c"/>
+        <!-- Far right small -->
+        <path d="M628,640 C629,630 631,622 633,617 C634,622 636,630 637,640 Z" fill="#07101e"/>
+        <!-- Far left small -->
+        <path d="M46,640 C47,632 49,626 50,621 C51,626 53,632 54,640 Z" fill="#07101e"/>
+
+        <!-- Mist at base -->
+        <ellipse cx="260" cy="640" rx="230" ry="18" fill="rgba(8,25,55,0.7)"/>
+        <ellipse cx="260" cy="628" rx="180" ry="10" fill="rgba(8,25,55,0.4)"/>
+
+        <!-- === ROCK BODY (zoned, clipped) === -->
+        <!-- Zone 5 — Tidal (base) -->
+        <rect x="0" y="490" width="700" height="150" fill="url(#g-tid)" clip-path="url(#rc)"/>
+        <!-- Zone 4 — Sea Caves -->
+        <rect x="0" y="370" width="700" height="120" fill="url(#g-cav)" clip-path="url(#rc)"/>
+        <!-- Zone 3 — Rock Face -->
+        <rect x="0" y="230" width="700" height="140" fill="url(#g-fac)" clip-path="url(#rc)"/>
+        <!-- Zone 2 — Nesting Cliffs -->
+        <rect x="0" y="120" width="700" height="110" fill="url(#g-cli)" clip-path="url(#rc)"/>
+        <!-- Zone 1 — Summit -->
+        <rect x="0" y="0" width="700" height="120" fill="url(#g-sum)" clip-path="url(#rc)"/>
+
+        <!-- Basalt column texture -->
+        <rect x="0" y="0" width="700" height="700" fill="url(#bpat)" clip-path="url(#rc)" opacity="1"/>
+
+        <!-- Strata horizontal lines (geological layering) -->
+        <g clip-path="url(#rc)" opacity="0.35">
+          <path d="M165,490 Q260,484 352,490" fill="none" stroke="#7aaddd" stroke-width="0.9"/>
+          <path d="M170,440 Q260,436 345,440" fill="none" stroke="#7aaddd" stroke-width="0.7"/>
+          <path d="M175,390 Q260,385 340,390" fill="none" stroke="#7aaddd" stroke-width="0.9"/>
+          <path d="M178,370 Q260,366 337,370" fill="none" stroke="#7aaddd" stroke-width="0.6"/>
+          <path d="M182,305 Q260,300 332,305" fill="none" stroke="#7aaddd" stroke-width="0.8"/>
+          <path d="M186,260 Q260,256 328,260" fill="none" stroke="#7aaddd" stroke-width="0.6"/>
+          <path d="M192,220 Q260,216 323,220" fill="none" stroke="#7aaddd" stroke-width="0.7"/>
+          <path d="M199,180 Q260,176 318,180" fill="none" stroke="#7aaddd" stroke-width="0.6"/>
+        </g>
+
+        <!-- Rock highlight (left-side light catch) -->
+        <g clip-path="url(#rc)" opacity="0.1">
+          <linearGradient id="sidelight" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#fff" stop-opacity="0.35"/>
+            <stop offset="30%" stop-color="#fff" stop-opacity="0"/>
+          </linearGradient>
+          <rect x="0" y="0" width="280" height="700" fill="url(#sidelight)"/>
+        </g>
+
+        <!-- Summit turf (dark green blob) -->
+        <g clip-path="url(#rc)" opacity="0.65">
+          <ellipse cx="248" cy="42" rx="22" ry="9" fill="#1a3f20"/>
+          <ellipse cx="268" cy="36" rx="16" ry="8" fill="#1e4826"/>
+          <ellipse cx="255" cy="50" rx="26" ry="7" fill="#162e18"/>
+          <ellipse cx="235" cy="55" rx="14" ry="5" fill="#1a3f20"/>
+          <ellipse cx="278" cy="46" rx="18" ry="7" fill="#1e4826"/>
+          <ellipse cx="246" cy="60" rx="20" ry="5" fill="#162e18"/>
+        </g>
+
+        <!-- Cave shadow pockets at base -->
+        <g clip-path="url(#rc)" opacity="0.72">
+          <ellipse cx="210" cy="535" rx="24" ry="10" fill="#03080e"/>
+          <ellipse cx="325" cy="550" rx="18" ry="8" fill="#03080e"/>
+          <ellipse cx="280" cy="520" rx="14" ry="6" fill="#03080e"/>
+        </g>
+
+        <!-- Zone separator divider lines -->
+        <g clip-path="url(#rc)" opacity="0.5">
+          <line x1="168" y1="120" x2="309" y2="120" stroke="#4fc3f7" stroke-width="0.6" stroke-dasharray="4,6"/>
+          <line x1="166" y1="230" x2="320" y2="230" stroke="#9c7af5" stroke-width="0.6" stroke-dasharray="4,6"/>
+          <line x1="163" y1="370" x2="333" y2="370" stroke="#2ecfcf" stroke-width="0.6" stroke-dasharray="4,6"/>
+          <line x1="160" y1="490" x2="340" y2="490" stroke="#4caf50" stroke-width="0.6" stroke-dasharray="4,6"/>
+        </g>
+
+        <!-- Rock outline with glow -->
+        <path d="M260,28 C267,38 275,52 281,68 C287,84 290,98 294,115 C299,135 304,152 308,172 C313,193 316,212 319,233 C322,254 324,274 326,296 C328,318 330,338 332,360 C334,382 336,402 338,423 C340,444 342,463 344,482 C347,502 349,520 352,538 C355,554 359,568 366,579 C373,590 384,597 397,602 C410,607 424,609 438,611 C452,613 466,615 476,618 L480,640 L40,640 C50,618 64,615 78,613 C92,611 106,609 120,607 C133,604 144,598 151,590 C158,581 162,568 165,554 C168,538 171,521 174,503 C176,484 178,465 180,444 C182,424 184,404 186,382 C188,361 190,340 192,318 C194,297 196,277 199,255 C202,234 205,214 208,193 C211,172 216,153 221,133 C226,113 231,95 237,77 C243,59 251,42 260,28 Z" fill="none" stroke="rgba(100,160,255,0.32)" stroke-width="1.5" filter="url(#rglow)"/>
+
+        <!-- Height measurement annotation -->
+        <g opacity="0.45">
+          <line x1="54" y1="28" x2="54" y2="638" stroke="rgba(240,160,48,0.6)" stroke-width="0.9" stroke-dasharray="3,5"/>
+          <line x1="49" y1="28" x2="59" y2="28" stroke="#f0a030" stroke-width="1.5"/>
+          <line x1="49" y1="638" x2="59" y2="638" stroke="#f0a030" stroke-width="1.5"/>
+          <text x="35" y="338" font-family="Space Mono,monospace" font-size="9" fill="#f0a030" letter-spacing="0" transform="rotate(-90,35,338)" text-anchor="middle" opacity="0.8">235 ft / 72 m</text>
+        </g>
+
+        <!-- Right-side label connectors (dots + lines) -->
+        <!-- Summit -->
+        <circle cx="328" cy="72" r="3.5" fill="#f0a030" opacity="0.9"/>
+        <line x1="332" y1="72" x2="370" y2="72" stroke="#f0a030" stroke-width="0.8" opacity="0.5"/>
+        <line x1="370" y1="72" x2="530" y2="72" stroke="#f0a030" stroke-width="0.7" opacity="0.3"/>
+        <text x="375" y="69" font-family="Space Mono,monospace" font-size="9.5" fill="#f0a030" opacity="0.85" letter-spacing="0.08em">SUMMIT</text>
+        <text x="375" y="80" font-family="Space Mono,monospace" font-size="8" fill="#f0a030" opacity="0.5">Puffin Colony</text>
+
+        <!-- Nesting Cliffs -->
+        <circle cx="333" cy="175" r="3.5" fill="#4fc3f7" opacity="0.9"/>
+        <line x1="337" y1="175" x2="370" y2="175" stroke="#4fc3f7" stroke-width="0.8" opacity="0.5"/>
+        <line x1="370" y1="175" x2="530" y2="175" stroke="#4fc3f7" stroke-width="0.7" opacity="0.3"/>
+        <text x="375" y="172" font-family="Space Mono,monospace" font-size="9.5" fill="#4fc3f7" opacity="0.85" letter-spacing="0.08em">NESTING CLIFFS</text>
+        <text x="375" y="183" font-family="Space Mono,monospace" font-size="8" fill="#4fc3f7" opacity="0.5">Seabird Colonies</text>
+
+        <!-- Rock Face -->
+        <circle cx="335" cy="302" r="3.5" fill="#9c7af5" opacity="0.9"/>
+        <line x1="339" y1="302" x2="370" y2="302" stroke="#9c7af5" stroke-width="0.8" opacity="0.5"/>
+        <line x1="370" y1="302" x2="530" y2="302" stroke="#9c7af5" stroke-width="0.7" opacity="0.3"/>
+        <text x="375" y="299" font-family="Space Mono,monospace" font-size="9.5" fill="#9c7af5" opacity="0.85" letter-spacing="0.08em">BASALT FACE</text>
+        <text x="375" y="310" font-family="Space Mono,monospace" font-size="8" fill="#9c7af5" opacity="0.5">15M yr old lava</text>
+
+        <!-- Sea Caves -->
+        <circle cx="339" cy="428" r="3.5" fill="#2ecfcf" opacity="0.9"/>
+        <line x1="343" y1="428" x2="370" y2="428" stroke="#2ecfcf" stroke-width="0.8" opacity="0.5"/>
+        <line x1="370" y1="428" x2="530" y2="428" stroke="#2ecfcf" stroke-width="0.7" opacity="0.3"/>
+        <text x="375" y="425" font-family="Space Mono,monospace" font-size="9.5" fill="#2ecfcf" opacity="0.85" letter-spacing="0.08em">SEA CAVES</text>
+        <text x="375" y="436" font-family="Space Mono,monospace" font-size="8" fill="#2ecfcf" opacity="0.5">Wave Erosion Zone</text>
+
+        <!-- Tidal Pools -->
+        <circle cx="342" cy="540" r="3.5" fill="#4caf50" opacity="0.9"/>
+        <line x1="346" y1="540" x2="370" y2="540" stroke="#4caf50" stroke-width="0.8" opacity="0.5"/>
+        <line x1="370" y1="540" x2="530" y2="540" stroke="#4caf50" stroke-width="0.7" opacity="0.3"/>
+        <text x="375" y="537" font-family="Space Mono,monospace" font-size="9.5" fill="#4caf50" opacity="0.85" letter-spacing="0.08em">TIDAL POOLS</text>
+        <text x="375" y="548" font-family="Space Mono,monospace" font-size="8" fill="#4caf50" opacity="0.5">Marine Garden</text>
+
+        <!-- === INTERACTIVE ZONE HIT AREAS (drawn last = on top) === -->
+
+        <!-- Zone 1: Summit (y 0-120) -->
+        <g class="zhit" data-zone="summit" id="z-summit">
+          <rect x="0" y="0" width="700" height="120" fill="url(#h-sum)" clip-path="url(#rc)" class="halo" rx="0" stroke="#f0a030" stroke-width="1.5" stroke-opacity="0.5" filter="url(#zglow)"/>
+          <rect x="40" y="0" width="440" height="125" fill="transparent"/>
+        </g>
+
+        <!-- Zone 2: Nesting Cliffs (y 120-230) -->
+        <g class="zhit" data-zone="cliff" id="z-cliff">
+          <rect x="0" y="120" width="700" height="110" fill="url(#h-cli)" clip-path="url(#rc)" class="halo" rx="0" stroke="#4fc3f7" stroke-width="1.5" stroke-opacity="0.5" filter="url(#zglow)"/>
+          <rect x="40" y="120" width="440" height="115" fill="transparent"/>
+        </g>
+
+        <!-- Zone 3: Rock Face (y 230-370) -->
+        <g class="zhit" data-zone="face" id="z-face">
+          <rect x="0" y="230" width="700" height="140" fill="url(#h-fac)" clip-path="url(#rc)" class="halo" rx="0" stroke="#9c7af5" stroke-width="1.5" stroke-opacity="0.5" filter="url(#zglow)"/>
+          <rect x="40" y="230" width="440" height="145" fill="transparent"/>
+        </g>
+
+        <!-- Zone 4: Sea Caves (y 370-490) -->
+        <g class="zhit" data-zone="cave" id="z-cave">
+          <rect x="0" y="370" width="700" height="120" fill="url(#h-cav)" clip-path="url(#rc)" class="halo" rx="0" stroke="#2ecfcf" stroke-width="1.5" stroke-opacity="0.5" filter="url(#zglow)"/>
+          <rect x="40" y="370" width="440" height="125" fill="transparent"/>
+        </g>
+
+        <!-- Zone 5: Tidal Pools (y 490-640) -->
+        <g class="zhit" data-zone="tidal" id="z-tidal">
+          <rect x="0" y="490" width="700" height="155" fill="url(#h-tid)" clip-path="url(#rc)" class="halo" rx="0" stroke="#4caf50" stroke-width="1.5" stroke-opacity="0.5" filter="url(#zglow)"/>
+          <rect x="40" y="490" width="440" height="155" fill="transparent"/>
+        </g>
+
+      </svg>
+    </div>
+
+    <div id="hint"><div class="h-dot"></div>Click any section of the rock to explore</div>
+
+    <button id="back" onclick="closePanel()">&#8592; Overview</button>
+
+    <div id="tip"></div>
+
+    <!-- legend -->
+    <div id="legend">
+      <div class="leg"><div class="leg-dot" style="background:#f0a030"></div><div class="leg-label">Summit</div></div>
+      <div class="leg"><div class="leg-dot" style="background:#4fc3f7"></div><div class="leg-label">Cliffs</div></div>
+      <div class="leg"><div class="leg-dot" style="background:#9c7af5"></div><div class="leg-label">Basalt</div></div>
+      <div class="leg"><div class="leg-dot" style="background:#2ecfcf"></div><div class="leg-label">Caves</div></div>
+      <div class="leg"><div class="leg-dot" style="background:#4caf50"></div><div class="leg-label">Tidal</div></div>
+    </div>
+
+  </div>
+
+  <!-- INFO PANEL -->
+  <div id="panel">
+    <button class="pclose" onclick="closePanel()">&#10005;</button>
+    <div id="panel-bar"></div>
+    <div id="panel-scroll"></div>
+  </div>
+
+</div>
+
+<script>
+/* ---- Star field ---- */
+(function(){
+  var cont = document.getElementById('stars');
+  var data = [
+    [12,8,1.5,0.4,0.8,0,2.8],[28,15,1,0.2,0.6,0.4,3.5],[55,4,1.2,0.3,0.7,1,2.5],
+    [80,10,0.8,0.15,0.5,0.8,4],[100,3,1.4,0.4,0.9,0.2,3],[130,18,1,0.2,0.6,1.5,2.8],
+    [160,7,1.6,0.5,1,0,3.2],[185,12,0.9,0.2,0.55,0.6,3.8],[210,5,1.3,0.35,0.8,1.2,2.6],
+    [240,14,1,0.25,0.65,0.3,4.2],[270,3,1.8,0.6,1,0,3],[295,9,1.1,0.3,0.7,0.9,3.5],
+    [320,16,0.8,0.15,0.45,1.8,2.9],[350,6,1.5,0.45,0.9,0.4,3.1],[380,11,1,0.2,0.6,1.1,3.7],
+    [410,4,1.2,0.35,0.75,0.7,2.7],[440,13,0.9,0.2,0.55,1.4,4],[470,8,1.4,0.4,0.85,0.2,3.3],
+    [495,2,1.6,0.5,0.95,0.6,2.8],[520,10,1,0.25,0.65,1,3.6],[545,5,1.3,0.38,0.82,0.3,3],
+    [570,14,0.8,0.15,0.5,1.7,4.1],[595,7,1.5,0.45,0.9,0.8,2.9],[615,11,1.1,0.3,0.7,0.5,3.4],
+    [640,3,1.8,0.55,1,0,3.2],[660,9,0.9,0.2,0.58,1.2,3.8],[680,6,1.2,0.32,0.78,0.7,2.6],
+    [695,13,1,0.25,0.62,1.5,4],[150,1,1.4,0.42,0.88,0.9,3.1],[330,19,0.7,0.12,0.42,2,4.5]
+  ];
+  data.forEach(function(d){
+    var s = document.createElement('div');
+    s.className = 'star';
+    s.style.cssText = 'left:'+d[0]+'%;top:'+d[1]+'%;width:'+d[2]+'px;height:'+d[2]+'px;--a1:'+d[3]+';--a2:'+d[4]+';--dl:'+d[5]+'s;--d:'+d[6]+'s';
+    cont.appendChild(s);
+  });
+})();
+
+/* ---- Zone data ---- */
+var ZONES = {
+  summit:{
+    name:'Summit',
+    tag:'Zone 01 &mdash; Apex',
+    elev:'235 ft (72 m) above sea level',
+    color:'#f0a030',
+    origin:'50% 10%',
+    desc:'The windswept crown of Haystack Rock rises 235 feet above the Pacific shoreline, making it one of the tallest intertidal monoliths on the entire U.S. coast. The summit hosts a protected seabird sanctuary and is completely off-limits to humans year-round.',
+    facts:[
+      {i:'&#129413;',n:'Tufted Puffins',b:'Over 100 nesting pairs arrive each April and depart by late August. These charismatic birds dig burrows up to 3 feet deep into the summit soil, returning to the same site year after year for decades.'},
+      {i:'&#127807;',n:'Summit Vegetation',b:'Native grasses, sea rockets, and stonecrop succulents cover the summit plateau. These salt-tolerant plants provide nesting substrate for burrowing seabirds and are shaped by relentless Pacific winds into aerodynamic, low-lying cushions.'},
+      {i:'&#128737;',n:'Oregon Islands NWR',b:'Designated a National Wildlife Refuge in 1968. Approaching within 100 feet of Haystack Rock is prohibited by federal law. Drones are banned within 1,000 feet of nesting birds during nesting season.'},
+      {i:'&#127774;',n:'Wind &amp; Microclimate',b:'Summit wind speeds regularly exceed 50 mph during winter Pacific storms. Salt spray carried by these winds sculpts all vegetation and limits soil depth, creating one of the most extreme terrestrial habitats on the Oregon Coast.'}
+    ],
+    species:[
+      {n:'Tufted Puffin',s:'Fratercula cirrhata'},
+      {n:'Common Murre',s:'Uria aalge'},
+      {n:'Western Gull',s:'Larus occidentalis'},
+      {n:'Peregrine Falcon',s:'Falco peregrinus'}
+    ]
+  },
+  cliff:{
+    name:'Nesting Cliffs',
+    tag:'Zone 02 &mdash; Upper Cliff Face',
+    elev:'100&ndash;235 ft (30&ndash;72 m)',
+    color:'#4fc3f7',
+    origin:'50% 27%',
+    desc:'The sheer cliff faces below the summit teem with colonial nesting seabirds from April through July. Ledges, crevices, and basalt joints in the rock provide critical nesting real estate. Thousands of birds crowd every available surface during peak season, creating a visible and audible spectacle from the beach below.',
+    facts:[
+      {i:'&#129415;',n:'Colonial Nesting',b:'Seabirds nest in dense colonies that may contain thousands of individuals per acre of cliff face. The density provides safety in numbers against aerial predators, though it also attracts Peregrine Falcons that hunt the colony edges.'},
+      {i:'&#128032;',n:'Deep Divers',b:'Cliff-nesting murres and guillemots regularly dive to depths of 200 feet in pursuit of Pacific sand lance, herring, and smelt. They use their wings to "fly" underwater at speeds up to 3 mph.'},
+      {i:'&#128204;',n:'HRAP Monitoring',b:'The Haystack Rock Awareness Program deploys trained volunteers each season to count nests, track chick survival, and educate beach visitors. Data collected since the 1990s documents long-term population trends tied to ocean conditions.'},
+      {i:'&#9888;',n:'Disturbance Impact',b:'Even a brief human disturbance can trigger mass nest abandonment, exposing eggs and chicks to predators and weather. The 100-foot buffer is strictly enforced by volunteer stewards during the breeding season.'}
+    ],
+    species:[
+      {n:'Pigeon Guillemot',s:'Cepphus columba'},
+      {n:'Brandt\'s Cormorant',s:'Phalacrocorax penicillatus'},
+      {n:'Black Oystercatcher',s:'Haematopus bachmani'},
+      {n:'Pelagic Cormorant',s:'Urile pelagicus'}
+    ]
+  },
+  face:{
+    name:'Basalt Rock Face',
+    tag:'Zone 03 &mdash; Geological Core',
+    elev:'40&ndash;100 ft (12&ndash;30 m)',
+    color:'#9c7af5',
+    origin:'50% 48%',
+    desc:'The exposed rock face reveals 15 million years of geological history. Columbia River Basalt, extruded by massive flood eruptions that blanketed the Pacific Northwest in lava up to 6,000 feet deep, was carved into this dramatic sea stack by relentless wave erosion over hundreds of thousands of years.',
+    facts:[
+      {i:'&#129704;',n:'Columbia River Basalt',b:'Formed 15&ndash;17 million years ago during the Miocene epoch by a series of catastrophic flood basalt eruptions from fissures in present-day eastern Oregon and Washington. Individual flows reached the Pacific Ocean, cooling into the distinctive dark basalt visible today.'},
+      {i:'&#128210;',n:'Columnar Jointing',b:'The characteristic vertical cracks visible in the cliff face formed as molten basalt cooled uniformly, contracting into hexagonal prisms. The same process creates the Giant\'s Causeway in Northern Ireland and Devils Postpile in California.'},
+      {i:'&#127754;',n:'Sea Stack Genesis',b:'Haystack Rock is a classic sea stack, a remnant of a former headland separated from the mainland by progressive wave erosion on all sides. The surrounding tidal flat marks where the headland once stood.'},
+      {i:'&#8987;',n:'Erosion Rate',b:'Modern measurements suggest the rock loses approximately 1 inch per century through wave erosion and weathering. At this rate, the structure has several hundred thousand years remaining before it erodes to sea level.'}
+    ],
+    species:[
+      {n:'Wandering Tattler',s:'Tringa incana'},
+      {n:'Surfbird',s:'Calidris virgata'},
+      {n:'Black Turnstone',s:'Arenaria melanocephala'},
+      {n:'Harlequin Duck',s:'Histrionicus histrionicus'}
+    ]
+  },
+  cave:{
+    name:'Sea Caves &amp; Arches',
+    tag:'Zone 04 &mdash; Intertidal Margin',
+    elev:'0&ndash;40 ft (0&ndash;12 m)',
+    color:'#2ecfcf',
+    origin:'50% 66%',
+    desc:'Where the monolith meets the surf, centuries of wave action have carved sea caves, surge channels, and small arches into the basalt. These marine grottoes are accessible only during extreme low tides and provide shelter for harbor seals, roosting seabirds, and a rich community of encrusting intertidal organisms.',
+    facts:[
+      {i:'&#127754;',n:'Hydraulic Erosion',b:'During winter storms, waves strike the cliff with forces exceeding 2,000 pounds per square foot. Hydraulic action, abrasion by sand and gravel, and chemical weathering combine to excavate caves along zones of structural weakness in the basalt.'},
+      {i:'&#129452;',n:'Harbor Seals',b:'Harbor seals regularly haul out in the protected crevices and ledges below the high-tide line, especially in late summer when pups are weaning. Observers can often spot them from the beach at low tide; approaching within 50 feet is prohibited.'},
+      {i:'&#127839;',n:'Surge Channels',b:'Water-filled channels at the rock\'s base experience extreme oscillating water levels as waves surge in and out. These dynamic habitats are colonized by organisms adapted to both aerial exposure and full submersion within minutes of each other.'},
+      {i:'&#128309;',n:'Sea Arches',b:'Two small sea arches on the north face allow ocean water to flow completely through the base of the rock at high tide. These openings accelerate internal erosion, gradually widening until the arch roof eventually collapses into a sea stack.'}
+    ],
+    species:[
+      {n:'Harbor Seal',s:'Phoca vitulina'},
+      {n:'Ochre Sea Star',s:'Pisaster ochraceus'},
+      {n:'Giant Green Anemone',s:'Anthopleura xanthogrammica'},
+      {n:'Sea Lettuce',s:'Ulva lactuca'}
+    ]
+  },
+  tidal:{
+    name:'Tidal Pools',
+    tag:'Zone 05 &mdash; Marine Garden',
+    elev:'Below mean low water',
+    color:'#4caf50',
+    origin:'50% 85%',
+    desc:'The Marine Garden designation protects one of the richest intertidal communities on the entire Pacific Coast. Designated in 1968 and extending 500 feet in all directions from the rock, this protected zone is visited by thousands of beachgoers annually. Collection of any organism, rock, or shell is strictly prohibited.',
+    facts:[
+      {i:'&#11088;',n:'Keystone Sea Stars',b:'Ochre sea stars are the keystone predator of the tidal community, regulating mussel populations that would otherwise dominate the habitat. Sea Star Wasting Syndrome devastated populations coastwide in 2013&ndash;2015; recovery at Haystack Rock has been slow but measurable since 2018.'},
+      {i:'&#127826;',n:'Giant Green Anemone',b:'The brilliant emerald color comes from symbiotic algae (zoochlorellae and zooxanthellae) living within their tissue. The anemone gains up to 50% of its energy from algal photosynthesis. In shaded pools, the same species appears brownish-grey without its algal partners.'},
+      {i:'&#129419;',n:'Purple Sea Urchin',b:'Dense aggregations graze on encrusting algae and kelp. They can bore bowl-shaped depressions into softer rock zones using their spines and teeth (Aristotle\'s lantern). These depressions, called "bioerosion pits," persist in the rock long after the urchin is gone.'},
+      {i:'&#128026;',n:'Biodiversity Record',b:'Over 100 species have been documented in the Haystack Rock tidal pools, including 8 chiton species, 12 nudibranch species, 6 sea star species, and dozens of encrusting coralline algae, bryozoans, and sponges. Seasonal surveys are conducted by HRAP volunteers.'}
+    ],
+    species:[
+      {n:'Purple Sea Urchin',s:'Strongylocentrotus purpuratus'},
+      {n:'Giant Green Anemone',s:'Anthopleura xanthogrammica'},
+      {n:'California Mussel',s:'Mytilus californianus'},
+      {n:'Gooseneck Barnacle',s:'Pollicipes polymerus'}
+    ]
+  }
+};
+
+/* ---- State ---- */
+var active = null;
+var svg = document.getElementById('rsvg');
+var panel = document.getElementById('panel');
+var panelBar = document.getElementById('panel-bar');
+var panelScroll = document.getElementById('panel-scroll');
+var hint = document.getElementById('hint');
+var legend = document.getElementById('legend');
+var back = document.getElementById('back');
+var tip = document.getElementById('tip');
+
+/* ---- Build panel HTML ---- */
+function buildFacts(arr){
+  var h = '<div class="facts">';
+  for(var i=0;i<arr.length;i++){
+    h += '<div class="fact"><div class="fact-ico">'+arr[i].i+'</div><div><div class="fact-name" style="color:var(--ac)">'+arr[i].n+'</div><div class="fact-body">'+arr[i].b+'</div></div></div>';
+  }
+  return h+'</div>';
+}
+function buildSpecies(arr){
+  var h = '<div class="species">';
+  for(var i=0;i<arr.length;i++){
+    h += '<div class="sp"><div class="sp-name">'+arr[i].n+'</div><div class="sp-sci">'+arr[i].s+'</div></div>';
+  }
+  return h+'</div>';
+}
+
+/* ---- Open zone ---- */
+function openZone(id){
+  var z = ZONES[id];
+  if(!z) return;
+  active = id;
+
+  /* zoom */
+  svg.style.transformOrigin = z.origin;
+  svg.classList.add('zoomed');
+
+  /* hide ui */
+  hint.classList.add('gone');
+  legend.classList.add('gone');
+  back.classList.add('show');
+
+  /* highlight zone */
+  document.querySelectorAll('.zhit').forEach(function(el){el.classList.remove('on')});
+  document.getElementById('z-'+id).classList.add('on');
+
+  /* panel */
+  panelBar.style.background = z.color;
+  panelScroll.style.setProperty('--ac', z.color);
+
+  var h = '';
+  h += '<div class="ptag" style="color:'+z.color+'">'+z.tag+'</div>';
+  h += '<div class="ptitle" style="color:'+z.color+'">'+z.name+'</div>';
+  h += '<div class="pelev">'+z.elev+'</div>';
+  h += '<div class="pdesc">'+z.desc+'</div>';
+  h += '<div class="psection">Field Notes</div>';
+  h += buildFacts(z.facts);
+  h += '<div class="psection" style="margin-top:18px">Species Observed</div>';
+  h += buildSpecies(z.species);
+
+  panelScroll.innerHTML = h;
+  panelScroll.scrollTop = 0;
+  panel.classList.add('open');
+}
+
+/* ---- Close panel ---- */
+function closePanel(){
+  active = null;
+  panel.classList.remove('open');
+  svg.classList.remove('zoomed');
+  svg.style.transformOrigin = '';
+  hint.classList.remove('gone');
+  legend.classList.remove('gone');
+  back.classList.remove('show');
+  document.querySelectorAll('.zhit').forEach(function(el){el.classList.remove('on')});
+}
+
+/* ---- Wire zones ---- */
+document.querySelectorAll('.zhit').forEach(function(el){
+  el.addEventListener('click', function(){
+    var id = el.getAttribute('data-zone');
+    if(active === id){ closePanel(); } else { openZone(id); }
+  });
+
+  el.addEventListener('mouseenter', function(){
+    var id = el.getAttribute('data-zone');
+    var z = ZONES[id];
+    if(!z) return;
+    tip.innerHTML = z.name;
+    tip.style.color = z.color;
+    tip.style.borderColor = z.color+'55';
+    tip.classList.add('show');
+  });
+
+  el.addEventListener('mousemove', function(e){
+    var stg = document.getElementById('stage').getBoundingClientRect();
+    tip.style.left = (e.clientX - stg.left) + 'px';
+    tip.style.top = (e.clientY - stg.top - 44) + 'px';
+  });
+
+  el.addEventListener('mouseleave', function(){
+    tip.classList.remove('show');
+  });
+});
+
+/* ---- Keyboard escape ---- */
+document.addEventListener('keydown', function(e){
+  if(e.key === 'Escape' && active){ closePanel(); }
+});
+</script>
+</body>
+</html>
