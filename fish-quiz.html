@@ -1,0 +1,1670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Clatsop County Fish Quiz</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#0a1628;
+  --card:#0f2040;
+  --card2:#162a50;
+  --accent:#00b4d8;
+  --accent2:#0090b0;
+  --success:#2ecc71;
+  --danger:#e74c3c;
+  --text:#e8f4f8;
+  --text2:#a0c4d8;
+  --gold:#f39c12;
+  --nav-h:70px;
+  --safe-bottom:env(safe-area-inset-bottom,0px);
+}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:16px}
+body{display:flex;flex-direction:column}
+
+/* Water ripple BG */
+.water-bg{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.water-bg::before,.water-bg::after{
+  content:'';position:absolute;border-radius:50%;
+  animation:ripple 8s ease-in-out infinite;opacity:0.04;
+  background:radial-gradient(circle,var(--accent) 0%,transparent 70%);
+}
+.water-bg::before{width:600px;height:600px;top:-150px;left:-150px;animation-delay:0s}
+.water-bg::after{width:800px;height:800px;bottom:-200px;right:-200px;animation-delay:4s}
+@keyframes ripple{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
+
+/* Layout */
+#app{position:relative;z-index:1;display:flex;flex-direction:column;height:100%}
+.screen{display:none;flex:1;overflow-y:auto;padding:16px 16px calc(var(--nav-h) + var(--safe-bottom) + 8px);-webkit-overflow-scrolling:touch}
+.screen.active{display:flex;flex-direction:column}
+
+/* Nav */
+#nav{position:fixed;bottom:0;left:0;right:0;z-index:100;background:#080f1e;border-top:1px solid #1a3060;padding-bottom:var(--safe-bottom);display:flex}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 4px;min-height:var(--nav-h);cursor:pointer;color:var(--text2);transition:color 0.2s;border:none;background:none;font-size:10px;gap:3px}
+.nav-btn .nav-icon{font-size:22px;display:block}
+.nav-btn.active{color:var(--accent)}
+
+/* Cards */
+.card{background:var(--card);border-radius:16px;padding:16px;margin-bottom:12px;border:1px solid #1a3060}
+.card.elevated{box-shadow:0 4px 20px rgba(0,180,216,0.1)}
+
+/* Buttons */
+.btn{display:flex;align-items:center;justify-content:center;border:none;border-radius:12px;padding:14px 24px;font-size:16px;font-weight:600;cursor:pointer;min-height:44px;transition:transform 0.1s,opacity 0.1s;width:100%}
+.btn:active{transform:scale(0.97);opacity:0.9}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-secondary{background:var(--card2);color:var(--text);border:1px solid #1a3060}
+.btn-success{background:var(--success);color:#fff}
+.btn-danger{background:var(--danger);color:#fff}
+.btn-sm{padding:8px 16px;font-size:14px;width:auto}
+
+/* Header */
+.screen-header{text-align:center;margin-bottom:20px;padding-top:8px}
+.screen-header h1{font-size:24px;font-weight:700;color:var(--accent)}
+.screen-header p{font-size:14px;color:var(--text2);margin-top:4px}
+
+/* Filter chips */
+.chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:8px;margin-bottom:16px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex-shrink:0;padding:8px 16px;border-radius:20px;border:1px solid #1a3060;background:var(--card);color:var(--text2);font-size:13px;font-weight:500;cursor:pointer;min-height:36px;white-space:nowrap}
+.chip.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+/* Progress bar */
+.progress-bar{background:#1a3060;border-radius:8px;height:8px;overflow:hidden;margin:8px 0}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--success));border-radius:8px;transition:width 0.5s ease}
+
+/* Fish list item */
+.fish-item{background:var(--card);border-radius:14px;padding:14px;margin-bottom:10px;border:1px solid #1a3060;cursor:pointer;display:flex;gap:12px;align-items:center}
+.fish-item img{width:56px;height:40px;border-radius:8px;object-fit:cover;background:#1a3060;flex-shrink:0}
+.fish-item-info h3{font-size:15px;font-weight:600;margin-bottom:2px}
+.fish-item-info p{font-size:12px;color:var(--text2)}
+.fish-item-badges{display:flex;gap:4px;margin-top:4px;flex-wrap:wrap}
+.badge{font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500}
+.badge-ocean{background:#0a3060;color:#60c0ff}
+.badge-river{background:#0a3020;color:#60ff80}
+.badge-lake{background:#2a1060;color:#c060ff}
+.badge-beginner{background:#1a3020;color:#80ff80}
+.badge-expert{background:#3a1010;color:#ff8060}
+.badge-intermediate{background:#2a2010;color:#ffd060}
+
+/* Expandable detail */
+.fish-detail{display:none;border-top:1px solid #1a3060;margin-top:12px;padding-top:12px}
+.fish-detail.open{display:block}
+.fish-detail img{width:100%;max-height:180px;object-fit:cover;border-radius:10px;margin-bottom:10px}
+.detail-section{margin-bottom:10px}
+.detail-section h4{font-size:12px;color:var(--accent);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px}
+.detail-section p{font-size:14px;color:var(--text);line-height:1.5}
+.detail-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+.detail-tag{font-size:12px;padding:3px 10px;background:#1a3060;border-radius:8px;color:var(--text2)}
+
+/* STUDY MODE */
+.flashcard-container{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px 0;min-height:400px}
+.flashcard{width:100%;max-width:360px;height:440px;perspective:1000px;cursor:pointer}
+.flashcard-inner{width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform 0.6s cubic-bezier(0.4,0,0.2,1)}
+.flashcard.flipped .flashcard-inner{transform:rotateY(180deg)}
+.flashcard-front,.flashcard-back{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:20px;overflow:hidden;background:var(--card);border:1px solid #1a3060;display:flex;flex-direction:column}
+.flashcard-back{transform:rotateY(180deg)}
+.flashcard-front img{width:100%;height:60%;object-fit:cover}
+.flashcard-front .card-name{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;text-align:center}
+.flashcard-front .card-name h2{font-size:22px;font-weight:700;color:var(--text)}
+.flashcard-front .card-name p{font-size:14px;color:var(--text2);margin-top:4px}
+.flashcard-back .card-back-content{padding:20px;overflow-y:auto;flex:1}
+.card-back-content h2{font-size:18px;color:var(--accent);margin-bottom:10px}
+.card-back-content .memory-hook{background:#1a3060;border-radius:10px;padding:10px 14px;margin:10px 0;font-size:14px;color:var(--gold);font-style:italic}
+.card-back-content ul{padding-left:18px;margin:6px 0}
+.card-back-content li{font-size:13px;color:var(--text2);margin-bottom:4px;line-height:1.4}
+.swipe-hint{display:flex;justify-content:space-between;width:100%;max-width:360px;margin-top:12px;padding:0 8px}
+.swipe-hint span{font-size:12px;color:var(--text2);display:flex;align-items:center;gap:4px}
+.study-actions{display:flex;gap:12px;width:100%;max-width:360px;margin-top:16px}
+.study-actions .btn{flex:1}
+.study-stats{display:flex;gap:12px;margin-bottom:16px}
+.study-stat{flex:1;background:var(--card);border-radius:12px;padding:12px;text-align:center;border:1px solid #1a3060}
+.study-stat .stat-num{font-size:24px;font-weight:700;color:var(--accent)}
+.study-stat .stat-lbl{font-size:11px;color:var(--text2);margin-top:2px}
+.card-counter{font-size:13px;color:var(--text2);text-align:center;margin-bottom:8px}
+
+/* QUIZ MODE */
+.quiz-question{text-align:center;margin-bottom:16px}
+.quiz-question img{width:100%;max-height:220px;object-fit:cover;border-radius:16px;margin-bottom:12px}
+.quiz-question h2{font-size:18px;font-weight:600;line-height:1.3}
+.quiz-options{display:flex;flex-direction:column;gap:10px}
+.quiz-option{background:var(--card);border:2px solid #1a3060;border-radius:14px;padding:14px 16px;font-size:15px;font-weight:500;cursor:pointer;text-align:left;display:flex;align-items:center;gap:12px;min-height:52px;transition:border-color 0.2s,background 0.2s;color:var(--text)}
+.quiz-option.correct{border-color:var(--success);background:rgba(46,204,113,0.15)}
+.quiz-option.wrong{border-color:var(--danger);background:rgba(231,76,60,0.15)}
+.quiz-option img{width:50px;height:36px;border-radius:6px;object-fit:cover;flex-shrink:0;background:#1a3060}
+.quiz-score-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.quiz-score{font-size:22px;font-weight:700;color:var(--accent)}
+.quiz-streak{font-size:14px;color:var(--gold);display:flex;align-items:center;gap:4px}
+.quiz-explanation{background:#1a3060;border-radius:12px;padding:12px 14px;margin-top:12px;font-size:13px;color:var(--text2);line-height:1.5;display:none}
+.quiz-explanation.show{display:block}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-6px)}80%{transform:translateX(6px)}}
+@keyframes bounce{0%,100%{transform:scale(1)}30%{transform:scale(1.08)}60%{transform:scale(0.96)}}
+.shake{animation:shake 0.4s ease}
+.bounce{animation:bounce 0.4s ease}
+
+/* MATCH MODE */
+.match-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.match-timer{font-size:28px;font-weight:700;color:var(--accent)}
+.match-flips{font-size:14px;color:var(--text2)}
+.match-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.match-card{height:80px;perspective:600px;cursor:pointer}
+.match-card-inner{width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform 0.4s}
+.match-card.flipped .match-card-inner,.match-card.matched .match-card-inner{transform:rotateY(180deg)}
+.match-card-front,.match-card-back{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:10px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.match-card-front{background:linear-gradient(135deg,#1a3060,#0f2040);border:1px solid #2a4080;font-size:28px}
+.match-card-back{transform:rotateY(180deg);background:var(--card2);border:1px solid #1a3060}
+.match-card-back img{width:100%;height:100%;object-fit:cover;border-radius:10px}
+.match-card-back.name-card{background:var(--accent2);padding:4px}
+.match-card-back.name-card span{font-size:10px;font-weight:700;color:#fff;text-align:center;line-height:1.2}
+.match-card.matched .match-card-front,.match-card.matched .match-card-back{border-color:var(--success);box-shadow:0 0 10px rgba(46,204,113,0.4)}
+.match-complete{text-align:center;padding:40px 20px}
+.match-complete h2{font-size:28px;font-weight:700;color:var(--success);margin-bottom:8px}
+.match-complete p{font-size:16px;color:var(--text2);margin-bottom:24px}
+
+/* SPEED MODE */
+.speed-fish-img{width:100%;max-height:260px;object-fit:cover;border-radius:16px;margin-bottom:12px}
+.speed-timer-bar{height:8px;background:#1a3060;border-radius:8px;margin-bottom:16px;overflow:hidden}
+.speed-timer-fill{height:100%;background:linear-gradient(90deg,var(--success),var(--gold),var(--danger));border-radius:8px;transition:width 0.1s linear}
+.speed-options{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.speed-option{background:var(--card);border:2px solid #1a3060;border-radius:14px;padding:16px;font-size:15px;font-weight:600;cursor:pointer;text-align:center;min-height:56px;display:flex;align-items:center;justify-content:center;color:var(--text);transition:all 0.15s}
+.speed-option:active{transform:scale(0.95)}
+.speed-stats{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.speed-score-big{font-size:36px;font-weight:700;color:var(--accent);text-align:center;margin:8px 0}
+.speed-streak{font-size:16px;text-align:center;color:var(--gold);min-height:24px}
+@keyframes fire{0%,100%{transform:scale(1)}50%{transform:scale(1.2) rotate(-5deg)}}
+.on-fire{animation:fire 0.6s ease infinite;display:inline-block}
+.speed-over{text-align:center;padding:30px 20px}
+
+/* BROWSE MODE */
+.search-box{background:var(--card);border:1px solid #1a3060;border-radius:12px;padding:12px 16px;font-size:16px;color:var(--text);width:100%;margin-bottom:12px;-webkit-appearance:none}
+.search-box::placeholder{color:var(--text2)}
+.search-box:focus{outline:none;border-color:var(--accent)}
+
+/* Confetti */
+.confetti-piece{position:fixed;width:10px;height:10px;border-radius:2px;animation:confetti-fall 3s ease-in forwards;pointer-events:none;z-index:999}
+@keyframes confetti-fall{0%{transform:translateY(-50px) rotate(0deg);opacity:1}100%{transform:translateY(110vh) rotate(720deg);opacity:0}}
+
+/* Home / Intro screen additions */
+.home-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin:16px 0}
+.home-stat{background:var(--card);border-radius:12px;padding:14px;text-align:center;border:1px solid #1a3060}
+.home-stat .n{font-size:26px;font-weight:700;color:var(--accent)}
+.home-stat .l{font-size:11px;color:var(--text2);margin-top:2px}
+.mode-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0}
+.mode-card{background:var(--card);border-radius:16px;padding:20px 16px;text-align:center;border:1px solid #1a3060;cursor:pointer;display:flex;flex-direction:column;gap:6px;align-items:center}
+.mode-card .mode-icon{font-size:36px}
+.mode-card h3{font-size:15px;font-weight:600}
+.mode-card p{font-size:12px;color:var(--text2);line-height:1.4}
+.mode-card:active{transform:scale(0.97);background:var(--card2)}
+
+/* Util */
+.hidden{display:none!important}
+.text-center{text-align:center}
+.mt8{margin-top:8px}
+.mt16{margin-top:16px}
+.gap8{gap:8px}
+.flex{display:flex}
+.flex-col{flex-direction:column}
+</style>
+</head>
+<body>
+<div class="water-bg"></div>
+<div id="app">
+  <!-- HOME SCREEN -->
+  <div id="screen-home" class="screen active">
+    <div class="screen-header">
+      <h1>🎣 Clatsop Fish Quiz</h1>
+      <p>Learn to identify 20 local species</p>
+    </div>
+    <div class="home-stats">
+      <div class="home-stat"><div class="n" id="home-mastered">0</div><div class="l">Mastered</div></div>
+      <div class="home-stat"><div class="n" id="home-practicing">20</div><div class="l">To Practice</div></div>
+      <div class="home-stat"><div class="n" id="home-pct">0%</div><div class="l">Complete</div></div>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="home-progress" style="width:0%"></div></div>
+    <div class="mode-grid">
+      <div class="mode-card" onclick="goMode('study')"><div class="mode-icon">📖</div><h3>Study</h3><p>Flashcard review</p></div>
+      <div class="mode-card" onclick="goMode('quiz')"><div class="mode-icon">🎯</div><h3>Quiz</h3><p>Multiple choice</p></div>
+      <div class="mode-card" onclick="goMode('match')"><div class="mode-icon">🃏</div><h3>Match</h3><p>Memory card game</p></div>
+      <div class="mode-card" onclick="goMode('speed')"><div class="mode-icon">⚡</div><h3>Speed</h3><p>Rapid fire ID</p></div>
+    </div>
+    <div class="card" style="margin-top:4px">
+      <div style="font-size:13px;color:var(--text2);line-height:1.6">
+        <strong style="color:var(--accent)">Clatsop County, Oregon</strong><br>
+        Covering the Pacific Ocean coast, Columbia River, Necanicum, Nehalem, Coffenbury Lake, Cullaby Lake, Sunset Lake &amp; Smith Lake.
+      </div>
+    </div>
+  </div>
+
+  <!-- STUDY SCREEN -->
+  <div id="screen-study" class="screen">
+    <div class="screen-header">
+      <h1>📖 Study</h1>
+      <p>Tap card to flip — swipe to navigate</p>
+    </div>
+    <div class="chips" id="study-filter">
+      <div class="chip active" data-filter="all">All (20)</div>
+      <div class="chip" data-filter="ocean">Ocean</div>
+      <div class="chip" data-filter="river">River</div>
+      <div class="chip" data-filter="lake">Lake</div>
+    </div>
+    <div class="study-stats">
+      <div class="study-stat"><div class="stat-num" id="study-mastered">0</div><div class="stat-lbl">Mastered ✓</div></div>
+      <div class="study-stat"><div class="stat-num" id="study-practice">20</div><div class="stat-lbl">Practice</div></div>
+    </div>
+    <div class="card-counter" id="study-counter">Card 1 of 20</div>
+    <div class="flashcard-container">
+      <div class="flashcard" id="flashcard">
+        <div class="flashcard-inner">
+          <div class="flashcard-front">
+            <img id="fc-img" src="" alt="" onerror="this.style.display='none'">
+            <div class="card-name">
+              <h2 id="fc-name"></h2>
+              <p id="fc-nickname"></p>
+              <p style="font-size:12px;color:var(--text2);margin-top:8px">Tap to flip</p>
+            </div>
+          </div>
+          <div class="flashcard-back">
+            <div class="card-back-content">
+              <h2 id="fc-back-name"></h2>
+              <div class="memory-hook" id="fc-hook"></div>
+              <div class="detail-section">
+                <h4>Identifying Features</h4>
+                <ul id="fc-features"></ul>
+              </div>
+              <div class="detail-section">
+                <h4>Description</h4>
+                <p id="fc-desc" style="font-size:13px;color:var(--text2)"></p>
+              </div>
+              <div class="detail-section">
+                <h4>Season &amp; Habitat</h4>
+                <p id="fc-season" style="font-size:13px;color:var(--text2)"></p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="swipe-hint">
+        <span>← Study More</span>
+        <span>Got It ✓ →</span>
+      </div>
+      <div class="study-actions">
+        <button class="btn btn-secondary btn-sm" onclick="studyNav(-1)">◀ Prev</button>
+        <button class="btn btn-secondary btn-sm" onclick="studyFlip()">Flip</button>
+        <button class="btn btn-secondary btn-sm" onclick="studyNav(1)">Next ▶</button>
+      </div>
+      <div style="display:flex;gap:10px;width:100%;max-width:360px;margin-top:10px">
+        <button class="btn btn-danger" style="flex:1;padding:10px" onclick="studyMark(false)">✗ Study More</button>
+        <button class="btn btn-success" style="flex:1;padding:10px" onclick="studyMark(true)">✓ Got It</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- QUIZ SCREEN -->
+  <div id="screen-quiz" class="screen">
+    <div class="quiz-score-bar">
+      <div>
+        <div style="font-size:12px;color:var(--text2)">Score</div>
+        <div class="quiz-score"><span id="quiz-correct">0</span>/<span id="quiz-total">10</span></div>
+      </div>
+      <div style="text-align:center">
+        <div style="font-size:12px;color:var(--text2)">Question</div>
+        <div style="font-size:20px;font-weight:700;color:var(--text)" id="quiz-qnum">1/10</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:12px;color:var(--text2)">Streak</div>
+        <div class="quiz-streak" id="quiz-streak">🔥 0</div>
+      </div>
+    </div>
+    <div id="quiz-area">
+      <div class="quiz-question">
+        <img id="quiz-img" src="" alt="" onerror="this.style.display='none'" style="display:none">
+        <h2 id="quiz-prompt"></h2>
+      </div>
+      <div class="quiz-options" id="quiz-options"></div>
+      <div class="quiz-explanation" id="quiz-explanation"></div>
+      <button class="btn btn-primary mt16" id="quiz-next-btn" onclick="quizNext()" style="display:none">Next Question →</button>
+    </div>
+    <div id="quiz-done" style="display:none;text-align:center;padding:30px 0">
+      <div style="font-size:64px;margin-bottom:12px">🏆</div>
+      <h2 style="font-size:28px;color:var(--accent);margin-bottom:8px">Round Complete!</h2>
+      <div style="font-size:48px;font-weight:700;color:var(--text);margin:12px 0" id="quiz-final-score"></div>
+      <p style="color:var(--text2);margin-bottom:24px" id="quiz-final-msg"></p>
+      <button class="btn btn-primary" onclick="quizStart()">Play Again</button>
+      <button class="btn btn-secondary mt8" onclick="navTo('home')">Home</button>
+    </div>
+  </div>
+
+  <!-- MATCH SCREEN -->
+  <div id="screen-match" class="screen">
+    <div id="match-game-area">
+      <div class="match-header">
+        <div>
+          <div style="font-size:11px;color:var(--text2)">Time</div>
+          <div class="match-timer" id="match-timer">0:00</div>
+        </div>
+        <div style="text-align:center">
+          <div style="font-size:18px;font-weight:700;color:var(--text)" id="match-pairs">0/8 Matched</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:11px;color:var(--text2)">Flips</div>
+          <div class="match-flips" id="match-flips">0</div>
+        </div>
+      </div>
+      <div class="match-grid" id="match-grid"></div>
+    </div>
+    <div id="match-complete" class="match-complete hidden">
+      <div style="font-size:64px">🎉</div>
+      <h2>Matched!</h2>
+      <p id="match-result-text"></p>
+      <button class="btn btn-primary" onclick="matchStart()">Play Again</button>
+      <button class="btn btn-secondary mt8" onclick="navTo('home')">Home</button>
+    </div>
+    <div id="match-start-screen" class="text-center" style="padding:30px 0">
+      <div style="font-size:64px">🃏</div>
+      <h2 style="font-size:24px;color:var(--accent);margin:12px 0">Memory Match</h2>
+      <p style="color:var(--text2);margin-bottom:24px;line-height:1.6">Match fish names to their images. 8 pairs, 16 cards. How fast can you clear the board?</p>
+      <button class="btn btn-primary" onclick="matchStart()">Start Game</button>
+    </div>
+  </div>
+
+  <!-- SPEED SCREEN -->
+  <div id="screen-speed" class="screen">
+    <div id="speed-game-area" style="display:none">
+      <div class="speed-stats">
+        <div><div style="font-size:11px;color:var(--text2)">Score</div><div style="font-size:22px;font-weight:700;color:var(--accent)" id="speed-score">0</div></div>
+        <div style="text-align:center"><div style="font-size:11px;color:var(--text2)">Best</div><div style="font-size:22px;font-weight:700;color:var(--gold)" id="speed-best">0</div></div>
+        <div style="text-align:right"><div style="font-size:11px;color:var(--text2)">Lives</div><div style="font-size:22px;font-weight:700;color:var(--danger)" id="speed-lives">❤️❤️❤️</div></div>
+      </div>
+      <div class="speed-streak" id="speed-streak"></div>
+      <div class="speed-timer-bar"><div class="speed-timer-fill" id="speed-timer-fill" style="width:100%"></div></div>
+      <img class="speed-fish-img" id="speed-img" src="" alt="" onerror="this.style.display='none'">
+      <div class="speed-options" id="speed-options"></div>
+    </div>
+    <div id="speed-over" class="speed-over hidden">
+      <div style="font-size:64px">⚡</div>
+      <h2 style="font-size:26px;color:var(--accent);margin:12px 0">Game Over!</h2>
+      <div class="speed-score-big" id="speed-final"></div>
+      <p style="color:var(--text2);margin-bottom:8px" id="speed-final-msg"></p>
+      <button class="btn btn-primary mt16" onclick="speedStart()">Play Again</button>
+      <button class="btn btn-secondary mt8" onclick="navTo('home')">Home</button>
+    </div>
+    <div id="speed-start-screen" class="text-center" style="padding:30px 0">
+      <div style="font-size:64px">⚡</div>
+      <h2 style="font-size:24px;color:var(--accent);margin:12px 0">Speed Round</h2>
+      <p style="color:var(--text2);margin-bottom:24px;line-height:1.6">Fish image appears — pick the right name in 3 seconds! 3 lives. How far can you go?</p>
+      <button class="btn btn-primary" onclick="speedStart()">Start</button>
+    </div>
+  </div>
+
+  <!-- BROWSE SCREEN -->
+  <div id="screen-browse" class="screen">
+    <div class="screen-header">
+      <h1>🐟 Browse</h1>
+      <p>All 20 Clatsop County species</p>
+    </div>
+    <input type="search" class="search-box" id="browse-search" placeholder="Search fish..." oninput="browseFilter()">
+    <div class="chips" id="browse-filter">
+      <div class="chip active" data-filter="all">All</div>
+      <div class="chip" data-filter="ocean">Ocean</div>
+      <div class="chip" data-filter="river">River</div>
+      <div class="chip" data-filter="lake">Lake</div>
+      <div class="chip" data-filter="beginner">Beginner</div>
+      <div class="chip" data-filter="intermediate">Intermediate</div>
+      <div class="chip" data-filter="expert">Expert</div>
+    </div>
+    <div id="browse-list"></div>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav id="nav">
+  <button class="nav-btn active" onclick="navTo('home')" id="nav-home"><span class="nav-icon">🏠</span>Home</button>
+  <button class="nav-btn" onclick="navTo('study')" id="nav-study"><span class="nav-icon">📖</span>Study</button>
+  <button class="nav-btn" onclick="navTo('quiz')" id="nav-quiz"><span class="nav-icon">🎯</span>Quiz</button>
+  <button class="nav-btn" onclick="navTo('match')" id="nav-match"><span class="nav-icon">🃏</span>Match</button>
+  <button class="nav-btn" onclick="navTo('speed')" id="nav-speed"><span class="nav-icon">⚡</span>Speed</button>
+  <button class="nav-btn" onclick="navTo('browse')" id="nav-browse"><span class="nav-icon">🐟</span>Browse</button>
+</nav>
+
+<script>
+// ============================================================
+// FISH DATA
+// ============================================================
+var FISH = [
+  {
+    id: 0,
+    name: 'Chinook Salmon',
+    nickname: 'King Salmon',
+    habitat: ['ocean','river'],
+    emoji: '🐟',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/73/Oncorhynchus_tshawytscha.jpg/300px-Oncorhynchus_tshawytscha.jpg',
+    description: 'The largest Pacific salmon, with a robust silver body and black spots on upper back and both lobes of tail. Adults develop hooked jaw (kype) and reddish hue.',
+    season: 'Spring Chinook: April-June in Columbia. Fall Chinook: Aug-Oct. Ocean: May-Sept offshore.',
+    locations: ['Columbia River near Astoria','Youngs Bay','Pacific Ocean off Cannon Beach','Buoy 10 fishery'],
+    tackle: {
+      rod: '8.5-10ft medium-heavy salmon/steelhead rod',
+      reel: 'Level-wind baitcasting reel with 25lb+ drag',
+      line: '30-50lb braided with 20-30lb fluorocarbon leader',
+      lures: ['Kwikfish K14-K16','Sand shrimp on Spin-N-Glo','Herring under diver','Spinners (Blue Fox #5-6)','Egg clusters'],
+      technique: 'Back-troll Kwikfish or herring with Luhr Jensen diver on the Columbia. In the ocean, troll hoochies or anchovies at 3-4 knots, 50-120ft deep.'
+    },
+    funFacts: [
+      'Can weigh over 100 lbs and live up to 8 years',
+      'Travels hundreds of miles upriver to spawn in the same gravel bed it was born in',
+      'The Columbia River once produced the largest Chinook runs in the world'
+    ],
+    memoryHook: 'KING-sized fish: black gum line, black spots on BOTH tail lobes — the KING rules all salmon',
+    identifyingFeatures: ['Black gums (unique among Pacific salmon)','Black spots on both lobes of tail fin','Large body — adults 20-60 lbs in local rivers'],
+    difficulty: 'Intermediate',
+    size: '20-60 lbs, up to 5 ft (local rivers); ocean fish 10-30 lbs'
+  },
+  {
+    id: 1,
+    name: 'Coho Salmon',
+    nickname: 'Silver Salmon',
+    habitat: ['ocean','river'],
+    emoji: '🐟',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e8/Pacific-salmon.jpg/300px-Pacific-salmon.jpg',
+    description: 'Bright silver fish with small black spots only on upper tail lobe and back. White gums with white interior mouth. Spawning males turn bright red with green head.',
+    season: 'Oct-Dec in rivers (Necanicum, Nehalem). Ocean: Aug-Oct. Youngs Bay: Sept-Nov.',
+    locations: ['Necanicum River (Seaside)','Nehalem River','Youngs Bay','Pacific Ocean off Seaside','Lewis and Clark River'],
+    tackle: {
+      rod: '8-9ft medium spinning or casting rod',
+      reel: '4000 spinning or low-profile baitcaster',
+      line: '20-30lb braid, 15-20lb fluorocarbon leader',
+      lures: ['Spinners (Mepps #4, Blue Fox #4)','Spoons (Little Cleo, Krocodile)','Pink Worms','Egg clusters','Pixee spoon'],
+      technique: 'Wade rivers and cast spinners or drift egg clusters through pools. In the ocean, troll hoochies at 2-3 knots near bait schools. Coho are aggressive and will chase fast presentations.'
+    },
+    funFacts: [
+      'White gums are the key ID feature vs. Chinook (black gums)',
+      'Coho can jump 6+ feet when hooked, famous for aerial acrobatics',
+      'Oregon has strong hatchery programs keeping Coho populations robust'
+    ],
+    memoryHook: 'Coho = WHITE gums, silver sides — Co-HOE in the HOLE where rivers flow',
+    identifyingFeatures: ['White gums and white interior mouth','Spots only on upper tail lobe (not lower)','Bright chrome-silver sides in ocean/fresh entry'],
+    difficulty: 'Beginner',
+    size: '8-20 lbs, up to 3 ft'
+  },
+  {
+    id: 2,
+    name: 'Lingcod',
+    nickname: 'Ling',
+    habitat: ['ocean'],
+    emoji: '🦈',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/26/Ophiodon_elongatus.jpg/300px-Ophiodon_elongatus.jpg',
+    description: 'Long-bodied predator with enormous mouth full of sharp teeth. Gray-brown to greenish with dark blotches. Sometimes has vivid turquoise/blue-green flesh — still good to eat!',
+    season: 'Year-round; best April-Oct. Oregon ocean season typically open April-Aug with quota. Check ODFW regulations.',
+    locations: ['Pacific Ocean reefs off Cannon Beach','Haystack Rock area reefs','Rocky reefs 10-30 fathoms offshore'],
+    tackle: {
+      rod: '6-7ft heavy conventional or jigging rod',
+      reel: 'Level-wind conventional with 40-65lb braid',
+      line: '65lb braid, 40lb fluorocarbon leader 2-3ft',
+      lures: ['White or pink tube jigs (4-8 oz)','Swimbaits (5-7 inch)','Octopus jigs','Live rockfish as bait','Herring on dropper loop'],
+      technique: 'Drop jigs to rocky reef bottom and work with aggressive lifts and drops. Lingcod are ambush predators — let jig sit near bottom briefly. They will often bite a hooked smaller fish (legal to keep both).'
+    },
+    funFacts: [
+      'Not a true cod — more related to greenlings',
+      'Flesh can be naturally blue-green due to a bile pigment — perfectly safe to eat and disappears when cooked',
+      'Females are much larger than males and can live 20+ years'
+    ],
+    memoryHook: 'LING = LONG mouth with LARGE teeth — like a LION of the reef, blotchy brown predator',
+    identifyingFeatures: ['Very large mouth with prominent sharp teeth','Long body with continuous lateral line','Brown/gray with dark saddle-shaped blotches'],
+    difficulty: 'Intermediate',
+    size: '5-25 lbs, up to 5 ft'
+  },
+  {
+    id: 3,
+    name: 'Pacific Halibut',
+    nickname: 'Halibut',
+    habitat: ['ocean'],
+    emoji: '🐠',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Pacific_Halibut_NOAA.jpg/300px-Pacific_Halibut_NOAA.jpg',
+    description: 'Massive flatfish with both eyes on the dark top side. Dark brown to greenish-gray on top, white underneath. Diamond-shaped body with small tail.',
+    season: 'Oregon halibut season: May-Oct (quota-based, check ODFW). Peak June-Aug on sandy ocean floors.',
+    locations: ['Pacific Ocean 30-100 fathoms off Astoria','Offshore banks west of Cannon Beach','Charter boats from Warrenton Marina'],
+    tackle: {
+      rod: '6-7ft heavy conventional rod (Penn, Ugly Stik)',
+      reel: 'Conventional 4/0 size reel with 80lb braid',
+      line: '80-100lb braid, 60-80lb monofilament leader',
+      lures: ['8-12 oz jig with octopus or herring','Whole herring on circle hook','Salmon belly strips','Tube jigs with cut bait','Squid rigs'],
+      technique: 'Bottom fishing on sandy flats at 100-300ft. Use heavy sinker (8-16 oz) to hold bottom. Circle hooks with herring or jigs worked slowly near bottom. Halibut lie flat — wait for solid weight before setting hook.'
+    },
+    funFacts: [
+      'Both eyes are on the same side of the head — they start with one eye each side and one migrates during development',
+      'Can live 55 years and weigh over 400 lbs',
+      'Pacific Halibut is managed internationally by the IPHC (Int\'l Pacific Halibut Commission)'
+    ],
+    memoryHook: 'HALIBUT = HALF-upside-down flat fish with BOTH eyes on TOP — the pancake of the deep',
+    identifyingFeatures: ['Flat diamond-shaped body, both eyes on dark topside','Dark brown on top, pure white underneath','Small concave tail (different from California halibut)'],
+    difficulty: 'Expert',
+    size: '10-80 lbs typical; giants to 400 lbs'
+  },
+  {
+    id: 4,
+    name: 'Black Rockfish',
+    nickname: 'Black Bass / Sea Bass',
+    habitat: ['ocean'],
+    emoji: '🐡',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/Sebastes_melanops.jpg/300px-Sebastes_melanops.jpg',
+    description: 'Deep blue-black on top fading to lighter sides, with a mottled pattern. Spiny dorsal fin, large eyes. Often schooling fish caught around nearshore reefs.',
+    season: 'Year-round; peak May-Oct from rocky reefs near shore. Check ODFW for current bag limits.',
+    locations: ['Rocky reefs near Cannon Beach','Haystack Rock vicinity','Nearshore reefs 20-100ft deep','Charter boats out of Warrenton'],
+    tackle: {
+      rod: '6.5-7.5ft medium-heavy spinning or conventional',
+      reel: '3000-4000 spinning with 20-30lb braid',
+      line: '20-30lb braid, 15-20lb fluorocarbon leader',
+      lures: ['Shrimp flies on spreader bar','Metal jigs (1-4 oz)','Plastic tube jigs','Jig with squid strips','Swimbaits in 3-4 inch'],
+      technique: 'Drop jigs or shrimp flies to reef structure and jig up and down. Black rockfish school tightly — when you find one, there are more. Can be caught from rocky headlands during calm seas.'
+    },
+    funFacts: [
+      'Can live 50+ years — handle carefully and consider releasing large ones',
+      'Viviparous — females give birth to live young (larvae), not eggs',
+      'Often confused with blue rockfish; black rockfish have a more uniformly dark body'
+    ],
+    memoryHook: 'BLACK Rockfish = nearly ALL BLACK body, school together around ROCKS like black leather jackets',
+    identifyingFeatures: ['Deep blue-black to charcoal coloring on back','Large eyes typical of rockfish family','Prominent spiny dorsal fin with notch between spiny/soft portions'],
+    difficulty: 'Beginner',
+    size: '1-7 lbs, typically 12-20 inches'
+  },
+  {
+    id: 5,
+    name: 'Cabezon',
+    nickname: 'Cab / Blob Sculpin',
+    habitat: ['ocean'],
+    emoji: '🦑',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/da/Scorpaenichthys_marmoratus.jpg/300px-Scorpaenichthys_marmoratus.jpg',
+    description: 'Bizarre-looking bottom fish with huge mottled head, flap of skin over snout, and no scales. Color varies from red-brown to gray-green with blotches. Frog-like appearance.',
+    season: 'Year-round in rocky intertidal zones and nearshore reefs, best Nov-April (off-peak for other species).',
+    locations: ['Haystack Rock tidepools area','Rocky jetties at Astoria/Hammond','Nearshore reefs off Cannon Beach','South Jetty rocky areas'],
+    tackle: {
+      rod: '6-7ft medium heavy rod',
+      reel: '3000 spinning or small conventional',
+      line: '20-30lb braid, 20lb fluorocarbon leader',
+      lures: ['Shrimp pieces on weighted hook','Octopus chunks','Crab pieces','Swimbaits fished on bottom','Tube jigs dragged slowly'],
+      technique: 'Fish heavy structure and rocks on the bottom. Cabezon are ambush predators hiding in crevices. Drag bait slowly along bottom and pause. They will swallow bait if given time — don\'t be hasty on hookset.'
+    },
+    funFacts: [
+      'Cabezon eggs are bright red-purple and poisonous to eat — only the flesh is edible',
+      'The name means "big head" in Spanish — very fitting',
+      'Males guard the egg masses for 2-3 weeks, fanning them with their fins'
+    ],
+    memoryHook: 'Cabezon = CABEZA (Spanish for HEAD) — giant ugly head, no scales, looks like a blob on a rock',
+    identifyingFeatures: ['Enormous bulbous head relative to body size','Flap of skin (cirrus) over each nostril','No scales — smooth lumpy skin with mottled pattern'],
+    difficulty: 'Intermediate',
+    size: '2-15 lbs, up to 3 ft'
+  },
+  {
+    id: 6,
+    name: 'Redtail Surf Perch',
+    nickname: 'Surf Perch',
+    habitat: ['ocean'],
+    emoji: '🌊',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b7/Redtail_surfperch.jpg/300px-Redtail_surfperch.jpg',
+    description: 'Chunky oval perch with reddish-orange tail and fins. Silver sides with faint vertical bars. Found in the surf zone along sandy beaches.',
+    season: 'Year-round; peak March-May during spawning. Best fished during incoming high tides.',
+    locations: ['Del Rey Beach','Seaside Beach','Cannon Beach surf zone','Gearhart Beach','Warrenton beach access'],
+    tackle: {
+      rod: '10-12ft surf rod (medium-heavy)',
+      reel: '5000-6000 spinning reel',
+      line: '20-30lb braid, 15lb fluorocarbon leader',
+      lures: ['Sand crabs (mole crabs) — top bait','Sand shrimp on size 4-6 hook','Berkley Gulp sandworm','Bloodworms','Clam neck'],
+      technique: 'Cast beyond the breaking waves into the trough. Sand crabs or sand shrimp on Carolina rig. Fish on an incoming tide as perch follow food into the wash. Keep bait on bottom near the backwash.'
+    },
+    funFacts: [
+      'Give birth to live young — babies come out fully formed and immediately swim',
+      'Females can be caught with up to 20 fully developed embryos inside',
+      'One of the most popular surf fish on the Oregon coast, year-round accessible'
+    ],
+    memoryHook: 'RED-tail = RED/orange TAIL and fins, plump oval body, rides the SURF on sandy beaches',
+    identifyingFeatures: ['Reddish-orange to reddish tail and dorsal/anal fins','Oval compressed body with faint vertical bars','Silver sides, slightly brassy sheen'],
+    difficulty: 'Beginner',
+    size: '0.5-3 lbs, 10-16 inches'
+  },
+  {
+    id: 7,
+    name: 'Albacore Tuna',
+    nickname: 'Albie / Longfin Tuna',
+    habitat: ['ocean'],
+    emoji: '🐠',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Thunnus_alalunga.jpg/300px-Thunnus_alalunga.jpg',
+    description: 'Streamlined tuna with very long pectoral fins extending past dorsal fin. Steel-blue/dark green on top, silver-white below. White trailing edge on tail fin.',
+    season: 'July-October when warm water pushes inshore (50-60F+). Best Aug-Sept 30-70 miles offshore.',
+    locations: ['Pacific Ocean 30-80 miles offshore','Fishing from Warrenton/Hammond charter boats','Often at sea surface temperature breaks'],
+    tackle: {
+      rod: '7ft medium-heavy trolling or jigging rod',
+      reel: '4000-6000 spinning with 65lb braid',
+      line: '65lb braid, 50-60lb fluorocarbon leader 6-10ft',
+      lures: ['Cedar plugs (3-5 inch)','Feather jigs in blue/white','Sardines for chumming and bait','Chrome metal jigs (3-5 oz)','Hoochies in blue/purple'],
+      technique: 'Troll at 6-9 knots until you mark fish or see birds/jumpers. When found, throw iron (metal jigs) or live bait behind a chum line. Albacore are school fish — when you get one, keep lures in the water, more are nearby.'
+    },
+    funFacts: [
+      'Albacore must keep swimming or they suffocate — cannot pump water over gills when still',
+      'They migrate thousands of miles annually from Japan to Oregon and back',
+      'Oregon albacore are some of the cleanest, lowest-mercury tuna available'
+    ],
+    memoryHook: 'ALBacore = EXTRA LONG pectoral fins like ALBATROSS wings — the jet airplane of the ocean',
+    identifyingFeatures: ['Very long pectoral fins reaching past 2nd dorsal fin','White posterior edge on tail fin','Steel-blue/dark back, bright silver white belly'],
+    difficulty: 'Expert',
+    size: '15-40 lbs, 2.5-3.5 ft'
+  },
+  {
+    id: 8,
+    name: 'White Sturgeon',
+    nickname: 'Sturgeon',
+    habitat: ['river'],
+    emoji: '🐊',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/White_sturgeon.jpg/300px-White_sturgeon.jpg',
+    description: 'Prehistoric-looking armored fish with rows of bony scutes (plates) along body. Gray-white coloring, barbels under snout for finding food on bottom. Shark-like heterocercal tail.',
+    season: 'Year-round in Columbia River; retention seasons vary by zone — check ODFW carefully. Best Jan-April and Oct-Dec.',
+    locations: ['Columbia River Astoria to Bonneville Dam','Youngs River confluence','John Day section of Columbia','Tongue Point area'],
+    tackle: {
+      rod: '7-8ft heavy conventional rod (E-glass or graphite)',
+      reel: 'Large conventional (Penn 320, Daiwa Sealine) 65lb braid',
+      line: '65-80lb braid, no leader (braid straight to hook)',
+      lures: ['Smelt (whole or Halved)','Sand shrimp (key bait)','Anchovy or herring','Nightcrawler clusters','Lamprey eel pieces'],
+      technique: 'Anchor or drift in known sturgeon holes. Use 6-10 oz sinker on a spreader rig with 18-24 inch leader. Bait on bottom in 20-60ft. Watch for rod tip taps — sturgeon bite subtly before taking bait. Reel down before setting hook hard.'
+    },
+    funFacts: [
+      'Can live over 100 years — the largest ones may have been alive during the Civil War',
+      'White sturgeon can exceed 20 feet and 1,500 lbs (Columbia River giants)',
+      'A living dinosaur — sturgeon species have been around for 200 million years'
+    ],
+    memoryHook: 'STURGEON = ARMOR-plated rows of scutes (bony shields), BARBELS under snout like whiskers, ANCIENT shark-tail',
+    identifyingFeatures: ['5 rows of bony scutes (plates) along body','4 barbels on underside of snout','Heterocercal (shark-like) asymmetrical tail'],
+    difficulty: 'Expert',
+    size: 'Legal keepers 38-54 inches; can reach 1,000+ lbs'
+  },
+  {
+    id: 9,
+    name: 'Winter Steelhead',
+    nickname: 'Steelie',
+    habitat: ['river'],
+    emoji: '🎣',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Rainbow_trout_transparent.png/300px-Rainbow_trout_transparent.png',
+    description: 'Sea-run rainbow trout. Ocean-fresh fish: bright silver with faint pink lateral stripe. River-fresh: vivid pink/red sides, darker back. Smaller head and spots than Chinook.',
+    season: 'Winter steelhead: Dec-April in Necanicum, Nehalem, Columbia tributaries. Summer steelhead: June-Oct in some rivers.',
+    locations: ['Necanicum River Seaside upstream','Nehalem River Mohler to Vernonia','Klaskanine River','Mill Creek (seasonal)','Lewis and Clark River'],
+    tackle: {
+      rod: '9-10ft medium drift rod or sey rod',
+      reel: 'Centerpin float reel or quality spinning reel',
+      line: '12-17lb monofilament or 30lb braid with mono leader',
+      lures: ['Sand shrimp (top bait)','Coon shrimp','Egg clusters (natural or cured)','Jigs under float (pink/white)','Spinners (Mepps Aglia #4-5)'],
+      technique: 'Drift egg clusters or sand shrimp through runs and tailouts using a pencil lead setup. Float fishing with jigs is very effective — use a pink/chartreuse jig under a float through seams. Fish the "soft water" near fast current edges.'
+    },
+    funFacts: [
+      'Steelhead can survive spawning and return to the ocean (unlike Pacific salmon which die)',
+      'An anadromous rainbow trout — genetically same species as inland rainbows',
+      'Winter steelhead are considered among the hardest-fighting freshwater fish in North America'
+    ],
+    memoryHook: 'STEELHEAD = STEEL silver sides from the ocean, pink stripe when spawning — RAINBOW trout that went to sea',
+    identifyingFeatures: ['Bright silver ocean fish with faint spots; river fish have vivid pink lateral stripe','More slender than salmon, spots on tail and back','White mouth interior, smaller head than Chinook'],
+    difficulty: 'Expert',
+    size: '5-20 lbs, 24-40 inches'
+  },
+  {
+    id: 10,
+    name: 'Sea-run Cutthroat Trout',
+    nickname: 'Harvest Trout / Sea Trout',
+    habitat: ['river'],
+    emoji: '🎣',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Coastal_cutthroat_trout.jpg/300px-Coastal_cutthroat_trout.jpg',
+    description: 'Smaller sea-run trout with distinctive red or orange slash marks under jaw. Profusely spotted back and sides. Ocean-fresh fish are silvery with fewer visible spots.',
+    season: 'Late summer/fall: Aug-Nov as they return from ocean. Best Sept-Oct in coastal rivers.',
+    locations: ['Necanicum River','Nehalem River tidal reaches','Klaskanine River','Young\'s River lower sections','Small coastal creeks'],
+    tackle: {
+      rod: '7-9ft light-medium spinning or fly rod (5-7wt)',
+      reel: '2500 spinning reel or fly reel',
+      lures: ['Small spinners (Mepps #1-2)','Small spoons (Little Cleo 1/4 oz)','Flies: Comet, Green Butt Skunk, Woolly Bugger','Nightcrawlers on small hook','Small jigs'],
+      line: '6-12lb monofilament or 12lb braid',
+      technique: 'Wade and cast spinners or swing flies through runs. Cutthroat are aggressive and hit small lures well. Focus on tidal reaches and lower river sections during fall. Catch-and-release is encouraged for wild fish.'
+    },
+    funFacts: [
+      'Named for the red or orange slash marks under the jaw (cutthroat)',
+      'Some cutthroat travel to the ocean but don\'t go far — they stay within a few miles of piver mouths',
+      'Oregon coastal cutthroat are a distinct subspecies: Oncorhynchus clarkii clarkii'
+    ],
+    memoryHook: 'CUT-throat = RED SLASH under the jaw like a cut, profuse black spots all over body',
+    identifyingFeatures: ['Red or orange slash marks under each jaw — the namesake','Heavy spotting on body, fins, and tail','Smaller than steelhead; no clear lateral pink stripe'],
+    difficulty: 'Beginner',
+    size: '0.5-4 lbs, 10-20 inches'
+  },
+  {
+    id: 11,
+    name: 'American Shad',
+    nickname: 'Shad',
+    habitat: ['river'],
+    emoji: '🐟',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6c/Alosa_sapidissima.jpg/300px-Alosa_sapidissima.jpg',
+    description: 'Large herring-like fish with silvery sides and row of dark spots behind the gill cover. Deeply forked tail and smooth scales. Schooling fish running upriver to spawn.',
+    season: 'May-July as they run up the Columbia. Peak June near Astoria/Bonneville area.',
+    locations: ['Columbia River Astoria area','Bonneville Dam area (best shad fishing)','Columbia at Tongue Point','Youngs Bay during run'],
+    tackle: {
+      rod: '7ft light-medium spinning rod',
+      reel: '2500-3500 spinning with 10-15lb braid',
+      line: '10-15lb braid, 8lb fluorocarbon leader',
+      lures: ['Small shad darts (pink, chartreuse, white)','Small jigs (1/8-3/8 oz)','Small spinners','Tiny spoons','Shad rig (two darts on dropper loop)'],
+      technique: 'Cast across and downstream in current, retrieve at medium speed. Shad hit lures on the swing as they travel upriver. Use lighter presentation for skittish fish. Shad are schooling fish — once you find the school, action can be non-stop.'
+    },
+    funFacts: [
+      'The largest member of the herring family found in North America',
+      'Shad were intentionally introduced to the Columbia River in 1871 from the East Coast',
+      'Shad are bony but edible; roe is prized as a delicacy (similar to caviar)'
+    ],
+    memoryHook: 'SHAD = Like a big HERRING, silvery with spots behind gill, DEEPLY forked tail — schooling upriver in May',
+    identifyingFeatures: ['Row of dark spots just behind gill cover','Deeply forked tail','Large silvery scales, no teeth, herring-shaped body'],
+    difficulty: 'Beginner',
+    size: '2-6 lbs, 16-24 inches'
+  },
+  {
+    id: 12,
+    name: 'Walleye',
+    nickname: 'Marble Eye / Walleyed Pike',
+    habitat: ['river'],
+    emoji: '🐟',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Walleye.jpg/300px-Walleye.jpg',
+    description: 'Golden-olive fish with glassy reflective eyes (eye-shine). White tip on lower tail lobe. Dark olive back with golden-yellow sides and faint saddle markings.',
+    season: 'Year-round in Columbia; best spring (March-May) and fall. Night fishing in summer very productive.',
+    locations: ['Columbia River Astoria to Bonneville','John Day stretch of Columbia','Below Bonneville Dam','Columbia River near Cathlamet'],
+    tackle: {
+      rod: '6.5-7ft medium spinning or casting rod',
+      reel: '2500-3000 spinning reel',
+      line: '10-15lb fluorocarbon or 20lb braid with 10lb fluoro leader',
+      lures: ['Jigs (1/4-1/2 oz, white/chartreuse with minnow)','Nightcrawlers on Lindy rig','Shad swimbaits','Rapala Original Floating minnow','Bottom bouncers with crawler harness'],
+      technique: 'Slow-troll jig-minnow combos near bottom in 15-30ft. Walleye favor current breaks, channel edges, and submerged structure. Night fishing with jigs near structure lights can be very productive. Jigging slowly off bottom is key.'
+    },
+    funFacts: [
+      'The glassy eyes are due to a reflective layer (tapetum lucidum) for excellent night vision',
+      'Walleye are not native to the Columbia — introduced and now a significant predator',
+      'They are considered among the best-tasting freshwater fish in North America'
+    ],
+    memoryHook: 'WALLEYE = glassy WALL-EYED stare, WHITE tip on lower tail, golden-olive body — the glowing-eyed fish',
+    identifyingFeatures: ['Large glassy reflective eyes (milky, opaque appearance)','White tip on lower lobe of tail fin','Golden-olive to yellow sides with faint saddle pattern'],
+    difficulty: 'Intermediate',
+    size: '1-10 lbs, 14-28 inches'
+  },
+  {
+    id: 13,
+    name: 'Smallmouth Bass',
+    nickname: 'Smallie / Bronze Bass',
+    habitat: ['river'],
+    emoji: '🐟',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Micropterus_dolomieu.jpg/300px-Micropterus_dolomieu.jpg',
+    description: 'Bronze/brown-olive fish with vertical dark bars on sides. Red eye. Jaw extends to middle of eye (not past, unlike largemouth). Rough spiny dorsal fin.',
+    season: 'Year-round; best May-Oct when water warms. Summer peak for topwater action in Columbia shallows.',
+    locations: ['Columbia River near Astoria (warming months)','Columbia channel edges','Rocky shallows and boulders along Columbia','Warm Columbia sloughs'],
+    tackle: {
+      rod: '6.5-7ft medium spinning or light casting rod',
+      reel: '2500 spinning with 10-20lb braid',
+      line: '15-20lb braid, 10lb fluorocarbon leader',
+      lures: ['Tube jigs (3-4 inch, brown/green)','Ned rig with green pumpkin','Crawfish crankbaits','Topwater poppers (summer)','Grubs and swimbaits'],
+      technique: 'Target rocky structure, boulders, and current seams in the Columbia. Smallmouth love crawfish — brown or orange tube jigs are deadly. In summer, topwater lures worked near boulders at dawn produce explosive strikes.'
+    },
+    funFacts: [
+      'Pound for pound, one of the hardest fighting freshwater fish',
+      'Smallmouth prefer cooler, cleaner, rockier water than largemouth',
+      'Not native to Oregon; introduced from Midwest; now abundant in lower Columbia'
+    ],
+    memoryHook: 'SMALLmouth = jaw reaches only to MIDDLE of eye, BRONZE body with VERTICAL bars, RED eye',
+    identifyingFeatures: ['Bronze/brown-olive sides with vertical dark bars (not horizontal)','Red or orange eye','Jaw extends to below middle of eye (not past eye like largemouth)'],
+    difficulty: 'Intermediate',
+    size: '0.5-5 lbs, 10-20 inches'
+  },
+  {
+    id: 14,
+    name: 'Rainbow Trout',
+    nickname: 'Stocked Trout / Hatchery Bow',
+    habitat: ['lake'],
+    emoji: '🌈',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Rainbow_trout_transparent.png/300px-Rainbow_trout_transparent.png',
+    description: 'Classic trout with pink/red lateral stripe on silver sides. Black spots on body, dorsal fin, and tail. Stocked fish are often chunkier with worn fins from hatchery.',
+    season: 'Spring stocking: March-June. Fall stocking: Sept-Nov. ODFW stocks local lakes regularly.',
+    locations: ['Coffenbury Lake (Fort Stevens)','Cullaby Lake','Sunset Lake','Smith Lake','Klaskanine River (stocked)'],
+    tackle: {
+      rod: '5-7ft light to medium spinning rod',
+      reel: '2000-2500 spinning reel',
+      line: '6-8lb monofilament or fluorocarbon',
+      lures: ['PowerBait (chartreuse, yellow, rainbow)','Nightcrawlers','Berkley Trout Nuggets','Small spinners (Rooster Tail #0-1)','Small spoons (Thomas Buoyant 1/8 oz)'],
+      technique: 'Float PowerBait off bottom near inlets or along shore with a slip sinker setup. Stocked trout often hang near where they were released. For active fish, retrieve small spinners slowly near surface. Best in morning hours.'
+    },
+    funFacts: [
+      'ODFW stocks millions of rainbow trout each year in Oregon lakes and rivers',
+      'Can reach 5+ lbs in productive lakes given enough food',
+      'Native to Pacific slope drainages but hatchery strains introduced statewide'
+    ],
+    memoryHook: 'RAINBOW = pink/red RAINBOW stripe on silver sides, black spots EVERYWHERE including fins',
+    identifyingFeatures: ['Pink to red lateral stripe running full body length','Heavy black spotting on body, dorsal fin, and tail','Silver sides, white belly, colorful adipose fin'],
+    difficulty: 'Beginner',
+    size: '0.5-3 lbs (stocked); wild fish can reach 20+ lbs'
+  },
+  {
+    id: 15,
+    name: 'Largemouth Bass',
+    nickname: 'Largies / Green Bass',
+    habitat: ['lake'],
+    emoji: '🐟',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b4/Largemouth_bass_mikejohnston.jpg/300px-Largemouth_bass_mikejohnston.jpg',
+    description: 'Green to olive fish with bold dark horizontal lateral band from head to tail. Large mouth extends past rear of eye. Deep body, notched dorsal fin.',
+    season: 'Year-round; peak May-Oct. Spring spawning in shallows (April-June) when most catchable.',
+    locations: ['Cullaby Lake','Sunset Lake','Smith Lake','Coffenbury Lake (smaller population)'],
+    tackle: {
+      rod: '6.5-7ft medium-heavy casting or spinning rod',
+      reel: 'Low-profile baitcaster or 3000 spinning reel',
+      line: '15-30lb braid, 12-17lb fluorocarbon leader',
+      lures: ['Texas-rigged plastic worm (Senko)','Frog lures for lily pads','Spinnerbaits','Topwater poppers (dawn/dusk)','Crankbaits near structure'],
+      technique: 'Target weed edges, fallen timber, dock pilings, and lily pads. Slow-sink Senko worm on Texas rig around any structure. Spring — fish shallow spawning beds. Summer — early morning topwater near weed mats for explosive strikes.'
+    },
+    funFacts: [
+      'Jaw extends PAST the rear of the eye — larger than smallmouth (hence the name)',
+      'One of the most popular sportfish in America',
+      'Large females can live 15+ years in productive lakes'
+    ],
+    memoryHook: 'LARGEmouth = jaw past REAR of eye, dark HORIZONTAL band along sides, GREEN body — bass king of the weeds',
+    identifyingFeatures: ['Large mouth — jaw extends behind rear of eye','Dark horizontal stripe from snout to tail base','Deep green to olive coloring, white belly'],
+    difficulty: 'Beginner',
+    size: '0.5-8 lbs, 12-22 inches'
+  },
+  {
+    id: 16,
+    name: 'Yellow Perch',
+    nickname: 'Perch',
+    habitat: ['lake'],
+    emoji: '🟡',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/YellowPerch.jpg/300px-YellowPerch.jpg',
+    description: 'Bright yellow-golden sides with 6-8 dark vertical bars. Two distinct dorsal fins. Orange-red lower fins. Popular panfish.',
+    season: 'Year-round; best ice-free months April-October. Schools of perch active all day.',
+    locations: ['Cullaby Lake','Sunset Lake','Smith Lake','Coffenbury Lake'],
+    tackle: {
+      rod: '4-6ft ultralight to light spinning rod',
+      reel: '1000-2000 ultralight spinning reel',
+      line: '4-8lb monofilament',
+      lures: ['Small jigs with minnow (1/16-1/8 oz)','Live minnows','Nightcrawler pieces','Waxworms','Small spinners'],
+      technique: 'Find schools near weed edges or drop-offs in 8-20ft. Perch are schooling fish — when you catch one, drop back down immediately. Small jig with minnow head is the classic rig. Drift and drag slowly near bottom.'
+    },
+    funFacts: [
+      'Yellow perch are considered among the best-tasting freshwater fish',
+      'Schools can number in the thousands — when you find them, fast action ensues',
+      'Popular ice fishing target in northern states; Oregon perch caught through open water season'
+    ],
+    memoryHook: 'YELLOW Perch = BRIGHT YELLOW with dark vertical BARS like a tiger stripes, ORANGE-RED fins on bottom',
+    identifyingFeatures: ['Bright yellow to golden sides','6-8 dark vertical bars across body','Orange-red pelvic and anal fins; two separate dorsal fins'],
+    difficulty: 'Beginner',
+    size: '0.25-1.5 lbs, 6-14 inches'
+  },
+  {
+    id: 17,
+    name: 'Bluegill',
+    nickname: 'Bream / Sunfish',
+    habitat: ['lake'],
+    emoji: '🔵',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/11/Lepomis_macrochirus.jpg/300px-Lepomis_macrochirus.jpg',
+    description: 'Round, flat sunfish with blue-purple gill flap (opercle) — the namesake. Dark vertical bars on sides, orange/yellow breast on males. Small mouth.',
+    season: 'April-October; peak spring spawning May-June when they are aggressive and in shallow water.',
+    locations: ['Cullaby Lake','Sunset Lake','Smith Lake','Warm lake shallows statewide'],
+    tackle: {
+      rod: '4-5ft ultralight spinning rod',
+      reel: '1000 ultralight reel',
+      line: '4-6lb monofilament',
+      lures: ['Small jigs (1/32-1/16 oz)','Waxworms on small hook','Red worms','Small floating flies','Crickets'],
+      technique: 'Fish near lily pads, dock edges, and weed beds in 2-8ft of water. Light wire hook with waxworm under a small bobber is classic. During spawn (May-June) bluegill are in shallow beds and aggressively attack anything near them.'
+    },
+    funFacts: [
+      'Excellent panfish — sweet white flesh, great for kids\' first fishing experience',
+      'Males build and guard circular nests in shallow gravel; very aggressive during spawn',
+      'Bluegill cross with other sunfish creating hybrid "redear-bluegill" in some lakes'
+    ],
+    memoryHook: 'BLUE-gill = dark BLUE flap on gill cover, ROUND flat body, ORANGE belly on males — perfect circle sunfish',
+    identifyingFeatures: ['Dark blue to black opercle (gill flap) — the "blue gill"','Round, highly compressed body profile','Orange/yellow breast on breeding males; dark ear flap with no spot'],
+    difficulty: 'Beginner',
+    size: '0.1-1 lb, 5-10 inches'
+  },
+  {
+    id: 18,
+    name: 'Black Crappie',
+    nickname: 'Speckled Perch / Papermouth',
+    habitat: ['lake'],
+    emoji: '⚫',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Pomoxis_nigromaculatus.jpg/300px-Pomoxis_nigromaculatus.jpg',
+    description: 'Silver fish with random black/dark speckles scattered over body (not arranged in bars). Large mouth for its size. Two dorsal fins. Flat, oval body.',
+    season: 'Year-round; spring spawn (April-May) when easiest to catch. Night fishing in summer productive.',
+    locations: ['Cullaby Lake','Smith Lake','Sunset Lake','Coffenbury Lake'],
+    tackle: {
+      rod: '5-7ft light spinning rod',
+      reel: '1000-2000 spinning reel',
+      line: '4-8lb monofilament or fluorocarbon',
+      lures: ['Small tube jigs (1.5-2 inch)','1/16-1/8 oz jigs with plastic grub','Minnows under slip float','Tiny spinners','Small crankbaits'],
+      technique: 'Target suspended fish near brush piles, docks, and submerged timber in 6-15ft. Crappie often hold at a specific depth — find it with a float and adjust depth. Vertical jigging with small tube jigs or minnows is very effective in clear water.'
+    },
+    funFacts: [
+      'Called "papermouth" because their thin mouth tissue tears easily — light touch on hookset',
+      'Black crappie prefer clearer, deeper water than white crappie',
+      'Extremely popular panfish; some anglers specifically crappie fish year-round'
+    ],
+    memoryHook: 'BLACK Crappie = scattered BLACK SPECKLES randomly all over (not bars), large mouth, flat silver disc',
+    identifyingFeatures: ['Random scattered black speckles over silver body (not bars)','Large mouth relative to head size','Roughly equal-length dorsal spines (7-8 spines)'],
+    difficulty: 'Beginner',
+    size: '0.25-2 lbs, 7-14 inches'
+  },
+  {
+    id: 19,
+    name: 'Brown Bullhead Catfish',
+    nickname: 'Bullhead / Horned Pout',
+    habitat: ['lake'],
+    emoji: '😺',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/Ameiurus_nebulosus.jpg/300px-Ameiurus_nebulosus.jpg',
+    description: 'Small catfish with mottled brown to yellowish-brown coloring. 8 barbels (whiskers) around mouth. Sharp spines in pectoral and dorsal fins. Squared or slightly notched tail.',
+    season: 'Spring through fall; peak May-September when water is warm. Night fishing in summer best.',
+    locations: ['Coffenbury Lake','Cullaby Lake','Sunset Lake','Smith Lake','Warm, muddy-bottomed lake areas'],
+    tackle: {
+      rod: '5-7ft medium spinning rod',
+      reel: '2000-3000 spinning reel',
+      line: '8-12lb monofilament',
+      lures: ['Nightcrawlers (best bait)','Chicken liver','Stink bait or prepared catfish bait','Waxworms','Small crayfish pieces'],
+      technique: 'Fish on the bottom with no float using a slip sinker rig. Nightcrawlers are the classic bait — whole worm on a size 6-8 hook. Night fishing in summer after 9pm is highly productive. Bullhead feed heavily in warm, shallow areas at night.'
+    },
+    funFacts: [
+      'Spines can puncture skin and are mildly venomous — handle with palm over body, not fingers near spines',
+      'Brown bullhead are surprisingly good to eat when taken from clean, cool water',
+      'They use electroreception (detecting weak electric fields) to find food in murky water'
+    ],
+    memoryHook: 'BULL-head = big HEAD with 8 WHISKERS (barbels), mottled BROWN, SHARP spines — the muddy bottom feeder',
+    identifyingFeatures: ['8 barbels (whiskers) around mouth — 4 on chin, 2 on each side','Mottled brown to olive-brown coloring','Squared or slightly notched tail (not forked like channel catfish)'],
+    difficulty: 'Beginner',
+    size: '0.25-2 lbs, 8-14 inches'
+  }
+];
+
+// ============================================================
+// STATE
+// ============================================================
+var state = {
+  mastered: JSON.parse(localStorage.getItem('clatsop-mastered') || '{}'),
+  highScore: parseInt(localStorage.getItem('clatsop-highscore') || '0'),
+  currentScreen: 'home'
+};
+
+function saveMastered() {
+  localStorage.setItem('clatsop-mastered', JSON.stringify(state.mastered));
+}
+
+function getMasteredCount() {
+  return Object.values(state.mastered).filter(Boolean).length;
+}
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+function navTo(screen) {
+  document.querySelectorAll('.screen').forEach(function(s) { s.classList.remove('active'); });
+  document.querySelectorAll('.nav-btn').forEach(function(b) { b.classList.remove('active'); });
+  document.getElementById('screen-' + screen).classList.add('active');
+  var nb = document.getElementById('nav-' + screen);
+  if (nb) nb.classList.add('active');
+  state.currentScreen = screen;
+  if (screen === 'home') updateHomeStats();
+  if (screen === 'study') studyInit();
+  if (screen === 'quiz') quizInit();
+  if (screen === 'browse') browseInit();
+}
+
+function goMode(mode) {
+  navTo(mode);
+}
+
+// ============================================================
+// HOME
+// ============================================================
+function updateHomeStats() {
+  var m = getMasteredCount();
+  var pct = Math.round(m / FISH.length * 100);
+  document.getElementById('home-mastered').textContent = m;
+  document.getElementById('home-practicing').textContent = FISH.length - m;
+  document.getElementById('home-pct').textContent = pct + '%';
+  document.getElementById('home-progress').style.width = pct + '%';
+}
+
+// ============================================================
+// STUDY MODE
+// ============================================================
+var studyState = {
+  deck: [],
+  idx: 0,
+  flipped: false,
+  filter: 'all'
+};
+
+function studyInit() {
+  studyBuildDeck();
+  studyRender();
+}
+
+function studyBuildDeck() {
+  var f = studyState.filter;
+  studyState.deck = FISH.filter(function(fish) {
+    if (f === 'all') return true;
+    return fish.habitat.indexOf(f) !== -1;
+  });
+  studyState.idx = 0;
+  studyState.flipped = false;
+}
+
+function studyRender() {
+  var fish = studyState.deck[studyState.idx];
+  if (!fish) return;
+  document.getElementById('fc-img').src = fish.image;
+  document.getElementById('fc-img').style.display = 'block';
+  document.getElementById('fc-name').textContent = fish.name;
+  document.getElementById('fc-nickname').textContent = fish.nickname;
+  document.getElementById('fc-back-name').textContent = fish.name;
+  document.getElementById('fc-hook').textContent = fish.memoryHook;
+  var ul = document.getElementById('fc-features');
+  ul.innerHTML = '';
+  fish.identifyingFeatures.forEach(function(f) {
+    var li = document.createElement('li');
+    li.textContent = f;
+    ul.appendChild(li);
+  });
+  document.getElementById('fc-desc').textContent = fish.description;
+  document.getElementById('fc-season').textContent = fish.season;
+  var card = document.getElementById('flashcard');
+  card.classList.remove('flipped');
+  studyState.flipped = false;
+  document.getElementById('study-counter').textContent = 'Card ' + (studyState.idx + 1) + ' of ' + studyState.deck.length;
+  var m = getMasteredCount();
+  document.getElementById('study-mastered').textContent = m;
+  document.getElementById('study-practice').textContent = FISH.length - m;
+}
+
+function studyFlip() {
+  var card = document.getElementById('flashcard');
+  card.classList.toggle('flipped');
+  studyState.flipped = !studyState.flipped;
+}
+
+function studyNav(dir) {
+  studyState.idx = (studyState.idx + dir + studyState.deck.length) % studyState.deck.length;
+  studyRender();
+}
+
+function studyMark(mastered) {
+  var fish = studyState.deck[studyState.idx];
+  if (fish) {
+    state.mastered[fish.id] = mastered;
+    saveMastered();
+  }
+  studyNav(1);
+}
+
+// Filter chips
+document.getElementById('study-filter').addEventListener('click', function(e) {
+  var chip = e.target.closest('.chip');
+  if (!chip) return;
+  document.querySelectorAll('#study-filter .chip').forEach(function(c) { c.classList.remove('active'); });
+  chip.classList.add('active');
+  studyState.filter = chip.dataset.filter;
+  studyBuildDeck();
+  studyRender();
+});
+
+// Touch swipe on flashcard
+(function() {
+  var el = document.getElementById('flashcard');
+  var startX = 0;
+  var startY = 0;
+  el.addEventListener('touchstart', function(e) {
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+  }, {passive:true});
+  el.addEventListener('touchend', function(e) {
+    var dx = e.changedTouches[0].clientX - startX;
+    var dy = e.changedTouches[0].clientY - startY;
+    if (Math.abs(dx) < 10 && Math.abs(dy) < 10) {
+      studyFlip();
+    } else if (Math.abs(dx) > Math.abs(dy)) {
+      if (dx > 50) {
+        studyMark(true);
+      } else if (dx < -50) {
+        studyMark(false);
+      }
+    }
+  }, {passive:true});
+})();
+
+// ============================================================
+// QUIZ MODE
+// ============================================================
+var quizState = {
+  qIdx: 0,
+  correct: 0,
+  streak: 0,
+  total: 10,
+  answered: false,
+  questions: []
+};
+
+function quizInit() {
+  quizState.correct = 0;
+  quizState.streak = 0;
+  quizState.qIdx = 0;
+  quizState.answered = false;
+  document.getElementById('quiz-area').style.display = 'block';
+  document.getElementById('quiz-done').style.display = 'none';
+  quizStart();
+}
+
+function quizStart() {
+  quizState.correct = 0;
+  quizState.streak = 0;
+  quizState.qIdx = 0;
+  quizState.answered = false;
+  document.getElementById('quiz-area').style.display = 'block';
+  document.getElementById('quiz-done').style.display = 'none';
+  quizState.questions = buildQuizQuestions(quizState.total);
+  quizRenderQuestion();
+}
+
+function buildQuizQuestions(n) {
+  var types = ['name-from-image', 'image-from-name', 'season', 'location', 'tackle'];
+  var qs = [];
+  var shuffled = shuffle(FISH.slice());
+  for (var i = 0; i < n; i++) {
+    var fish = shuffled[i % shuffled.length];
+    var type = types[i % types.length];
+    qs.push(buildQuestion(fish, type));
+  }
+  return qs;
+}
+
+function buildQuestion(fish, type) {
+  var wrongPool = FISH.filter(function(f) { return f.id !== fish.id; });
+  var wrongs = shuffle(wrongPool).slice(0, 3);
+  if (type === 'name-from-image') {
+    return {
+      type: type,
+      fish: fish,
+      prompt: 'What fish is this?',
+      showImage: true,
+      correctAnswer: fish.name,
+      options: shuffle([fish.name].concat(wrongs.map(function(w) { return w.name; }))),
+      explanation: fish.memoryHook
+    };
+  } else if (type === 'image-from-name') {
+    var opts = shuffle([fish].concat(wrongs));
+    return {
+      type: type,
+      fish: fish,
+      prompt: 'Which image shows ' + fish.name + '?',
+      showImage: false,
+      correctAnswer: fish.name,
+      imageOptions: opts,
+      options: opts.map(function(o) { return o.name; }),
+      explanation: fish.memoryHook
+    };
+  } else if (type === 'season') {
+    var seasonOpts = shuffle([fish.season.substring(0,60)].concat(wrongs.map(function(w) { return w.season.substring(0,60); })));
+    return {
+      type: type,
+      fish: fish,
+      prompt: 'When is ' + fish.name + ' in season in Clatsop County?',
+      showImage: true,
+      correctAnswer: fish.season.substring(0,60),
+      options: seasonOpts,
+      explanation: 'Season: ' + fish.season
+    };
+  } else if (type === 'location') {
+    var loc = fish.locations[0];
+    var wrongLocs = wrongs.map(function(w) { return w.locations[0]; });
+    return {
+      type: type,
+      fish: fish,
+      prompt: 'Where do you find ' + fish.name + ' in Clatsop County?',
+      showImage: true,
+      correctAnswer: loc,
+      options: shuffle([loc].concat(wrongLocs)),
+      explanation: 'Locations: ' + fish.locations.join(', ')
+    };
+  } else {
+    var lure = fish.tackle.lures[0];
+    var wrongLures = wrongs.map(function(w) { return w.tackle.lures[0]; });
+    return {
+      type: type,
+      fish: fish,
+      prompt: 'Best lure/bait for ' + fish.name + '?',
+      showImage: true,
+      correctAnswer: lure,
+      options: shuffle([lure].concat(wrongLures)),
+      explanation: fish.tackle.technique
+    };
+  }
+}
+
+function quizRenderQuestion() {
+  var q = quizState.questions[quizState.qIdx];
+  if (!q) return;
+  quizState.answered = false;
+  document.getElementById('quiz-correct').textContent = quizState.correct;
+  document.getElementById('quiz-total').textContent = quizState.total;
+  document.getElementById('quiz-qnum').textContent = (quizState.qIdx + 1) + '/' + quizState.total;
+  document.getElementById('quiz-streak').textContent = '🔥 ' + quizState.streak;
+  document.getElementById('quiz-next-btn').style.display = 'none';
+  var expl = document.getElementById('quiz-explanation');
+  expl.classList.remove('show');
+  var img = document.getElementById('quiz-img');
+  if (q.showImage) {
+    img.src = q.fish.image;
+    img.style.display = 'block';
+  } else {
+    img.style.display = 'none';
+  }
+  document.getElementById('quiz-prompt').textContent = q.prompt;
+  var optDiv = document.getElementById('quiz-options');
+  optDiv.innerHTML = '';
+  if (q.type === 'image-from-name') {
+    var grid = document.createElement('div');
+    grid.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:10px';
+    q.imageOptions.forEach(function(fish) {
+      var btn = document.createElement('button');
+      btn.className = 'quiz-option';
+      btn.style.cssText = 'flex-direction:column;padding:8px;min-height:80px';
+      btn.innerHTML = '<img src="' + fish.image + '" onerror="this.style.display=\'none\'" style="width:100%;height:60px;object-fit:cover;border-radius:8px;margin-bottom:4px"><span style="font-size:12px">' + fish.name + '</span>';
+      btn.dataset.answer = fish.name;
+      btn.addEventListener('click', function() { quizAnswer(fish.name, btn); });
+      grid.appendChild(btn);
+    });
+    optDiv.appendChild(grid);
+  } else {
+    q.options.forEach(function(opt) {
+      var btn = document.createElement('button');
+      btn.className = 'quiz-option';
+      btn.textContent = opt;
+      btn.dataset.answer = opt;
+      btn.addEventListener('click', function() { quizAnswer(opt, btn); });
+      optDiv.appendChild(btn);
+    });
+  }
+}
+
+function quizAnswer(answer, btn) {
+  if (quizState.answered) return;
+  quizState.answered = true;
+  var q = quizState.questions[quizState.qIdx];
+  var correct = answer === q.correctAnswer;
+  var allBtns = document.querySelectorAll('#quiz-options .quiz-option, #quiz-options button');
+  allBtns.forEach(function(b) {
+    if (b.dataset.answer === q.correctAnswer) b.classList.add('correct');
+  });
+  if (correct) {
+    quizState.correct++;
+    quizState.streak++;
+    btn.classList.add('bounce');
+    document.getElementById('quiz-correct').textContent = quizState.correct;
+  } else {
+    btn.classList.add('wrong');
+    btn.classList.add('shake');
+    quizState.streak = 0;
+  }
+  document.getElementById('quiz-streak').textContent = '🔥 ' + quizState.streak;
+  var expl = document.getElementById('quiz-explanation');
+  expl.textContent = (correct ? '✓ Correct! ' : '✗ Wrong. ') + q.explanation;
+  expl.classList.add('show');
+  document.getElementById('quiz-next-btn').style.display = 'flex';
+}
+
+function quizNext() {
+  quizState.qIdx++;
+  if (quizState.qIdx >= quizState.total) {
+    quizShowDone();
+  } else {
+    quizRenderQuestion();
+  }
+}
+
+function quizShowDone() {
+  document.getElementById('quiz-area').style.display = 'none';
+  document.getElementById('quiz-done').style.display = 'block';
+  var pct = Math.round(quizState.correct / quizState.total * 100);
+  document.getElementById('quiz-final-score').textContent = quizState.correct + '/' + quizState.total + ' (' + pct + '%)';
+  var msgs = ['Keep studying!', 'Getting there!', 'Good effort!', 'Nice work!', 'Great job!', 'Excellent!', 'Outstanding!', 'Perfect!'];
+  var msgIdx = Math.floor(pct / 100 * (msgs.length - 1));
+  document.getElementById('quiz-final-msg').textContent = msgs[msgIdx];
+  if (pct === 100) launchConfetti();
+}
+
+// ============================================================
+// MATCH MODE
+// ============================================================
+var matchState = {
+  cards: [],
+  flipped: [],
+  matched: [],
+  flips: 0,
+  timer: 0,
+  timerInterval: null,
+  pairs: 0
+};
+
+function matchStart() {
+  document.getElementById('match-start-screen').style.display = 'none';
+  document.getElementById('match-complete').classList.add('hidden');
+  document.getElementById('match-game-area').style.display = 'block';
+  var picks = shuffle(FISH.slice()).slice(0, 8);
+  matchState.cards = [];
+  matchState.flipped = [];
+  matchState.matched = [];
+  matchState.flips = 0;
+  matchState.pairs = 0;
+  matchState.timer = 0;
+  clearInterval(matchState.timerInterval);
+  matchState.timerInterval = setInterval(function() {
+    matchState.timer++;
+    var m = Math.floor(matchState.timer / 60);
+    var s = matchState.timer % 60;
+    document.getElementById('match-timer').textContent = m + ':' + (s < 10 ? '0' : '') + s;
+  }, 1000);
+  picks.forEach(function(fish, i) {
+    matchState.cards.push({id: i * 2, fish: fish, type: 'name'});
+    matchState.cards.push({id: i * 2 + 1, fish: fish, type: 'image'});
+  });
+  matchState.cards = shuffle(matchState.cards);
+  var grid = document.getElementById('match-grid');
+  grid.innerHTML = '';
+  matchState.cards.forEach(function(card, idx) {
+    var el = document.createElement('div');
+    el.className = 'match-card';
+    el.dataset.idx = idx;
+    var front = '<div class="match-card-front">🐟</div>';
+    var back;
+    if (card.type === 'image') {
+      back = '<div class="match-card-back"><img src="' + card.fish.image + '" onerror="this.style.display=\'none\'" alt="' + card.fish.name + '"></div>';
+    } else {
+      back = '<div class="match-card-back name-card"><span>' + card.fish.name + '</span></div>';
+    }
+    el.innerHTML = '<div class="match-card-inner">' + front + back + '</div>';
+    el.addEventListener('click', function() { matchFlipCard(idx, el); });
+    grid.appendChild(el);
+  });
+  document.getElementById('match-pairs').textContent = '0/8 Matched';
+  document.getElementById('match-flips').textContent = '0';
+  document.getElementById('match-timer').textContent = '0:00';
+}
+
+function matchFlipCard(idx, el) {
+  if (el.classList.contains('flipped') || el.classList.contains('matched')) return;
+  if (matchState.flipped.length >= 2) return;
+  el.classList.add('flipped');
+  matchState.flipped.push(idx);
+  matchState.flips++;
+  document.getElementById('match-flips').textContent = matchState.flips;
+  if (matchState.flipped.length === 2) {
+    var c1 = matchState.cards[matchState.flipped[0]];
+    var c2 = matchState.cards[matchState.flipped[1]];
+    if (c1.fish.id === c2.fish.id && c1.type !== c2.type) {
+      matchState.matched.push(c1.fish.id);
+      matchState.pairs++;
+      document.querySelectorAll('.match-card.flipped').forEach(function(card) {
+        card.classList.add('matched');
+      });
+      document.getElementById('match-pairs').textContent = matchState.pairs + '/8 Matched';
+      matchState.flipped = [];
+      if (matchState.pairs === 8) {
+        setTimeout(matchComplete, 500);
+      }
+    } else {
+      setTimeout(function() {
+        var cards = document.querySelectorAll('.match-card.flipped:not(.matched)');
+        cards.forEach(function(c) { c.classList.remove('flipped'); });
+        matchState.flipped = [];
+      }, 900);
+    }
+  }
+}
+
+function matchComplete() {
+  clearInterval(matchState.timerInterval);
+  document.getElementById('match-game-area').style.display = 'none';
+  document.getElementById('match-complete').classList.remove('hidden');
+  var m = Math.floor(matchState.timer / 60);
+  var s = matchState.timer % 60;
+  document.getElementById('match-result-text').textContent = 'Time: ' + m + ':' + (s < 10 ? '0' : '') + s + ' | Flips: ' + matchState.flips;
+  launchConfetti();
+}
+
+// ============================================================
+// SPEED MODE
+// ============================================================
+var speedState = {
+  score: 0,
+  lives: 3,
+  streak: 0,
+  question: null,
+  timerInterval: null,
+  timeLeft: 3.0,
+  active: false
+};
+
+function speedStart() {
+  speedState.score = 0;
+  speedState.lives = 3;
+  speedState.streak = 0;
+  speedState.active = true;
+  document.getElementById('speed-start-screen').style.display = 'none';
+  document.getElementById('speed-over').classList.add('hidden');
+  document.getElementById('speed-game-area').style.display = 'block';
+  document.getElementById('speed-best').textContent = state.highScore;
+  speedNextQuestion();
+}
+
+function speedNextQuestion() {
+  clearInterval(speedState.timerInterval);
+  speedState.timeLeft = 3.0;
+  var fish = FISH[Math.floor(Math.random() * FISH.length)];
+  var wrong;
+  do {
+    wrong = FISH[Math.floor(Math.random() * FISH.length)];
+  } while (wrong.id === fish.id);
+  speedState.question = fish;
+  var opts = shuffle([fish, wrong]);
+  document.getElementById('speed-img').src = fish.image;
+  document.getElementById('speed-img').style.display = 'block';
+  document.getElementById('speed-score').textContent = speedState.score;
+  document.getElementById('speed-lives').textContent = '❤️'.repeat(speedState.lives) + '🖤'.repeat(3 - speedState.lives);
+  var streakEl = document.getElementById('speed-streak');
+  if (speedState.streak >= 5) {
+    streakEl.innerHTML = '<span class="on-fire">🔥</span> ' + speedState.streak + ' streak!';
+  } else if (speedState.streak > 0) {
+    streakEl.textContent = speedState.streak + ' streak!';
+  } else {
+    streakEl.textContent = '';
+  }
+  var optDiv = document.getElementById('speed-options');
+  optDiv.innerHTML = '';
+  opts.forEach(function(f) {
+    var btn = document.createElement('button');
+    btn.className = 'speed-option';
+    btn.textContent = f.name;
+    btn.addEventListener('click', function() {
+      if (!speedState.active) return;
+      speedAnswer(f.id === fish.id, btn);
+    });
+    optDiv.appendChild(btn);
+  });
+  speedState.timerInterval = setInterval(function() {
+    speedState.timeLeft -= 0.1;
+    var pct = Math.max(0, speedState.timeLeft / 3.0 * 100);
+    document.getElementById('speed-timer-fill').style.width = pct + '%';
+    if (speedState.timeLeft <= 0) {
+      clearInterval(speedState.timerInterval);
+      speedAnswer(false, null);
+    }
+  }, 100);
+}
+
+function speedAnswer(correct, btn) {
+  if (!speedState.active) return;
+  clearInterval(speedState.timerInterval);
+  var optDiv = document.getElementById('speed-options');
+  var btns = optDiv.querySelectorAll('.speed-option');
+  btns.forEach(function(b) { b.style.pointerEvents = 'none'; });
+  if (correct) {
+    speedState.score++;
+    speedState.streak++;
+    if (btn) {
+      btn.style.background = 'rgba(46,204,113,0.3)';
+      btn.style.borderColor = 'var(--success)';
+    }
+    if (speedState.score > state.highScore) {
+      state.highScore = speedState.score;
+      localStorage.setItem('clatsop-highscore', speedState.score);
+      document.getElementById('speed-best').textContent = state.highScore;
+    }
+    setTimeout(speedNextQuestion, 600);
+  } else {
+    speedState.lives--;
+    speedState.streak = 0;
+    if (btn) {
+      btn.style.background = 'rgba(231,76,60,0.3)';
+      btn.style.borderColor = 'var(--danger)';
+    }
+    btns.forEach(function(b) {
+      if (b.textContent === speedState.question.name) {
+        b.style.background = 'rgba(46,204,113,0.3)';
+        b.style.borderColor = 'var(--success)';
+      }
+    });
+    if (speedState.lives <= 0) {
+      setTimeout(speedGameOver, 800);
+    } else {
+      setTimeout(speedNextQuestion, 800);
+    }
+  }
+}
+
+function speedGameOver() {
+  speedState.active = false;
+  clearInterval(speedState.timerInterval);
+  document.getElementById('speed-game-area').style.display = 'none';
+  document.getElementById('speed-over').classList.remove('hidden');
+  document.getElementById('speed-final').textContent = speedState.score + ' pts';
+  var msg = speedState.score >= 15 ? 'Fish ID master!' : speedState.score >= 8 ? 'Great reflexes!' : speedState.score >= 4 ? 'Keep practicing!' : 'Study those fish!';
+  document.getElementById('speed-final-msg').textContent = msg + ' Best: ' + state.highScore;
+}
+
+// ============================================================
+// BROWSE MODE
+// ============================================================
+var browseFilter_ = 'all';
+var browseSearch_ = '';
+
+function browseInit() {
+  browseRender();
+}
+
+function browseFilter() {
+  browseSearch_ = document.getElementById('browse-search').value.toLowerCase();
+  browseRender();
+}
+
+document.getElementById('browse-filter').addEventListener('click', function(e) {
+  var chip = e.target.closest('.chip');
+  if (!chip) return;
+  document.querySelectorAll('#browse-filter .chip').forEach(function(c) { c.classList.remove('active'); });
+  chip.classList.add('active');
+  browseFilter_ = chip.dataset.filter;
+  browseRender();
+});
+
+function browseRender() {
+  var list = document.getElementById('browse-list');
+  list.innerHTML = '';
+  var filtered = FISH.filter(function(fish) {
+    var matchSearch = !browseSearch_ || fish.name.toLowerCase().indexOf(browseSearch_) !== -1 || fish.nickname.toLowerCase().indexOf(browseSearch_) !== -1;
+    var matchFilter = browseFilter_ === 'all' || fish.habitat.indexOf(browseFilter_) !== -1 || fish.difficulty.toLowerCase() === browseFilter_;
+    return matchSearch && matchFilter;
+  });
+  filtered.forEach(function(fish) {
+    var item = document.createElement('div');
+    item.className = 'fish-item';
+    item.style.flexDirection = 'column';
+    item.style.alignItems = 'flex-start';
+    var badges = fish.habitat.map(function(h) {
+      return '<span class="badge badge-' + h + '">' + h.charAt(0).toUpperCase() + h.slice(1) + '</span>';
+    }).join('');
+    var diffBadge = '<span class="badge badge-' + fish.difficulty.toLowerCase() + '">' + fish.difficulty + '</span>';
+    var masterBadge = state.mastered[fish.id] ? '<span class="badge" style="background:#0a3020;color:#60ff80">✓ Mastered</span>' : '';
+    item.innerHTML = '<div style="display:flex;gap:12px;align-items:center;width:100%">' +
+      '<img src="' + fish.image + '" alt="' + fish.name + '" onerror="this.style.display=\'none\'" style="width:56px;height:40px;border-radius:8px;object-fit:cover;background:#1a3060;flex-shrink:0">' +
+      '<div style="flex:1"><div style="font-size:15px;font-weight:600">' + fish.emoji + ' ' + fish.name + '</div>' +
+      '<div style="font-size:12px;color:var(--text2)">' + fish.nickname + ' &bull; ' + fish.size + '</div>' +
+      '<div class="fish-item-badges" style="margin-top:4px">' + badges + diffBadge + masterBadge + '</div></div>' +
+      '<div style="color:var(--text2);font-size:18px">▼</div></div>' +
+      '<div class="fish-detail" id="detail-' + fish.id + '">' +
+      '<img src="' + fish.image + '" alt="' + fish.name + '" onerror="this.style.display=\'none\'">' +
+      '<div class="detail-section"><h4>Memory Hook</h4><p style="color:var(--gold);font-style:italic">' + fish.memoryHook + '</p></div>' +
+      '<div class="detail-section"><h4>Description</h4><p>' + fish.description + '</p></div>' +
+      '<div class="detail-section"><h4>Identifying Features</h4><ul style="padding-left:18px">' + fish.identifyingFeatures.map(function(f) { return '<li style="font-size:13px;color:var(--text2);margin-bottom:3px">' + f + '</li>'; }).join('') + '</ul></div>' +
+      '<div class="detail-section"><h4>Season</h4><p>' + fish.season + '</p></div>' +
+      '<div class="detail-section"><h4>Local Spots</h4><div class="detail-row">' + fish.locations.map(function(l) { return '<span class="detail-tag">' + l + '</span>'; }).join('') + '</div></div>' +
+      '<div class="detail-section"><h4>Tackle</h4><p style="font-size:13px;color:var(--text2)"><strong>Rod:</strong> ' + fish.tackle.rod + '<br><strong>Reel:</strong> ' + fish.tackle.reel + '<br><strong>Line:</strong> ' + fish.tackle.line + '</p><div class="detail-row">' + fish.tackle.lures.map(function(l) { return '<span class="detail-tag">' + l + '</span>'; }).join('') + '</div><p style="font-size:13px;color:var(--text2);margin-top:8px">' + fish.tackle.technique + '</p></div>' +
+      '<div class="detail-section"><h4>Fun Facts</h4><ul style="padding-left:18px">' + fish.funFacts.map(function(f) { return '<li style="font-size:13px;color:var(--text2);margin-bottom:3px">' + f + '</li>'; }).join('') + '</ul></div>' +
+      '</div>';
+    item.addEventListener('click', function(e) {
+      if (e.target.closest('.fish-detail')) return;
+      var detail = document.getElementById('detail-' + fish.id);
+      var arrow = item.querySelector('div > div:last-child');
+      if (detail.classList.contains('open')) {
+        detail.classList.remove('open');
+        if (arrow) arrow.textContent = '▼';
+      } else {
+        detail.classList.add('open');
+        if (arrow) arrow.textContent = '▲';
+      }
+    });
+    list.appendChild(item);
+  });
+  if (filtered.length === 0) {
+    list.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text2)">No fish found</div>';
+  }
+}
+
+// ============================================================
+// CONFETTI
+// ============================================================
+function launchConfetti() {
+  var colors = ['#00b4d8','#2ecc71','#f39c12','#e74c3c','#9b59b6','#3498db'];
+  for (var i = 0; i < 60; i++) {
+    (function(i) {
+      setTimeout(function() {
+        var el = document.createElement('div');
+        el.className = 'confetti-piece';
+        el.style.left = Math.random() * 100 + 'vw';
+        el.style.top = '-20px';
+        el.style.background = colors[Math.floor(Math.random() * colors.length)];
+        el.style.transform = 'rotate(' + Math.random() * 360 + 'deg)';
+        el.style.animationDuration = (2 + Math.random() * 2) + 's';
+        document.body.appendChild(el);
+        setTimeout(function() { el.remove(); }, 4000);
+      }, i * 40);
+    })(i);
+  }
+}
+
+// ============================================================
+// UTILS
+// ============================================================
+function shuffle(arr) {
+  var a = arr.slice();
+  for (var i = a.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var t = a[i]; a[i] = a[j]; a[j] = t;
+  }
+  return a;
+}
+
+// ============================================================
+// INIT
+// ============================================================
+updateHomeStats();
+</script>
+</body>
+</html>
