@@ -2,563 +2,529 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Brett's Morning Dashboard — May 2, 2026</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Brett's Morning Dashboard — May 4, 2026</title>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  :root {
-    --bg: #0f172a;
-    --card: #1e293b;
-    --card-hover: #273449;
-    --border: #334155;
-    --text: #e2e8f0;
-    --text-dim: #94a3b8;
-    --text-muted: #64748b;
-    --accent: #38bdf8;
-    --accent-2: #818cf8;
-    --good: #22c55e;
-    --fair: #f59e0b;
-    --poor: #ef4444;
-    --new: #ec4899;
+  :root{
+    --bg:#0f172a;
+    --panel:#1e293b;
+    --panel-2:#152033;
+    --border:#334155;
+    --text:#e2e8f0;
+    --muted:#94a3b8;
+    --accent:#38bdf8;
+    --accent-2:#818cf8;
+    --good:#10b981;
+    --fair:#f59e0b;
+    --poor:#ef4444;
+    --new:#ec4899;
   }
-  html, body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
-    line-height: 1.5;
-    min-height: 100vh;
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--bg);color:var(--text);font:16px/1.55 -apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+  body{padding:0 0 80px;min-height:100vh}
+  a{color:var(--accent);text-decoration:none}
+  a:hover,a:focus{text-decoration:underline}
+
+  header.hero{
+    position:relative;
+    overflow:hidden;
+    padding:32px 20px 28px;
+    background:linear-gradient(120deg,#0c4a6e,#3730a3,#0f766e,#1e3a8a);
+    background-size:300% 300%;
+    animation:gradientShift 18s ease infinite;
+    border-bottom:1px solid var(--border);
   }
-  body {
-    max-width: 720px;
-    margin: 0 auto;
-    padding: 0 0 60px 0;
+  @keyframes gradientShift{
+    0%{background-position:0% 50%}
+    50%{background-position:100% 50%}
+    100%{background-position:0% 50%}
   }
-  header {
-    padding: 28px 20px 24px 20px;
-    background: linear-gradient(135deg, #0ea5e9, #6366f1, #8b5cf6, #ec4899);
-    background-size: 300% 300%;
-    animation: gradient 14s ease infinite;
-    border-radius: 0 0 22px 22px;
-    margin-bottom: 18px;
+  header.hero h1{font-size:1.6rem;letter-spacing:-.02em;font-weight:800}
+  header.hero .date{font-size:.95rem;color:#cbd5e1;margin-top:4px}
+  header.hero .greeting{font-size:.85rem;color:#bae6fd;margin-top:10px;text-transform:uppercase;letter-spacing:.12em}
+
+  main{max-width:780px;margin:0 auto;padding:18px 14px 0}
+
+  section.card{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:16px;
+    padding:18px 16px;
+    margin:14px 0;
+    box-shadow:0 4px 20px rgba(0,0,0,.25);
   }
-  @keyframes gradient {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
+  section.card h2{
+    font-size:1.15rem;
+    font-weight:700;
+    display:flex;align-items:center;gap:8px;
+    margin-bottom:6px;
+    letter-spacing:-.01em;
   }
-  header h1 {
-    font-size: 26px;
-    font-weight: 700;
-    margin-bottom: 4px;
-    color: white;
-    letter-spacing: -0.5px;
+  section.card h2 .ico{font-size:1.3rem}
+  section.card .sub{color:var(--muted);font-size:.85rem;margin-bottom:14px}
+
+  /* SURF CARD */
+  .wave-bg{
+    position:relative;
+    height:80px;
+    margin:-18px -16px 14px;
+    border-radius:16px 16px 0 0;
+    overflow:hidden;
+    background:linear-gradient(180deg,#0c4a6e 0%,#0369a1 100%);
   }
-  header .date {
-    font-size: 14px;
-    color: rgba(255,255,255,0.85);
-    font-weight: 500;
+  .wave-bg svg{position:absolute;bottom:0;left:0;width:200%;height:100%}
+  .wave-bg .w1{animation:waveSlide 9s linear infinite;opacity:.55}
+  .wave-bg .w2{animation:waveSlide 13s linear infinite reverse;opacity:.85}
+  @keyframes waveSlide{
+    0%{transform:translateX(0)}
+    100%{transform:translateX(-50%)}
   }
-  section {
-    margin: 0 14px 18px 14px;
-    background: var(--card);
-    border-radius: 16px;
-    padding: 18px 18px 14px 18px;
-    border: 1px solid var(--border);
+  .surf-now{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:10px;
+    margin:8px 0 14px;
   }
-  section h2 {
-    font-size: 17px;
-    font-weight: 700;
-    margin-bottom: 14px;
-    color: var(--text);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    letter-spacing: -0.2px;
+  .surf-now .stat{
+    background:var(--panel-2);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:10px 12px;
   }
-  section h2 .icon { font-size: 20px; }
-  .subtitle {
-    font-size: 12px;
-    color: var(--text-dim);
-    margin-top: -8px;
-    margin-bottom: 12px;
-    font-weight: 500;
+  .surf-now .stat .lbl{font-size:.72rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
+  .surf-now .stat .val{font-size:1.05rem;font-weight:700;margin-top:2px;color:#f1f5f9}
+  .surf-now .stat .sub{font-size:.78rem;color:var(--muted);margin-top:1px}
+
+  table.forecast{width:100%;border-collapse:collapse;margin-top:6px;font-size:.88rem}
+  table.forecast th,table.forecast td{
+    padding:8px 6px;
+    text-align:left;
+    border-bottom:1px solid var(--border);
+  }
+  table.forecast th{font-size:.72rem;text-transform:uppercase;color:var(--muted);letter-spacing:.06em;font-weight:600}
+  table.forecast td.day{font-weight:600}
+  table.forecast tr.best{background:rgba(16,185,129,.07)}
+
+  .badge{
+    display:inline-block;
+    padding:2px 8px;
+    border-radius:999px;
+    font-size:.7rem;
+    font-weight:700;
+    letter-spacing:.04em;
+    text-transform:uppercase;
+  }
+  .badge.good{background:rgba(16,185,129,.18);color:#34d399;border:1px solid rgba(16,185,129,.4)}
+  .badge.fair{background:rgba(245,158,11,.18);color:#fbbf24;border:1px solid rgba(245,158,11,.4)}
+  .badge.poor{background:rgba(239,68,68,.18);color:#f87171;border:1px solid rgba(239,68,68,.4)}
+  .badge.new{background:rgba(236,72,153,.2);color:#f472b6;border:1px solid rgba(236,72,153,.45);margin-left:8px}
+
+  .best-window{
+    margin-top:12px;
+    padding:10px 12px;
+    background:linear-gradient(135deg,rgba(16,185,129,.14),rgba(56,189,248,.1));
+    border:1px solid rgba(16,185,129,.35);
+    border-radius:10px;
+    font-size:.9rem;
+  }
+  .best-window strong{color:#6ee7b7}
+
+  .src-row{
+    margin-top:14px;
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+  }
+  .src-row a{
+    display:inline-block;
+    padding:6px 12px;
+    border:1px solid var(--border);
+    border-radius:8px;
+    font-size:.8rem;
+    background:var(--panel-2);
+    color:var(--accent);
   }
 
-  /* SURF */
-  .wave-svg {
-    width: 100%;
-    height: 70px;
-    margin-bottom: 14px;
-    border-radius: 10px;
-    overflow: hidden;
-    background: linear-gradient(180deg, #0c4a6e, #075985);
+  /* COLLAPSIBLE STORIES */
+  details.story{
+    background:var(--panel-2);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:0;
+    margin:8px 0;
+    overflow:hidden;
+    transition:border-color .2s;
   }
-  .surf-stats {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 8px;
-    margin-bottom: 14px;
+  details.story[open]{border-color:var(--accent)}
+  details.story summary{
+    list-style:none;
+    cursor:pointer;
+    padding:11px 14px 11px 36px;
+    font-weight:600;
+    font-size:.95rem;
+    line-height:1.35;
+    position:relative;
+    user-select:none;
   }
-  .stat {
-    background: #0f172a;
-    padding: 10px 12px;
-    border-radius: 10px;
-    border: 1px solid var(--border);
+  details.story summary::-webkit-details-marker{display:none}
+  details.story summary::before{
+    content:"▸";
+    position:absolute;
+    left:14px;
+    top:11px;
+    color:var(--accent);
+    font-size:.85rem;
+    transition:transform .2s;
+    display:inline-block;
   }
-  .stat-label {
-    font-size: 11px;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 2px;
+  details.story[open] summary::before{transform:rotate(90deg)}
+  details.story .body{
+    padding:0 14px 14px 36px;
+    font-size:.9rem;
+    color:#cbd5e1;
   }
-  .stat-value {
-    font-size: 15px;
-    font-weight: 600;
-    color: var(--text);
-  }
-  .stat-sub {
-    font-size: 11px;
-    color: var(--text-dim);
-    margin-top: 2px;
-  }
-  .forecast-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 12px;
-    font-size: 13px;
-  }
-  .forecast-table th,
-  .forecast-table td {
-    padding: 8px 6px;
-    text-align: left;
-    border-bottom: 1px solid var(--border);
-  }
-  .forecast-table th {
-    color: var(--text-muted);
-    font-size: 10px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    font-weight: 600;
-  }
-  .forecast-table td:first-child { font-weight: 600; }
-  .badge {
-    display: inline-block;
-    padding: 2px 8px;
-    border-radius: 999px;
-    font-size: 10px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-  .badge-good { background: rgba(34,197,94,0.18); color: var(--good); border: 1px solid rgba(34,197,94,0.35); }
-  .badge-fair { background: rgba(245,158,11,0.18); color: var(--fair); border: 1px solid rgba(245,158,11,0.35); }
-  .badge-poor { background: rgba(239,68,68,0.18); color: var(--poor); border: 1px solid rgba(239,68,68,0.35); }
-  .badge-new { background: rgba(236,72,153,0.18); color: var(--new); border: 1px solid rgba(236,72,153,0.45); margin-left: 6px; }
-  .highlight {
-    background: linear-gradient(135deg, rgba(34,197,94,0.15), rgba(56,189,248,0.10));
-    border: 1px solid rgba(34,197,94,0.3);
-    border-radius: 10px;
-    padding: 10px 12px;
-    margin-bottom: 12px;
-    font-size: 13px;
-    line-height: 1.4;
-  }
-  .highlight strong { color: var(--good); }
-  .source-links {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin-top: 4px;
-  }
-  .source-link {
-    display: inline-block;
-    background: #0f172a;
-    border: 1px solid var(--border);
-    color: var(--accent);
-    padding: 5px 10px;
-    border-radius: 8px;
-    text-decoration: none;
-    font-size: 11px;
-    font-weight: 500;
-  }
-  .source-link:active { background: var(--card-hover); }
-
-  /* DETAILS */
-  details {
-    background: #0f172a;
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    margin-bottom: 8px;
-    overflow: hidden;
-  }
-  details[open] { background: #131f37; }
-  summary {
-    padding: 11px 14px;
-    cursor: pointer;
-    list-style: none;
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--text);
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-    line-height: 1.35;
-  }
-  summary::-webkit-details-marker { display: none; }
-  summary::before {
-    content: "▶";
-    color: var(--accent);
-    font-size: 10px;
-    margin-top: 4px;
-    transition: transform 0.2s;
-    flex-shrink: 0;
-  }
-  details[open] summary::before { transform: rotate(90deg); }
-  .summary-text { flex: 1; }
-  .story-body {
-    padding: 0 14px 14px 30px;
-    font-size: 13px;
-    color: var(--text-dim);
-    line-height: 1.55;
-  }
-  .story-body p { margin-bottom: 8px; }
-  .story-body a {
-    color: var(--accent);
-    text-decoration: none;
-    font-weight: 500;
-  }
-  .story-body a:active { text-decoration: underline; }
-  .read-link {
-    display: inline-block;
-    margin-top: 4px;
-    color: var(--accent);
-    font-weight: 600;
-    font-size: 12px;
-    text-decoration: none;
+  details.story .body p{margin-bottom:8px}
+  details.story .body a.read{
+    display:inline-block;
+    margin-top:6px;
+    padding:4px 10px;
+    background:rgba(56,189,248,.12);
+    border:1px solid rgba(56,189,248,.4);
+    border-radius:6px;
+    color:#7dd3fc;
+    font-size:.82rem;
   }
 
-  /* BIG STORY */
-  .big-story {
-    background: linear-gradient(135deg, rgba(99,102,241,0.15), rgba(236,72,153,0.10));
-    border: 1px solid rgba(129,140,248,0.35);
+  .futures{
+    margin-top:6px;
+    padding:8px 12px;
+    background:var(--panel-2);
+    border-left:3px solid var(--accent);
+    border-radius:6px;
+    font-size:.85rem;
+    color:#cbd5e1;
   }
-  .big-story h2 .icon { animation: pulse 2.4s ease infinite; }
-  @keyframes pulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.18); }
+  .futures strong{color:#fde68a}
+
+  /* BIG STORY CARD */
+  .bigstory{
+    background:linear-gradient(135deg,#7f1d1d 0%,#991b1b 60%,#0f172a 100%);
+    border:1px solid #b91c1c;
   }
-  .big-story-take {
-    font-size: 13px;
-    color: var(--text);
-    margin-bottom: 10px;
-    line-height: 1.55;
+  .bigstory h2{color:#fecaca}
+  .bigstory .take{
+    margin:10px 0;
+    padding:12px;
+    background:rgba(15,23,42,.55);
+    border-radius:8px;
+    font-size:.92rem;
+    line-height:1.55;
   }
-  .big-story-take strong { color: var(--accent-2); }
-  .prediction {
-    background: rgba(0,0,0,0.25);
-    border-left: 3px solid var(--accent-2);
-    padding: 8px 12px;
-    border-radius: 6px;
-    font-size: 12px;
-    color: var(--text-dim);
-    font-style: italic;
-    margin-bottom: 10px;
+  .bigstory .take strong{color:#fecaca}
+  .bigstory .src-row a{
+    background:rgba(15,23,42,.6);
+    color:#fca5a5;
+    border-color:#b91c1c;
   }
 
-  /* MARKET banner */
-  .market-banner {
-    background: linear-gradient(90deg, rgba(34,197,94,0.10), rgba(56,189,248,0.10));
-    border: 1px solid rgba(34,197,94,0.25);
-    border-radius: 10px;
-    padding: 9px 12px;
-    margin-bottom: 12px;
-    font-size: 12px;
-    color: var(--text-dim);
+  footer{
+    text-align:center;
+    color:var(--muted);
+    font-size:.78rem;
+    padding:24px 14px;
+    margin-top:20px;
   }
-  .market-banner strong { color: var(--text); }
 
-  footer {
-    text-align: center;
-    color: var(--text-muted);
-    font-size: 11px;
-    padding: 14px;
-    margin-top: 8px;
+  @media (max-width:420px){
+    main{padding:14px 10px 0}
+    section.card{padding:16px 12px}
+    header.hero{padding:24px 16px 22px}
+    header.hero h1{font-size:1.4rem}
+    table.forecast{font-size:.82rem}
+    table.forecast th,table.forecast td{padding:7px 4px}
   }
 </style>
 </head>
 <body>
 
-<header>
-  <h1>Brett's Morning Dashboard</h1>
-  <div class="date">Saturday, May 2, 2026</div>
+<header class="hero">
+  <div class="greeting">Good morning, Brett</div>
+  <h1>Morning Dashboard</h1>
+  <div class="date">Monday, May 4, 2026 · Updated 9:30 AM PDT</div>
 </header>
 
-<!-- ========== SURF REPORT ========== -->
-<section>
-  <h2><span class="icon">🌊</span>Surf Report — Cannon Beach, OR</h2>
-  <div class="subtitle">Cross-referenced from Surfline, surf-forecast.com & NOAA Buoy 46029</div>
+<main>
 
-  <svg class="wave-svg" viewBox="0 0 720 70" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-    <defs>
-      <linearGradient id="wgrad" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.85"/>
-        <stop offset="100%" stop-color="#0ea5e9" stop-opacity="0.45"/>
-      </linearGradient>
-    </defs>
-    <path fill="url(#wgrad)" opacity="0.55">
-      <animate attributeName="d" dur="6s" repeatCount="indefinite"
-        values="
-          M0,40 Q90,25 180,40 T360,40 T540,40 T720,40 V70 H0 Z;
-          M0,40 Q90,55 180,40 T360,40 T540,40 T720,40 V70 H0 Z;
-          M0,40 Q90,25 180,40 T360,40 T540,40 T720,40 V70 H0 Z" />
-    </path>
-    <path fill="url(#wgrad)">
-      <animate attributeName="d" dur="4.5s" repeatCount="indefinite"
-        values="
-          M0,50 Q90,38 180,50 T360,50 T540,50 T720,50 V70 H0 Z;
-          M0,50 Q90,62 180,50 T360,50 T540,50 T720,50 V70 H0 Z;
-          M0,50 Q90,38 180,50 T360,50 T540,50 T720,50 V70 H0 Z" />
-    </path>
-  </svg>
-
-  <div class="highlight">
-    <strong>Best window this week:</strong> Sunday, May 3 — fair to good. Building swell peaks 11&nbsp;AM at 3.5&nbsp;ft @ 16s, with the most powerful set waves (6&nbsp;ft @ 14s) arriving by 8&nbsp;PM. Light, glassy winds at the swell's peak. Today is mostly poor in the AM with a 9.2&nbsp;ft high tide draining out to a -0.6&nbsp;ft low at 9:19&nbsp;AM, but conditions improve into the night.
-  </div>
-
-  <div class="surf-stats">
-    <div class="stat">
-      <div class="stat-label">Wave height (face)</div>
-      <div class="stat-value">2–4 ft, sets 4–6 ft</div>
-      <div class="stat-sub">Surfline 2–4ft · surf-forecast 2.5ft now → 3.5ft Sun</div>
+  <!-- ============ 1. SURF REPORT ============ -->
+  <section class="card">
+    <div class="wave-bg" aria-hidden="true">
+      <svg viewBox="0 0 1200 80" preserveAspectRatio="none">
+        <path class="w1" fill="rgba(56,189,248,.45)" d="M0,40 C150,10 300,70 600,40 C900,10 1050,70 1200,40 L1200,80 L0,80 Z M1200,40 C1350,10 1500,70 1800,40 C2100,10 2250,70 2400,40 L2400,80 L1200,80 Z"/>
+        <path class="w2" fill="rgba(125,211,252,.55)" d="M0,55 C200,30 400,80 600,55 C800,30 1000,80 1200,55 L1200,80 L0,80 Z M1200,55 C1400,30 1600,80 1800,55 C2000,30 2200,80 2400,55 L2400,80 L1200,80 Z"/>
+      </svg>
     </div>
-    <div class="stat">
-      <div class="stat-label">Period</div>
-      <div class="stat-value">10s primary</div>
-      <div class="stat-sub">Secondary 18s longperiod arriving tonight</div>
+    <h2><span class="ico">🌊</span> Surf Report — Cannon Beach, OR</h2>
+    <div class="sub">Three-source cross-check · Surfline + surf-forecast.com + NOAA Buoy 46029</div>
+
+    <div class="surf-now">
+      <div class="stat">
+        <div class="lbl">Wave Height (face)</div>
+        <div class="val">5–7 ft</div>
+        <div class="sub">Head high to 1–2 ft overhead AM</div>
+      </div>
+      <div class="stat">
+        <div class="lbl">Period</div>
+        <div class="val">13 sec</div>
+        <div class="sub">Long-period groundswell</div>
+      </div>
+      <div class="stat">
+        <div class="lbl">Swell Direction</div>
+        <div class="val">WNW · 285–300°</div>
+        <div class="sub">Buoy mean wave dir</div>
+      </div>
+      <div class="stat">
+        <div class="lbl">Wind</div>
+        <div class="val">S/SSW 14–16 kt</div>
+        <div class="sub">Light AM, rising PM (cross/onshore)</div>
+      </div>
+      <div class="stat">
+        <div class="lbl">Water Temp</div>
+        <div class="val">55 °F · 12.8 °C</div>
+        <div class="sub">4/3 wetsuit territory</div>
+      </div>
+      <div class="stat">
+        <div class="lbl">Tides (today)</div>
+        <div class="val">9.2' H · -0.6' L</div>
+        <div class="sub">High 3:04 AM · Low 9:19 AM</div>
+      </div>
     </div>
-    <div class="stat">
-      <div class="stat-label">Wind</div>
-      <div class="stat-value">NNW 9–11 mph</div>
-      <div class="stat-sub">Cross / sideshore. Light all weekend.</div>
+
+    <p style="font-size:.86rem;color:var(--muted);margin:6px 0 4px">
+      All three sources agree: clean WNW groundswell at 13 s, head-high+ on the sets, holding through morning then easing into afternoon as wind picks up. NOAA buoy reads 2.2 m (~7.2 ft) significant offshore — that translates to honest head-high faces at the beach.
+    </p>
+
+    <h3 style="margin-top:14px;font-size:.88rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)">5-Day Forecast</h3>
+    <table class="forecast">
+      <thead>
+        <tr>
+          <th>Day</th>
+          <th>Size (AM)</th>
+          <th>Period</th>
+          <th>Dir</th>
+          <th>Rating</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="day">Mon 5/4</td>
+          <td>5.5 ft</td>
+          <td>13 s</td>
+          <td>WNW</td>
+          <td><span class="badge fair">Fair</span></td>
+        </tr>
+        <tr>
+          <td class="day">Tue 5/5</td>
+          <td>3.5 ft</td>
+          <td>12 s</td>
+          <td>WNW</td>
+          <td><span class="badge poor">Poor</span></td>
+        </tr>
+        <tr>
+          <td class="day">Wed 5/6</td>
+          <td>4.5 ft</td>
+          <td>13 s</td>
+          <td>W</td>
+          <td><span class="badge fair">Fair</span></td>
+        </tr>
+        <tr class="best">
+          <td class="day">Thu 5/7</td>
+          <td>4 ft</td>
+          <td>11 s</td>
+          <td>WNW</td>
+          <td><span class="badge good">Good</span></td>
+        </tr>
+        <tr>
+          <td class="day">Fri 5/8</td>
+          <td>3.5 ft</td>
+          <td>10 s</td>
+          <td>WNW</td>
+          <td><span class="badge poor">Poor</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="best-window">
+      <strong>★ Best window of the week:</strong> Thursday 5/7 around 5 AM — surf-forecast.com flags this as the next "1-star+" session at 4.5 ft / 12 s, with the lightest winds of the week. Today's morning is biggest, but Thursday's combination of size, period, and clean wind is the highest-rated session ahead.
     </div>
-    <div class="stat">
-      <div class="stat-label">Water temp</div>
-      <div class="stat-value">54°F</div>
-      <div class="stat-sub">NOAA 46029 real-time. Air 52°F.</div>
+
+    <div class="src-row">
+      <a href="https://www.surfline.com/surf-report/cannon-beach/5842041f4e65fad6a77089b8" target="_blank" rel="noopener">Surfline →</a>
+      <a href="https://www.surf-forecast.com/breaks/Cannon-Beach/forecasts/latest/six_day" target="_blank" rel="noopener">surf-forecast.com →</a>
+      <a href="https://www.ndbc.noaa.gov/station_page.php?station=46029" target="_blank" rel="noopener">NOAA Buoy 46029 →</a>
     </div>
-    <div class="stat">
-      <div class="stat-label">Tide</div>
-      <div class="stat-value">High 3:04 AM 9.2'</div>
-      <div class="stat-sub">Low 9:19 AM -0.6' (big swing)</div>
+  </section>
+
+  <!-- ============ 2. BUSINESS & MARKETS ============ -->
+  <section class="card">
+    <h2><span class="ico">📈</span> Business & Markets</h2>
+    <div class="sub">Top stories · CNBC · May 4, 2026</div>
+
+    <div class="futures">
+      <strong>Markets now:</strong> S&P 500 –0.18% · Dow –0.40% · Nasdaq +0.04%. Stocks slipped after the UAE reported intercepting Iranian missiles, sending oil higher. Pre-market futures had been up ~0.2% before the Hormuz news broke.
     </div>
-    <div class="stat">
-      <div class="stat-label">Swell direction</div>
-      <div class="stat-value">WNW + WSW combo</div>
-      <div class="stat-sub">NOAA buoy: 6.2 ft @ 10s WNW</div>
+
+    <details class="story">
+      <summary>Spirit Airlines ceases operations after rescue deal collapses</summary>
+      <div class="body">
+        <p>Spirit Airlines shut down over the weekend after a last-minute rescue deal fell apart, ending a multi-year slow-motion collapse and effectively closing the chapter on ultra-cheap U.S. air travel. Rival airlines are expected to absorb routes — and lift fares.</p>
+        <a class="read" href="https://www.cnbc.com/2026/05/04/spirit-airlines-flights-rivals.html" target="_blank" rel="noopener">Read on CNBC →</a>
+      </div>
+    </details>
+
+    <details class="story">
+      <summary>GameStop launches bid to fully acquire eBay</summary>
+      <div class="body">
+        <p>The meme-stock holdco is making an unsolicited offer for eBay, attempting to bolt a legacy e-commerce platform onto Ryan Cohen's slow pivot away from physical games. Markets are skeptical the math works, but the headline alone is moving both stocks pre-market.</p>
+        <a class="read" href="https://www.cnbc.com/world/?region=world" target="_blank" rel="noopener">Read on CNBC →</a>
+      </div>
+    </details>
+
+    <details class="story">
+      <summary>Anthropic, Goldman, Blackstone team on $1.5B AI venture</summary>
+      <div class="body">
+        <p>A consortium led by Anthropic with Goldman Sachs and Blackstone is launching a $1.5 billion fund targeted at applied AI infrastructure and enterprise deployment. The deal is the latest signal that hyperscaler AI capex has officially gone capital-stack mainstream.</p>
+        <a class="read" href="https://www.cnbc.com/2026/05/04/anthropic-goldman-blackstone-ai-venture.html" target="_blank" rel="noopener">Read on CNBC →</a>
+      </div>
+    </details>
+
+    <details class="story">
+      <summary>UPS, FedEx sink as Amazon expands its logistics network</summary>
+      <div class="body">
+        <p>Both delivery giants opened lower after Amazon announced an expansion of its in-house logistics footprint, including more last-mile hubs and middle-mile capacity. Analysts warn this is the long-feared scenario where Amazon becomes a structural competitor to the parcel duopoly.</p>
+        <a class="read" href="https://www.cnbc.com/2026/05/04/ups-fedex-amazon-logistics.html" target="_blank" rel="noopener">Read on CNBC →</a>
+      </div>
+    </details>
+
+    <details class="story">
+      <summary>"Bubble effect": GLP-1 weight-loss drug growth raising pharma sector risk</summary>
+      <div class="body">
+        <p>A new sell-side report argues that the pharma industry is dangerously over-indexed on GLP-1 (Wegovy/Ozempic-style) growth and faces a re-rating if pricing scrutiny tightens. Novo Nordisk's update later this week is now a marquee print.</p>
+        <a class="read" href="https://www.cnbc.com/2026/05/04/wegovy-glp1-weight-loss-drugs-pharma-growth-bubble.html" target="_blank" rel="noopener">Read on CNBC →</a>
+      </div>
+    </details>
+
+    <details class="story">
+      <summary>South Korea's Kospi hits fresh record high</summary>
+      <div class="body">
+        <p>Kospi notched a new all-time high overnight, building on April's historic monthly rally as foreign flows continue rotating into Korean tech and shipbuilding names. Most Asian indexes traded higher despite the Hormuz noise; Germany's DAX slipped at the open.</p>
+        <a class="read" href="https://www.cnbc.com/2026/05/04/asia-markets-live-updates-today-hang-seng-kospi-asx-oil-us-iran-trump-hormuz.html" target="_blank" rel="noopener">Read on CNBC →</a>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ 3. BIG STORY OF THE WEEK ============ -->
+  <section class="card bigstory">
+    <h2><span class="ico">🔥</span> Big Story of the Week</h2>
+    <div class="sub" style="color:#fecaca">Iran ceasefire fractures · UAE under attack · Hormuz crisis re-ignites</div>
+
+    <div class="take">
+      <strong>The take:</strong> The April 8 ceasefire is unraveling in real time. The UAE confirmed intercepting Iranian cruise missiles overnight and reports a drone strike at a Fujairah oil facility — the first Iranian strike on a Gulf state since the truce. Trigger: Trump's announcement that the U.S. military would "guide" commercial vessels back through the Strait of Hormuz, which Iran labeled a ceasefire violation. Roughly 20% of seaborne global oil moves through that chokepoint, and Kalshi traders now don't expect normal traffic until September.
+      <br><br>
+      <strong>Will it grow or fade?</strong> Grow. Every major outlet (CNBC, NPR, CBS, ABC, Al Jazeera, Axios, Britannica, Wikipedia) is already running live blogs — that's the surest tell of a story with multi-week legs. Watch oil, defense names, and shipping rates this week. Earnings from Shell and Maersk become geopolitical proxies.
     </div>
-  </div>
 
-  <table class="forecast-table">
-    <thead>
-      <tr><th>Day</th><th>Conditions</th><th>Size</th><th>Rating</th></tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td>Sat 5/2</td>
-        <td>Poor AM, fair PM</td>
-        <td>2.5 ft @ 18s</td>
-        <td><span class="badge badge-poor">Poor</span></td>
-      </tr>
-      <tr>
-        <td>Sun 5/3</td>
-        <td>Glassy, building</td>
-        <td>3.5 ft @ 16s, sets 6 ft</td>
-        <td><span class="badge badge-good">Good</span></td>
-      </tr>
-      <tr>
-        <td>Mon 5/4</td>
-        <td>Dropping, light wind</td>
-        <td>2 ft</td>
-        <td><span class="badge badge-poor">Poor</span></td>
-      </tr>
-      <tr>
-        <td>Tue 5/5</td>
-        <td>Flat / disorganized</td>
-        <td>1.5–2 ft</td>
-        <td><span class="badge badge-poor">Poor</span></td>
-      </tr>
-      <tr>
-        <td>Wed 5/6</td>
-        <td>New mid-period swell</td>
-        <td>2.5–3 ft</td>
-        <td><span class="badge badge-fair">Fair</span></td>
-      </tr>
-    </tbody>
-  </table>
-
-  <div class="source-links">
-    <a class="source-link" href="https://www.surfline.com/surf-report/cannon-beach/5842041f4e65fad6a7708cee" target="_blank" rel="noopener">Surfline →</a>
-    <a class="source-link" href="https://www.surf-forecast.com/breaks/Cannon-Beach/forecasts/latest/six_day" target="_blank" rel="noopener">surf-forecast.com →</a>
-    <a class="source-link" href="https://www.ndbc.noaa.gov/station_page.php?station=46029" target="_blank" rel="noopener">NOAA Buoy 46029 →</a>
-  </div>
-</section>
-
-<!-- ========== BUSINESS NEWS ========== -->
-<section>
-  <h2><span class="icon">📈</span>Business & Markets</h2>
-  <div class="subtitle">Top stories from CNBC</div>
-
-  <div class="market-banner">
-    <strong>Markets closed Friday at fresh highs:</strong> S&amp;P 500 +0.29% to 7,230.12 · Nasdaq +0.89% to 25,114.44 · U.S. crude $103.27 (–2% on Iran talks).
-  </div>
-
-  <details>
-    <summary><span class="summary-text">Greg Abel takes center stage at Berkshire's first post-Buffett annual meeting today</span></summary>
-    <div class="story-body">
-      <p>Berkshire Hathaway holds its 2026 Annual Shareholders Meeting in Omaha today (livestream 9:15 AM ET on CNBC). It's the first meeting where Greg Abel, who took over as CEO in January, runs the show — Buffett is expected to sit with the board in the crowd.</p>
-      <p>Investors want to hear what Abel plans to do with Berkshire's $373B cash pile, whether buybacks accelerate (the stock trades at roughly an 8% discount to estimated intrinsic value), and how the equity portfolio is being managed in the post-Buffett era.</p>
-      <a class="read-link" href="https://www.cnbc.com/2026/05/02/warren-buffett-berkshire-hathaway-annual-meeting-2026-live-updates.html" target="_blank" rel="noopener">Read on CNBC →</a>
+    <div class="src-row">
+      <a href="https://www.cnbc.com/2026/05/04/iran-war-uae-trump-ceasefire-missiles.html" target="_blank" rel="noopener">CNBC →</a>
+      <a href="https://www.npr.org/2026/05/04/nx-s1-5810508/iran-war-updates" target="_blank" rel="noopener">NPR →</a>
+      <a href="https://www.cbsnews.com/live-updates/iran-war-trump-strait-of-hormuz-ship-attack-threat-peace-proposal/" target="_blank" rel="noopener">CBS News →</a>
+      <a href="https://www.axios.com/2026/05/04/iran-attack-uae-missiles-ceasefire-hormuz" target="_blank" rel="noopener">Axios →</a>
+      <a href="https://www.aljazeera.com/news/liveblog/2026/5/4/iran-war-live-tehran-says-trumps-hormuz-mission-violates-ceasefire" target="_blank" rel="noopener">Al Jazeera →</a>
     </div>
-  </details>
+  </section>
 
-  <details>
-    <summary><span class="summary-text">Apple jumps 3%+ on earnings beat, strong Q3 revenue outlook</span></summary>
-    <div class="story-body">
-      <p>Apple shares climbed more than 3% Friday after the company posted a fiscal Q2 beat on earnings and revenue, with guidance for the current quarter coming in better than expected.</p>
-      <p>Services and iPhone trade-ins held up better than feared given tariff overhang earlier in the year. The print is part of a broader pattern of mega-cap resilience that pushed both indexes to new highs.</p>
-      <a class="read-link" href="https://www.cnbc.com/2026/05/01/stock-market-today-live-updates.html" target="_blank" rel="noopener">Read on CNBC →</a>
-    </div>
-  </details>
+  <!-- ============ 4. TECH + GAME DEV ============ -->
+  <section class="card">
+    <h2><span class="ico">🛠️</span> Tech + Game Dev</h2>
+    <div class="sub">Apple · AR/VR glasses · Micro 4/3 · Vibe coding · Three.js · Quest · Water shaders</div>
 
-  <details>
-    <summary><span class="summary-text">Eli Lilly blows past estimates, raises outlook on weight-loss pill Foundayo</span></summary>
-    <div class="story-body">
-      <p>Lilly beat top and bottom lines and raised full-year guidance, with management disclosing that more than 20,000 patients are now taking its oral weight-loss pill Foundayo. Pricing power on the GLP-1 franchise remains intact despite competition.</p>
-      <a class="read-link" href="https://www.cnbc.com/business/" target="_blank" rel="noopener">Read on CNBC →</a>
-    </div>
-  </details>
+    <details class="story">
+      <summary>Apple reportedly halts Vision Pro development, pivots to lightweight smart glasses<span class="badge new">NEW</span></summary>
+      <div class="body">
+        <p>Multiple outlets report Apple has stopped work on future Vision Pro hardware after the M5 refresh failed to move the needle. Incoming CEO John Ternus is reportedly redirecting the team toward affordable smart glasses — Kuo says 2027 launch, Gurman now leans late 2026. Either way, the standalone headset bet is officially dead.</p>
+        <a class="read" href="https://www.macrumors.com/2026/04/29/apple-vision-pro-m5-flop/" target="_blank" rel="noopener">Read on MacRumors →</a>
+      </div>
+    </details>
 
-  <details>
-    <summary><span class="summary-text">Caterpillar surges nearly 10% on Q1 beat — industrial bellwether signal</span></summary>
-    <div class="story-body">
-      <p>CAT crushed both EPS and revenue estimates and posted positive commentary on construction backlog and resource industries. The move is being read by traders as a bullish industrial-cycle signal heading into May.</p>
-      <a class="read-link" href="https://www.cnbc.com/business/" target="_blank" rel="noopener">Read on CNBC →</a>
-    </div>
-  </details>
+    <details class="story">
+      <summary>Samsung Galaxy Glasses leak: $379–$499, July 2026 launch alongside Z Fold 8<span class="badge new">NEW</span></summary>
+      <div class="body">
+        <p>Leaked images and specs show a Ray-Ban Meta-style screenless design with a 12 MP camera and Qualcomm AR1 chip. Samsung is undercutting Meta on price and pairing the launch with Galaxy Z Fold 8 / Flip 8 in July. Gen 2 with proper AR display lands in 2027.</p>
+        <a class="read" href="https://www.roadtovr.com/samsung-galaxy-smart-glasses-leak/" target="_blank" rel="noopener">Read on Road to VR →</a>
+      </div>
+    </details>
 
-  <details>
-    <summary><span class="summary-text">Oil falls 2% on Iran-U.S. peace draft talks via Pakistan mediators</span></summary>
-    <div class="story-body">
-      <p>WTI crude dropped almost 2% to $103.27 Friday on a report that Iran and the U.S. are still actively trading drafts through mediators in Pakistan. It's the first sustained move below $105 in weeks. A real ceasefire would knock several dollars off the strip and ease pressure on May Day inflation narratives, but talks have collapsed before.</p>
-      <a class="read-link" href="https://www.cnbc.com/world/" target="_blank" rel="noopener">Read on CNBC →</a>
-    </div>
-  </details>
+    <details class="story">
+      <summary>Meta Ray-Ban Display Gen 3 confirmed for 2026, dual-screen design</summary>
+      <div class="body">
+        <p>Meta is locking in a dual-display Ray-Ban refresh for late 2026 with extended battery (6–8 hr), Snapdragon AR chip, and real-time object/location recognition. Some chatter about a 2027 slip, but the screenless Display variant is shipping volume right now.</p>
+        <a class="read" href="https://www.geeky-gadgets.com/meta-dual-display-smart-glasses-2026/" target="_blank" rel="noopener">Read on Geeky Gadgets →</a>
+      </div>
+    </details>
 
-  <details>
-    <summary><span class="summary-text">JPMorgan publishes its best stock ideas heading into May</span></summary>
-    <div class="story-body">
-      <p>JPM's strategy desk highlighted a refreshed list of high-conviction ideas for May, leaning into industrial-cycle beneficiaries and a small handful of mega-caps where guidance has been de-risked.</p>
-      <a class="read-link" href="https://www.cnbc.com/2026/05/02/jpmorgans-best-stock-ideas-heading-into-may.html" target="_blank" rel="noopener">Read on CNBC →</a>
-    </div>
-  </details>
-</section>
+    <details class="story">
+      <summary>OM System OM-1 Mark III, PEN E-P8, and Tough TG-8 incoming for 90th anniversary</summary>
+      <div class="body">
+        <p>2026 marks 90 years of OM camera manufacturing, and rumors point to a flagship OM-1 III refresh, a stylish PEN E-P8 revival, and a TG-8 spring rugged update. Panasonic restated commitment to Micro Four Thirds but has been quiet — eyes on CP+ next year.</p>
+        <a class="read" href="https://www.dailycameranews.com/2026/01/om-system-om1iii-pen-e-p8-tough-tg8-rumors/" target="_blank" rel="noopener">Read on Daily Camera News →</a>
+      </div>
+    </details>
 
-<!-- ========== BIG STORY OF THE WEEK ========== -->
-<section class="big-story">
-  <h2><span class="icon">🔥</span>Big Story of the Week</h2>
-  <div class="subtitle">Multiple major outlets, dominating the cycle</div>
+    <details class="story">
+      <summary>GameMaker bakes Claude Code into its CLI for native vibe-coding<span class="badge new">NEW</span></summary>
+      <div class="body">
+        <p>YoYo Games shipped GM-CLI integrating Claude Code so 2D devs can scaffold systems, refactor object events, and ship builds via natural-language prompts. This is the first major engine-level vibe-coding integration — Unity and Godot watching closely.</p>
+        <a class="read" href="https://www.gamedeveloper.com/production/gamemaker-incorporates-claude-code-to-enable-ai-assisted-workflows" target="_blank" rel="noopener">Read on Game Developer →</a>
+      </div>
+    </details>
 
-  <div class="big-story-take">
-    <strong>Berkshire after Buffett.</strong> Today is the first Berkshire Hathaway annual meeting in roughly six decades where Warren Buffett is not the central figure on stage. Greg Abel runs the room. Every major business outlet is covering it — CNBC, Benzinga, Reuters, AP, IBT, regional Nebraska press — because it's not just an earnings event; it's a cultural inflection point for how American capitalism's most-watched ritual transitions.
-  </div>
+    <details class="story">
+      <summary>Cursor's Vibe Jam 2026 returns: $40K prize pool, 90%+ AI-written code rule</summary>
+      <div class="body">
+        <p>Cursor is running its second Vibe Jam with a $40,000 cash pool. Entries must be 90%+ AI-generated using Cursor, Bolt, Claude Code, Gemini, Lovable, or v0. Last year's winners leaned heavily on Three.js — expect a flood of WebGPU-rendered submissions this round.</p>
+        <a class="read" href="https://vibej.am/2026/" target="_blank" rel="noopener">Read on vibej.am →</a>
+      </div>
+    </details>
 
-  <div class="prediction">
-    <strong>Prediction:</strong> This grows. The first hour will be a courtesy lap. The story develops across the next two weeks as analysts dissect Abel's tone on buybacks, M&amp;A discipline, and the $373B cash question. Expect "Berkshire 2.0" as a recurring frame in finance media through Q2 earnings season.
-  </div>
+    <details class="story">
+      <summary>Three.js r171 makes WebGPU production-ready with auto WebGL fallback</summary>
+      <div class="body">
+        <p>The WebGPURenderer is now drop-in: no bundler config, no polyfills, automatic fallback to WebGL 2 on older browsers. Combined with Apple shipping WebGPU in Safari 26, this is the moment WebGPU becomes the realistic default for new Three.js projects.</p>
+        <a class="read" href="https://github.com/mrdoob/three.js/releases" target="_blank" rel="noopener">Read on GitHub →</a>
+      </div>
+    </details>
 
-  <div class="source-links">
-    <a class="source-link" href="https://www.cnbc.com/2026/05/01/berkshire-hathaway-annual-meeting-new-era-warren-buffett-off-center-stage.html" target="_blank" rel="noopener">CNBC →</a>
-    <a class="source-link" href="https://www.benzinga.com/trading-ideas/previews/26/05/52215985/warren-buffett-wont-be-the-central-figure-at-saturdays-berkshire-hathaway-annual-meeting-will-investors-warm-up-to-greg-abel" target="_blank" rel="noopener">Benzinga →</a>
-    <a class="source-link" href="https://www.ibtimes.com.au/greg-abel-faces-first-berkshire-hathaway-annual-meeting-ceo-may-2-2026-1867715" target="_blank" rel="noopener">IBT →</a>
-    <a class="source-link" href="https://www.wowt.com/2026/05/02/how-watch-2026-berkshire-hathaway-shareholders-meeting/" target="_blank" rel="noopener">WOWT →</a>
-  </div>
-</section>
+    <details class="story">
+      <summary>Evan Wallace's classic WebGL water demo ported to WebGPU</summary>
+      <div class="body">
+        <p>The legendary 2010-era WebGL pool/caustics demo got a full WebGPU rewrite — GLSL → WGSL, mutable state → explicit bind groups. Worth bookmarking for anyone shading ocean surfaces: the screen-space caustics technique still holds up and now runs faster on compute pipelines.</p>
+        <a class="read" href="https://80.lv/articles/real-time-water-simulation-using-webgpu" target="_blank" rel="noopener">Read on 80.lv →</a>
+      </div>
+    </details>
 
-<!-- ========== TECH + GAME DEV ========== -->
-<section>
-  <h2><span class="icon">⚡</span>Tech + Game Dev</h2>
-  <div class="subtitle">Apple, AR/VR, MFT cameras · Three.js, WebGPU, Quest, vibe coding</div>
+    <details class="story">
+      <summary>Meta Quest 4 still on the roadmap, CTO confirms — late 2026 / 2027 window</summary>
+      <div class="body">
+        <p>Meta CTO Andrew Bosworth seemingly confirmed the leaked Quest 4 is still launching, with the company explicitly noting it will "learn from" Valve's Steam Frame. Likely puck-based external compute design, dual-model Quest 4 / 4S strategy, and a price north of subsidized norms.</p>
+        <a class="read" href="https://www.uploadvr.com/meta-cto-seems-to-confirm-quest-4-still-on-roadmap/" target="_blank" rel="noopener">Read on UploadVR →</a>
+      </div>
+    </details>
+  </section>
 
-  <details open>
-    <summary><span class="summary-text">Apple smart glasses targeting late 2026 reveal, early 2027 launch <span class="badge badge-new">NEW</span></span></summary>
-    <div class="story-body">
-      <p>Latest reports push Apple's first-gen smart glasses to a late-2026 unveil with sales beginning in early 2027. The first SKU reportedly skips full AR display in favor of an iPhone-tethered, AI-first wearable — translation, object recognition, ambient assistance. The body uses acetate (the eyewear material), not plastic, signaling Apple wants these to read as fashion eyewear rather than tech.</p>
-      <a class="read-link" href="https://www.tomsguide.com/computing/smart-glasses/apples-long-rumored-ar-smart-glasses-finally-have-a-launch-window-and-the-display-could-change-everything" target="_blank" rel="noopener">Read on Tom's Guide →</a>
-    </div>
-  </details>
+  <footer>
+    Built fresh this morning · Sources cross-checked · Refresh tomorrow at 6 AM
+  </footer>
 
-  <details>
-    <summary><span class="summary-text">Meta Ray-Ban Display ships at $799 with neural wristband; Meta now holds 72% of smart-glasses market</span></summary>
-    <div class="story-body">
-      <p>The Ray-Ban Meta Display — in-lens screen plus a neural wristband for gesture control — is rolling out in the U.S. at $799. Meta holds about 72.2% of the smart-glasses market and is simultaneously fielding pressure from regulators and senators over its facial-recognition plans. VR/MR headset shipments fell 42.8% in 2025 while the rest of XR grew 211%, confirming the shift to lightweight glasses.</p>
-      <a class="read-link" href="https://virtual.reality.news/news/meta-ray-ban-display-glasses-launch-at-799-in-2025/" target="_blank" rel="noopener">Read on Next Reality →</a>
-    </div>
-  </details>
-
-  <details>
-    <summary><span class="summary-text">Three.js + WebGPU goes fully production-ready; Tetris with soft-body physics in the browser <span class="badge badge-new">NEW</span></span></summary>
-    <div class="story-body">
-      <p>With Safari 26 shipping WebGPU last September, every major browser now supports it. Three.js r171's TSL (Three Shader Language) lets you write a shader once and target both WGSL and GLSL. Niklas Niehus rebuilt Tetris with full soft-body physics on WebGPU/TSL — blocks deform on impact and wedge into gaps, creating emergent gameplay.</p>
-      <a class="read-link" href="https://www.utsubo.com/blog/threejs-2026-what-changed" target="_blank" rel="noopener">Read on Utsubo →</a>
-    </div>
-  </details>
-
-  <details>
-    <summary><span class="summary-text">WebGPU water/fluid sim in the browser: ~100k particles via MLS-MPM</span></summary>
-    <div class="story-body">
-      <p>Codrops and 80 Level have published walkthroughs of WebGPU fluid simulations using MLS-MPM (Moving Least Squares Material Point Method) — hybrid particle/grid approach that hits ~100,000 particles in real time on integrated GPUs. Yong Su also ported a classic GLSL water sim to WGSL, replacing WebGL's mutable state machine with explicit pipeline objects. Codrops also dropped Susurrus, a watercolor-world Three.js piece showing what shader artistry looks like at this stage.</p>
-      <a class="read-link" href="https://tympanus.net/codrops/2025/02/26/webgpu-fluid-simulations-high-performance-real-time-rendering/" target="_blank" rel="noopener">Read on Codrops →</a>
-    </div>
-  </details>
-
-  <details>
-    <summary><span class="summary-text">Meta Quest 4 reportedly targeting late-2026 reveal — possibly $800, possibly controller-less</span></summary>
-    <div class="story-body">
-      <p>Industry leaks point to Meta Connect 2026 as the likely Quest 4 reveal window, fitting Meta's three-year hardware cadence. Some reports suggest a controller-optional configuration around an $800 price point, with Meta delaying its mixed-reality glasses to 2027 to focus on the headset refresh.</p>
-      <p>Separately, Horizon Worlds VR sunsets June 15, 2026 — after that, Worlds lives on the mobile app only.</p>
-      <a class="read-link" href="https://www.pcgamer.com/software/ai/good-news-and-good-news-meta-is-reportedly-hard-at-work-on-the-quest-4-and-has-delayed-its-mixed-reality-glasses-to-2027/" target="_blank" rel="noopener">Read on PC Gamer →</a>
-    </div>
-  </details>
-
-  <details>
-    <summary><span class="summary-text">Vibe Coding Game Jam wraps May 1 — and Slate vibe-codes a video game with Claude Code <span class="badge badge-new">NEW</span></span></summary>
-    <div class="story-body">
-      <p>Pieter Levels' Vibe Coding Game Jam (sponsored by Bolt.new and Cursor) closed yesterday after a month of submissions. Concurrent with that, Slate published a piece on vibe-coding a full game with Claude Code — the result was, in their words, "weird," but the throughput is the point. The category is splitting cleanly into AI app builders (Lovable, Bolt, Replit) and AI coding assistants (Cursor, Claude Code).</p>
-      <a class="read-link" href="https://slate.com/technology/2026/04/ai-vibe-coding-video-game.html" target="_blank" rel="noopener">Read on Slate →</a>
-    </div>
-  </details>
-
-  <details>
-    <summary><span class="summary-text">OM System rumored OM-1 III, PEN E-P8, TG-8 in 2026 — 90th anniversary year</span></summary>
-    <div class="story-body">
-      <p>2026 is OM System's 90th anniversary of OM-line manufacturing, and rumor mill points to three new bodies: an OM-1 III flagship (incremental — better AF, IBIS, computational features), a PEN E-P8 reviving the rangefinder-styled PEN line, and a Tough TG-8 update.</p>
-      <a class="read-link" href="https://www.dailycameranews.com/2026/01/om-system-om1iii-pen-e-p8-tough-tg8-rumors/" target="_blank" rel="noopener">Read on Daily Camera News →</a>
-    </div>
-  </details>
-
-  <details>
-    <summary><span class="summary-text">Micro Four Thirds gets unexpected lifeline: Xiaomi magnetic lens system, Songdian debut at CP+ 2026</span></summary>
-    <div class="story-body">
-      <p>While OM System and Panasonic have been quiet on new bodies recently, Chinese manufacturers are filling the gap. Xiaomi is launching a magnetic MFT lens system this year, including a 100MP MFT sensor that exceeds the current resolution ceiling. Songdian debuted its first MFT camera at CP+ 2026. Panasonic publicly committed to "continue to make new proposals" for MFT.</p>
-      <a class="read-link" href="https://www.digitalcameraworld.com/cameras/mirrorless-cameras/om-system-and-panasonic-might-be-mia-but-could-this-camera-company-and-magnetic-lenses-save-the-day-for-micro-four-thirds" target="_blank" rel="noopener">Read on Digital Camera World →</a>
-    </div>
-  </details>
-</section>
-
-<footer>
-  Generated automatically · May 2, 2026 · Cross-checked against multiple sources
-</footer>
+</main>
 
 </body>
 </html>
