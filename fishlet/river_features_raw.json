@@ -1,0 +1,272 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API 0.7.62.11 87bfad18",
+  "osm3s": {
+    "timestamp_osm_base": "2026-05-02T00:31:14Z",
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+
+{
+  "type": "node",
+  "id": 356549192,
+  "lat": 46.2631642,
+  "lon": -123.5862478,
+  "tags": {
+    "ele": "75",
+    "gnis:feature_id": "1532702",
+    "name": "Pillar Rock Dam Number One",
+    "waterway": "dam"
+  }
+},
+{
+  "type": "node",
+  "id": 356549193,
+  "lat": 46.2631642,
+  "lon": -123.5862478,
+  "tags": {
+    "ele": "75",
+    "gnis:feature_id": "1532703",
+    "name": "Pillar Rock Dam Number Two",
+    "waterway": "dam"
+  }
+},
+{
+  "type": "node",
+  "id": 357288002,
+  "lat": 45.8937187,
+  "lon": -123.8348655,
+  "tags": {
+    "addr:state": "OR",
+    "ele": "93",
+    "gnis:feature_id": "1126714",
+    "name": "Seaside Dam",
+    "waterway": "dam"
+  }
+},
+{
+  "type": "node",
+  "id": 357288548,
+  "lat": 46.2314977,
+  "lon": -123.6201365,
+  "tags": {
+    "addr:state": "OR",
+    "ele": "0",
+    "gnis:feature_id": "1127142",
+    "name": "Snag Island Jetty",
+    "waterway": "dam"
+  }
+},
+{
+  "type": "node",
+  "id": 357290784,
+  "lat": 45.9928873,
+  "lon": -123.8365251,
+  "tags": {
+    "addr:state": "OR",
+    "ele": "124",
+    "gnis:feature_id": "1128677",
+    "name": "Warrenton Dam",
+    "waterway": "dam"
+  }
+},
+{
+  "type": "node",
+  "id": 357295911,
+  "lat": 46.0948324,
+  "lon": -123.6179105,
+  "tags": {
+    "addr:state": "OR",
+    "ele": "394",
+    "gnis:feature_id": "1131391",
+    "name": "Middle Lake Dam",
+    "ref:US:NID": "OR00135",
+    "waterway": "dam"
+  }
+},
+{
+  "type": "node",
+  "id": 357295914,
+  "lat": 46.0864992,
+  "lon": -123.6079100,
+  "tags": {
+    "addr:state": "OR",
+    "ele": "476",
+    "gnis:feature_id": "1131392",
+    "name": "Wickiup Lake Dam",
+    "ref:US:NID": "OR00136",
+    "waterway": "dam"
+  }
+},
+{
+  "type": "node",
+  "id": 357300596,
+  "lat": 46.1180714,
+  "lon": -123.6402376,
+  "tags": {
+    "addr:state": "OR",
+    "ele": "216",
+    "gnis:feature_id": "1133453",
+    "name": "Bear Creek Dam",
+    "ref:US:NID": "OR00449",
+    "waterway": "dam"
+  }
+},
+{
+  "type": "node",
+  "id": 392957646,
+  "lat": 46.0672337,
+  "lon": -123.7897567,
+  "tags": {
+    "name": "Youngs River Falls",
+    "waterway": "waterfall",
+    "wikidata": "Q8058631",
+    "wikipedia": "en:Youngs River Falls"
+  }
+},
+{
+  "type": "node",
+  "id": 5269278595,
+  "lat": 45.9583487,
+  "lon": -123.5834089,
+  "tags": {
+    "name": "Fishhawk Falls",
+    "waterway": "waterfall",
+    "wikidata": "Q30625668",
+    "wikipedia": "en:Fishhawk Falls"
+  }
+},
+{
+  "type": "node",
+  "id": 12208011617,
+  "lat": 46.1616887,
+  "lon": -123.4088946,
+  "tags": {
+    "man_made": "monitoring_station",
+    "monitoring:water_level": "yes",
+    "name": "Wauna",
+    "operator": "Center for Operational Oceanographic Products and Services",
+    "operator:short": "CO-OPS",
+    "operator:type": "government",
+    "operator:wikidata": "Q123032876",
+    "ref": "9439099",
+    "shef:location_id": "WAUO3",
+    "source": "CO-OPS Metadata API",
+    "start_date": "2002-03-20",
+    "tidal": "yes",
+    "website": "https://tidesandcurrents.noaa.gov/stationhome.html?id=9439099",
+    "website:1": "https://water.noaa.gov/gauges/wauo3"
+  }
+},
+{
+  "type": "node",
+  "id": 12208011618,
+  "lat": 46.2073328,
+  "lon": -123.7685589,
+  "tags": {
+    "ele": "3.6",
+    "ele:datum": "MSL",
+    "man_made": "monitoring_station",
+    "monitoring:water_level": "yes",
+    "name": "Astoria",
+    "operator": "Center for Operational Oceanographic Products and Services",
+    "operator:short": "CO-OPS",
+    "operator:type": "government",
+    "operator:wikidata": "Q123032876",
+    "ref": "9439040",
+    "shef:location_id": "ASTO3",
+    "source": "CO-OPS Metadata API",
+    "start_date": "1990-09-20",
+    "tidal": "yes",
+    "website": "https://tidesandcurrents.noaa.gov/stationhome.html?id=9439040",
+    "website:1": "https://www.ndbc.noaa.gov/station_page.php?station=asto3",
+    "website:2": "https://water.noaa.gov/gauges/asto3"
+  }
+},
+{
+  "type": "node",
+  "id": 12214391765,
+  "lat": 46.2809985,
+  "lon": -124.0462875,
+  "tags": {
+    "man_made": "monitoring_station",
+    "monitoring:water_level": "yes",
+    "name": "Cape Disappointment",
+    "operator": "Center for Operational Oceanographic Products and Services",
+    "operator:short": "CO-OPS",
+    "operator:type": "government",
+    "operator:wikidata": "Q123032876",
+    "ref": "9440581",
+    "shef:location_id": "CPTW1",
+    "source": "CO-OPS Metadata API",
+    "start_date": "2015-04-19",
+    "tidal": "yes",
+    "website": "https://tidesandcurrents.noaa.gov/stationhome.html?id=9440581"
+  }
+},
+{
+  "type": "node",
+  "id": 12214391766,
+  "lat": 46.2702489,
+  "lon": -123.4565378,
+  "tags": {
+    "man_made": "monitoring_station",
+    "monitoring:water_level": "yes",
+    "name": "Skamokawa",
+    "operator": "Center for Operational Oceanographic Products and Services",
+    "operator:short": "CO-OPS",
+    "operator:type": "government",
+    "operator:wikidata": "Q123032876",
+    "ref": "9440569",
+    "shef:location_id": "SKAW1",
+    "source": "CO-OPS Metadata API",
+    "start_date": "2002-03-21",
+    "tidal": "yes",
+    "website": "https://tidesandcurrents.noaa.gov/stationhome.html?id=9440569",
+    "website:1": "https://water.noaa.gov/gauges/skaw1"
+  }
+},
+{
+  "type": "node",
+  "id": 12254145044,
+  "lat": 45.9351611,
+  "lon": -123.4921194,
+  "tags": {
+    "ele": "137.465",
+    "ele:accuracy": "1.524",
+    "ele:datum": "NAVD88",
+    "man_made": "monitoring_station",
+    "monitoring:flow_rate": "yes",
+    "monitoring:water_level": "yes",
+    "monitoring:water_temperature": "yes",
+    "name": "Nehalem River at Jewell",
+    "official_name": "NEHALEM RIVER AT JEWELL, OR",
+    "operator": "United States Geological Survey",
+    "operator:short": "USGS",
+    "operator:type": "government",
+    "operator:wikidata": "Q193755",
+    "ref": "14300350",
+    "website": "https://waterdata.usgs.gov/monitoring-location/14300350"
+  }
+},
+{
+  "type": "way",
+  "id": 591694204,
+  "center": {
+    "lat": 46.1661101,
+    "lon": -123.4858999
+  },
+  "nodes": [
+    5648653968,
+    5648653969,
+    5648653970
+  ],
+  "tags": {
+    "name": "Barrier Falls",
+    "natural": "cliff",
+    "waterway": "waterfall"
+  }
+}
+
+  ]
+}
