@@ -1,0 +1,1322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clatsop County Fish Map</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<style>
+  :root {
+    --ink: #1a2733;
+    --paper: #f5efe2;
+    --paper-deep: #ebe2cd;
+    --water: #4a85a3;
+    --water-deep: #1a4a64;
+    --water-bright: #2d77a3;
+    --land-shadow: #b8a47a;
+    --accent: #c25a3c;
+    --accent-soft: #e89b7e;
+    --shadow: rgba(0,0,0,0.12);
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    font-family: 'Georgia', 'Times New Roman', serif;
+    background: var(--paper);
+    color: var(--ink);
+    overflow: hidden;
+  }
+  header {
+    padding: 12px 24px;
+    background: var(--ink);
+    color: var(--paper);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    height: 60px;
+    box-shadow: 0 2px 12px var(--shadow);
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    color: var(--paper);
+  }
+  .brand-mark {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--accent);
+    display: grid;
+    place-items: center;
+    font-family: 'Georgia', serif;
+    font-style: italic;
+    font-weight: 700;
+    font-size: 19px;
+    color: var(--paper);
+    line-height: 1;
+    box-shadow: 0 2px 6px rgba(194,90,60,0.4);
+  }
+  .brand-name {
+    font-size: 21px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  .page-title {
+    font-size: 14px;
+    color: rgba(245,239,226,0.65);
+    font-style: italic;
+  }
+  .page-title::before { content: '/ '; opacity: 0.5; }
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .site-nav {
+    display: flex;
+    gap: 4px;
+  }
+  .site-nav a {
+    color: rgba(245,239,226,0.78);
+    text-decoration: none;
+    padding: 6px 14px;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.15s;
+    position: relative;
+  }
+  .site-nav a:hover { color: var(--paper); background: rgba(255,255,255,0.06); }
+  .site-nav a.active { color: var(--accent-soft); }
+  .site-nav a.coming-soon { opacity: 0.55; cursor: default; }
+  .site-nav a.coming-soon:hover { background: transparent; color: rgba(245,239,226,0.55); }
+  .layout {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    height: calc(100vh - 60px);
+  }
+  .map-area { position: relative; background: #b8d4e3; }
+  #map { width: 100%; height: 100%; }
+  .legend {
+    position: absolute;
+    bottom: 16px;
+    left: 16px;
+    z-index: 600;
+    background: rgba(245,239,226,0.95);
+    border: 1px solid var(--land-shadow);
+    border-radius: 6px;
+    padding: 10px 14px;
+    font-size: 12px;
+    box-shadow: 0 2px 8px var(--shadow);
+    line-height: 1.7;
+  }
+  .legend strong { display: block; font-size: 13px; margin-bottom: 4px; }
+  .legend-row { display: flex; align-items: center; gap: 8px; }
+  .legend-swatch {
+    width: 22px;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--water-bright);
+  }
+  .legend-swatch.lake {
+    height: 12px;
+    background: var(--water);
+    border: 1px solid var(--water-deep);
+  }
+  .legend-swatch.ocean {
+    height: 12px;
+    background: rgba(74,133,163,0.4);
+    border: 1px solid var(--water-deep);
+  }
+  .legend-swatch.jetty {
+    height: 4px;
+    background: var(--ink);
+  }
+  .legend-swatch.land-public {
+    height: 12px;
+    background: rgba(122, 153, 95, 0.55);
+    border: 1px solid #4d6a3c;
+  }
+  .legend-swatch.land-permit {
+    height: 12px;
+    background: rgba(218, 165, 60, 0.55);
+    border: 1px solid #a47728;
+  }
+  .legend-swatch.poi-swatch {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 2px solid var(--paper);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.3);
+  }
+  .legend-row.land-legend { display: none; }
+  body.show-land .legend-row.land-legend { display: flex; }
+
+  /* Land-toggle button */
+  .map-control {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    z-index: 600;
+  }
+  .toggle-btn {
+    background: rgba(245,239,226,0.97);
+    border: 1px solid var(--land-shadow);
+    border-radius: 6px;
+    padding: 8px 14px 8px 12px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 2px 8px var(--shadow);
+    transition: all 0.15s;
+  }
+  .toggle-btn:hover { background: var(--paper); border-color: var(--accent); }
+  .toggle-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #cdc4ad;
+    border: 1px solid var(--land-shadow);
+    transition: background 0.15s;
+  }
+  body.show-land .toggle-dot { background: var(--accent); border-color: var(--accent); }
+  body.show-land .toggle-btn { border-color: var(--accent); color: var(--accent); }
+  .info-panel {
+    background: var(--paper-deep);
+    overflow-y: auto;
+    border-left: 2px solid var(--land-shadow);
+    box-shadow: -4px 0 12px var(--shadow);
+    z-index: 5;
+  }
+  .info-panel-inner { padding: 28px 26px 40px; }
+  .info-panel h2 {
+    font-size: 24px;
+    margin: 0 0 4px;
+    color: var(--ink);
+    line-height: 1.15;
+  }
+  .info-panel .region {
+    font-size: 13px;
+    font-style: italic;
+    color: var(--land-shadow);
+    margin-bottom: 14px;
+  }
+  .info-panel .description {
+    font-size: 14.5px;
+    line-height: 1.6;
+    margin-bottom: 22px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--land-shadow);
+  }
+  .info-panel h3 {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--accent);
+    margin: 0 0 12px;
+    font-weight: 700;
+  }
+  .fish-list { list-style: none; padding: 0; margin: 0; }
+  .fish-list > li {
+    padding: 12px 0;
+    border-bottom: 1px dashed var(--land-shadow);
+    cursor: pointer;
+    transition: padding 0.15s;
+  }
+  .fish-list > li:last-child { border-bottom: none; }
+  .fish-list .fish-name {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 16px;
+    font-weight: 600;
+  }
+  .fish-list .fish-name::after {
+    content: '+';
+    color: var(--land-shadow);
+    font-size: 22px;
+    font-weight: 300;
+    transition: transform 0.2s;
+  }
+  .fish-list > li:hover .fish-name { color: var(--accent); padding-left: 4px; }
+  .fish-list > li:hover .fish-name::after { color: var(--accent); }
+  .fish-list > li.expanded .fish-name { color: var(--accent); }
+  .fish-list > li.expanded .fish-name::after {
+    content: '−';
+  }
+  .fish-list .fish-sci {
+    display: block;
+    font-size: 12px;
+    font-style: italic;
+    color: var(--land-shadow);
+    font-weight: 400;
+    margin-top: 2px;
+  }
+  .fish-list .common-star {
+    color: #d4a017;
+    font-size: 15px;
+    margin-right: 4px;
+    line-height: 1;
+    text-shadow: 0 1px 1px rgba(0,0,0,0.08);
+  }
+  .fish-list .common-tag {
+    color: var(--accent);
+    font-size: 12px;
+    font-weight: 600;
+    font-style: italic;
+    letter-spacing: 0.01em;
+    margin-left: 4px;
+  }
+  /* Season tags — small color-coded pills next to the fish name */
+  .fish-list .season-tag {
+    display: inline-block;
+    font-size: 10.5px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 99px;
+    margin-left: 5px;
+    text-transform: lowercase;
+    letter-spacing: 0.02em;
+    vertical-align: 1px;
+  }
+  .fish-list .season-spring   { background: rgba(90,140,78,0.18);  color: #3a6b30; }
+  .fish-list .season-summer   { background: rgba(212,160,23,0.20); color: #7a5300; }
+  .fish-list .season-fall     { background: rgba(150,85,40,0.18);  color: #6e3f1c; }
+  .fish-list .season-winter   { background: rgba(74,133,163,0.20); color: #1a4a64; }
+  .fish-list .season-yearround{ background: rgba(95,130,120,0.20); color: #2f5648; }
+  .fish-detail {
+    margin-top: 12px;
+    font-size: 13.5px;
+    line-height: 1.55;
+    padding: 14px;
+    background: var(--paper);
+    border-radius: 4px;
+    display: none;
+  }
+  .fish-list > li.expanded .fish-detail { display: block; }
+  .fish-detail .meta-row {
+    display: grid;
+    grid-template-columns: 80px 1fr;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .fish-detail .meta-row strong {
+    text-transform: uppercase;
+    font-size: 10.5px;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+    font-weight: 700;
+    padding-top: 2px;
+  }
+  .fish-detail .footer-note {
+    margin-top: 4px;
+    padding-top: 10px;
+    border-top: 1px dotted var(--land-shadow);
+    font-size: 11.5px;
+    font-style: italic;
+    color: var(--land-shadow);
+  }
+  .fish-image {
+    width: 100%;
+    max-height: 220px;
+    object-fit: contain;
+    display: block;
+    margin: 0 auto 14px;
+    background: transparent;
+  }
+  .fish-list .fish-thumb {
+    width: 56px;
+    height: 36px;
+    object-fit: contain;
+    margin-right: 10px;
+    flex-shrink: 0;
+    background: transparent;
+  }
+  .fish-list .fish-name {
+    align-items: center;
+  }
+  .fish-list .fish-name > span {
+    flex: 1;
+  }
+  .empty-state {
+    color: var(--land-shadow);
+    font-style: italic;
+    font-size: 14.5px;
+    text-align: center;
+    padding: 60px 20px 20px;
+    line-height: 1.6;
+  }
+  .empty-state .arrow {
+    font-size: 28px;
+    display: block;
+    margin-bottom: 12px;
+  }
+  .protected-note {
+    margin-top: 24px;
+    padding: 12px 14px;
+    background: rgba(194,90,60,0.08);
+    border-left: 3px solid var(--accent);
+    font-size: 12.5px;
+    line-height: 1.5;
+    border-radius: 0 4px 4px 0;
+  }
+  .protected-note strong { color: var(--accent); }
+  /* Leaflet tooltip restyle */
+  .leaflet-tooltip {
+    background: var(--ink) !important;
+    color: var(--paper) !important;
+    border: none !important;
+    border-radius: 4px !important;
+    font-family: 'Georgia', serif !important;
+    font-size: 13px !important;
+    padding: 4px 10px !important;
+    box-shadow: 0 2px 6px var(--shadow) !important;
+  }
+  .leaflet-tooltip::before { display: none !important; }
+  .leaflet-tooltip.land-tooltip {
+    max-width: 220px !important;
+    white-space: normal !important;
+    line-height: 1.45 !important;
+  }
+
+  /* Fishing access markers (boat ramps from OSM) */
+  .poi-marker { cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .poi-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 2px solid var(--paper);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.4);
+    transition: transform 0.12s;
+  }
+  .poi-marker:hover .poi-dot {
+    transform: scale(1.3);
+    background: #ee6b3a;
+  }
+  /* Crowd-knowledge fishing spots — gold so they distinguish from red boat ramps */
+  .spot-marker { cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .spot-dot {
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    background: #c79829;
+    border: 2px solid var(--paper);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+    transition: transform 0.12s;
+  }
+  .spot-marker.medium .spot-dot {
+    background: var(--paper);
+    border: 2.5px solid #c79829;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.18);
+  }
+  .spot-marker.low .spot-dot {
+    background: transparent;
+    border: 2px dashed #c79829;
+    box-shadow: none;
+  }
+  .spot-marker:hover .spot-dot {
+    transform: scale(1.4);
+  }
+  .conf-badge {
+    display: inline-block;
+    font-size: 10.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 2px 9px;
+    border-radius: 99px;
+    margin-left: 8px;
+    vertical-align: 2px;
+  }
+  .conf-badge.high   { background: rgba(199,152,41,0.22); color: #6a4f0c; }
+  .conf-badge.medium { background: rgba(199,152,41,0.13); color: #6a4f0c; border: 1px solid #c79829; }
+  .conf-badge.low    { background: transparent; color: #6a4f0c; border: 1px dashed #c79829; }
+  .source-list { font-size: 12px; }
+  .source-list a {
+    color: var(--water-deep);
+    text-decoration: none;
+    border-bottom: 1px dotted var(--water);
+    word-break: break-all;
+  }
+  .source-list a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+  .what-to-catch {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+    margin-top: 4px;
+  }
+  .what-to-catch .pill {
+    font-size: 11.5px;
+    background: var(--paper);
+    color: var(--ink);
+    padding: 3px 9px;
+    border-radius: 99px;
+    border: 1px solid var(--paper-deeper);
+    font-weight: 600;
+  }
+  /* River feature glyphs — small, discreet, on top of rivers */
+  .feat-marker {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.12s;
+  }
+  .feat-marker:hover { transform: scale(1.45); }
+  .feat-symbol { display: block; pointer-events: none; }
+  .feat-symbol path,
+  .feat-symbol rect,
+  .feat-symbol circle,
+  .feat-symbol line { vector-effect: non-scaling-stroke; }
+  .feat-color-waterfall { color: #1a4a64; }
+  .feat-color-dam       { color: #5e3f1c; }
+  .feat-color-gauge     { color: #4d6a3c; }
+
+  /* Kill the browser focus outline on clicked SVG paths */
+  .leaflet-interactive,
+  .leaflet-container svg path,
+  .leaflet-container svg path:focus,
+  .leaflet-container svg path:active {
+    outline: none !important;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .leaflet-interactive:focus { outline: none !important; }
+
+  @media (max-width: 800px) {
+    .layout { grid-template-columns: 1fr; grid-template-rows: 60vh 1fr; }
+    .info-panel { border-left: none; border-top: 2px solid var(--land-shadow); }
+    header h1 { font-size: 16px; }
+    header .subtitle { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <a href="index.html" class="brand">
+      <span class="brand-mark">f</span>
+      <span class="brand-name">Fishlet</span>
+    </a>
+    <span class="page-title">Clatsop County map</span>
+  </div>
+  <nav class="site-nav">
+    <a href="index.html">Home</a>
+    <a href="map.html" class="active">Map</a>
+    <a href="quiz.html#browse">Browse</a>
+    <a href="quiz.html">Quiz</a>
+  </nav>
+</header>
+
+<div class="layout">
+  <div class="map-area">
+    <div id="map"></div>
+    <div class="map-control">
+      <button id="land-toggle" class="toggle-btn" type="button">
+        <span class="toggle-dot"></span>
+        <span class="toggle-label">Show land ownership</span>
+      </button>
+    </div>
+  </div>
+  <aside class="info-panel">
+    <div class="info-panel-inner" id="info-panel">
+      <div class="empty-state">
+        <span class="arrow">←</span>
+        Click any water body on the map to see what fish you can catch there, when they run, and the basics on regulations.
+      </div>
+    </div>
+  </aside>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="map_data.js"></script>
+<script>
+// ---------------- County-wide protected species note (from dataset metadata) -------
+const PROTECTED_NOTE = "Green sturgeon and yelloweye rockfish are protected. Green sturgeon is incidental in estuaries and must be released immediately. Yelloweye rockfish is prohibited in rockfish bag limits.";
+
+// ---------------- Map setup ----------------
+const map = L.map('map', {
+  center: [46.10, -123.82],
+  zoom: 10.5,
+  scrollWheelZoom: true,
+  zoomControl: true,
+  zoomSnap: 0.25,        // allow fractional zoom levels
+  zoomDelta: 0.5
+});
+
+// Use a softer tile layer
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '© OpenStreetMap contributors',
+  maxZoom: 17,
+  className: 'map-tiles'
+}).addTo(map);
+
+// Subtly tint the base layer
+const tileFilter = document.createElement('style');
+tileFilter.textContent = '.map-tiles { filter: saturate(0.75) brightness(1.02); }';
+document.head.appendChild(tileFilter);
+
+// ---------------- County boundary ----------------
+L.geoJSON(COUNTY_BOUNDARY, {
+  style: {
+    color: '#8b6f3a',
+    weight: 2,
+    opacity: 0.65,
+    dashArray: '6 4',
+    fill: false,
+    interactive: false
+  }
+}).addTo(map);
+
+// ---------------- River + lake styles ----------------
+const styles = {
+  river: { color: '#1a4a64', weight: 3.5, opacity: 0.95 },
+  riverHover: { color: '#c25a3c', weight: 5.5, opacity: 1 },
+  riverSelected: { color: '#c25a3c', weight: 5.5, opacity: 1 },
+  lake: { color: '#1a4a64', weight: 1.5, fillColor: '#5a9bbc', fillOpacity: 0.78 },
+  lakeHover: { color: '#c25a3c', weight: 2.5, fillColor: '#e89b7e', fillOpacity: 0.85 },
+  lakeSelected: { color: '#c25a3c', weight: 2.5, fillColor: '#e89b7e', fillOpacity: 0.85 },
+  ocean: { color: '#1a4a64', weight: 1, fillColor: '#5a8fa8', fillOpacity: 0.32 },
+  oceanHover: { color: '#c25a3c', weight: 2, fillColor: '#e89b7e', fillOpacity: 0.5 },
+  oceanSelected: { color: '#c25a3c', weight: 2, fillColor: '#e89b7e', fillOpacity: 0.5 },
+  jetty: { color: '#3a3a3a', weight: 5, opacity: 0.9, dashArray: '2 4' },
+  jettyHover: { color: '#c25a3c', weight: 7, opacity: 1, dashArray: null }
+};
+
+// Track all visible layers so we can deselect on new click
+const layersById = {};
+
+// Smooth zoom to whatever was just clicked. Prefers the click point (so a long river
+// or branched water body centers on the part the user actually clicked), falls back to
+// the feature's bounds or position. Fixed zoom level so behavior is consistent.
+function zoomToFeature(feature, clickLatLng) {
+  markFeatureClick();
+  if (!feature && !clickLatLng) return;
+  if (clickLatLng) {
+    map.flyTo(clickLatLng, 13, { duration: 1.0 });
+    return;
+  }
+  if (feature && feature.getLatLng) {
+    map.flyTo(feature.getLatLng(), 13, { duration: 1.0 });
+    return;
+  }
+  if (feature && feature.getBounds) {
+    const b = feature.getBounds();
+    if (b && b.isValid && b.isValid()) {
+      map.flyToBounds(b, { padding: [40, 40], maxZoom: 13, duration: 1.0 });
+    }
+  }
+}
+
+// Track when a feature was last clicked, so the map's background-click handler
+// can ignore clicks that propagated up from a feature.
+let lastFeatureClickAt = 0;
+function markFeatureClick() { lastFeatureClickAt = Date.now(); }
+
+// Default load-time view — used to reset when clicking empty map.
+const DEFAULT_CENTER = [46.10, -123.82];
+const DEFAULT_ZOOM = 10.5;
+const EMPTY_PANEL_HTML = `
+  <div class="empty-state">
+    <span class="arrow">←</span>
+    Click any water body on the map to see what fish you can catch there, when they run, and the basics on regulations.
+  </div>
+`;
+
+// Hit-zone weight for line-based features (invisible, generous click target)
+const HIT_WEIGHT = 36;
+
+function makeHitLayer(visibleLayer, kind) {
+  // Polygons (lakes, ocean) are already easy to click — their fill IS the hit zone.
+  // For lines (rivers, jetty), build an invisible wider polyline that mirrors the geometry.
+  if (kind === 'lake' || kind === 'ocean') return null;
+
+  const latLngs = visibleLayer.getLatLngs ? visibleLayer.getLatLngs() : null;
+  if (!latLngs) return null;
+
+  return L.polyline(latLngs, {
+    color: '#000',
+    weight: HIT_WEIGHT,
+    opacity: 0,        // invisible
+    interactive: true,
+    bubblingMouseEvents: false
+  });
+}
+
+function bindBehavior(visibleLayer, id, kind) {
+  const baseKey = kind;
+  const hoverKey = kind + 'Hover';
+  const selectedKey = kind + 'Selected';
+  visibleLayer._kind = kind;
+  visibleLayer._baseStyle = styles[baseKey];
+  visibleLayer._hoverStyle = styles[hoverKey];
+  visibleLayer._selectedStyle = styles[selectedKey];
+
+  // Make the visible layer non-interactive so events only fire on the hit zone (or on itself for polygons)
+  const hitLayer = makeHitLayer(visibleLayer, kind);
+  const eventLayer = hitLayer || visibleLayer;
+  if (hitLayer) {
+    hitLayer.addTo(map);
+    // Hit layer sits on top of visible so it catches events; visible stays beneath
+    if (visibleLayer.bringToBack) visibleLayer.bringToBack();
+  }
+
+  eventLayer.on('mouseover', () => {
+    if (visibleLayer._isSelected) return;
+    visibleLayer.setStyle(visibleLayer._hoverStyle);
+    if (visibleLayer.bringToFront) visibleLayer.bringToFront();
+    document.body.style.cursor = 'pointer';
+  });
+  eventLayer.on('mouseout', () => {
+    document.body.style.cursor = '';
+    if (visibleLayer._isSelected) return;
+    visibleLayer.setStyle(visibleLayer._baseStyle);
+  });
+  eventLayer.on('click', (ev) => {
+    Object.values(layersById).forEach(l => {
+      l._isSelected = false;
+      l.setStyle(l._baseStyle);
+    });
+    visibleLayer._isSelected = true;
+    visibleLayer.setStyle(visibleLayer._selectedStyle);
+    if (visibleLayer.bringToFront) visibleLayer.bringToFront();
+    renderInfo(id);
+    zoomToFeature(visibleLayer, ev && ev.latlng);
+    // Blur active element to defeat any focus outline
+    if (document.activeElement && document.activeElement.blur) {
+      try { document.activeElement.blur(); } catch (e) {}
+    }
+    if (ev.originalEvent && ev.originalEvent.target && ev.originalEvent.target.blur) {
+      try { ev.originalEvent.target.blur(); } catch (e) {}
+    }
+  });
+
+  // Hover tooltip with the short water body name
+  const wb = FISH_DATA[id];
+  if (wb) {
+    const shortName = wb.name.replace(/\s*\([^)]*\)\s*/, '').replace(/ - .*$/, '');
+    eventLayer.bindTooltip(shortName, { sticky: true, direction: 'top', opacity: 0.95 });
+  }
+
+  layersById[id] = visibleLayer;
+}
+
+// ---------------- Render hydrography from OSM ----------------
+HYDRO_GEOJSON.features.forEach(feature => {
+  const id = feature.properties.id;
+  const kind = feature.properties.kind;
+  const styleKey = kind === 'lake' ? 'lake' : 'river';
+
+  const layer = L.geoJSON(feature, {
+    style: styles[styleKey]
+  }).getLayers()[0];
+
+  layer.addTo(map);
+  bindBehavior(layer, id, styleKey);
+});
+
+// ---------------- Hand-drawn marine zones ----------------
+// These aren't named in OSM, so we draw them from approximate coordinates.
+
+// Pacific Ocean — Clatsop Beaches (Surf): a strip along the coast
+const surfZone = L.polygon([
+  [46.245, -124.075],  // NW corner near mouth of Columbia
+  [46.20, -124.020],
+  [46.10, -124.010],
+  [46.00, -123.985],
+  [45.92, -123.985],
+  [45.86, -123.985],
+  [45.86, -124.060],
+  [45.92, -124.060],
+  [46.00, -124.060],
+  [46.10, -124.080],
+  [46.20, -124.090]
+], styles.ocean).addTo(map);
+bindBehavior(surfZone, 'pacific-surf', 'ocean');
+
+// Pacific Ocean — Nearshore (0-3 miles, broader offshore polygon)
+const nearshoreZone = L.polygon([
+  [46.27, -124.20],
+  [46.27, -124.075],
+  [46.20, -124.090],
+  [46.10, -124.080],
+  [46.00, -124.060],
+  [45.86, -124.060],
+  [45.85, -124.20]
+], styles.ocean).addTo(map);
+bindBehavior(nearshoreZone, 'nearshore', 'ocean');
+
+// South Jetty of Columbia River — runs west from Fort Stevens (~2.5 miles)
+const jettyLine = L.polyline([
+  [46.236, -124.000],
+  [46.236, -124.030],
+  [46.235, -124.060],
+  [46.232, -124.080]
+], styles.jetty).addTo(map);
+bindBehavior(jettyLine, 'south-jetty', 'jetty');
+
+// ---------------- Season parser (prose → tags like ['fall'] or ['yearround','winter']) ----------------
+// Handles month ranges (e.g. "April-Oct" → spring+summer+fall),
+// peak indicators ("peak fall"), year-round ("Year-round"), and explicit season words.
+const SEASON_LABEL = { spring: 'spring', summer: 'summer', fall: 'fall', winter: 'winter', yearround: 'year-round' };
+const MONTH_INDEX = {
+  jan: 0, january: 0, feb: 1, february: 1, mar: 2, march: 2, apr: 3, april: 3,
+  may: 4, jun: 5, june: 5, jul: 6, july: 6, aug: 7, august: 7,
+  sep: 8, sept: 8, september: 8, oct: 9, october: 9, nov: 10, november: 10,
+  dec: 11, december: 11
+};
+const MONTH_RE_SRC = '(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sept?(?:ember)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)';
+function seasonForMonthIdx(i) {
+  if (i >= 2 && i <= 4) return 'spring';
+  if (i >= 5 && i <= 7) return 'summer';
+  if (i >= 8 && i <= 10) return 'fall';
+  return 'winter';
+}
+function extractSeasons(s) {
+  s = (s || '').toLowerCase();
+  const seasons = new Set();
+  // Explicit season words
+  if (/\bspring\b/.test(s)) seasons.add('spring');
+  if (/\bsummer\b/.test(s)) seasons.add('summer');
+  if (/\b(fall|autumn)\b/.test(s)) seasons.add('fall');
+  if (/\bwinter\b/.test(s)) seasons.add('winter');
+  // Month ranges (April-Oct, May-Sept, Aug-Dec, etc.)
+  const rangeRe = new RegExp('\\b' + MONTH_RE_SRC + '\\s*[-–to]+\\s*' + MONTH_RE_SRC + '\\b', 'gi');
+  let match;
+  while ((match = rangeRe.exec(s)) !== null) {
+    const a = MONTH_INDEX[match[1].toLowerCase()];
+    const b = MONTH_INDEX[match[2].toLowerCase()];
+    if (a === undefined || b === undefined) continue;
+    let i = a;
+    while (true) {
+      seasons.add(seasonForMonthIdx(i));
+      if (i === b) break;
+      i = (i + 1) % 12;
+      if (i === a) break; // safety
+    }
+  }
+  // Bare months (not in a range)
+  const bareRe = new RegExp('\\b' + MONTH_RE_SRC + '\\b', 'gi');
+  while ((match = bareRe.exec(s)) !== null) {
+    const i = MONTH_INDEX[match[1].toLowerCase()];
+    if (i !== undefined) seasons.add(seasonForMonthIdx(i));
+  }
+  // Return in calendar order
+  const order = ['spring', 'summer', 'fall', 'winter'];
+  return order.filter(s => seasons.has(s));
+}
+function inferSeasons(seasonStr) {
+  if (!seasonStr) return [];
+  const s = seasonStr.toLowerCase();
+  const isYearRound = /year[-\s]?round/.test(s);
+  const peakMatch = s.match(/peak\s+([^;,.]+)/);
+  const peakSeasons = peakMatch ? extractSeasons(peakMatch[1]) : [];
+  if (isYearRound) {
+    if (peakSeasons.length > 0) return ['yearround', peakSeasons[0]];
+    return ['yearround'];
+  }
+  if (peakSeasons.length > 0) return peakSeasons.slice(0, 3);
+  return extractSeasons(s).slice(0, 3);
+}
+function seasonTagsHtml(seasonStr) {
+  return inferSeasons(seasonStr)
+    .map(s => `<span class="season-tag season-${s}">${SEASON_LABEL[s]}</span>`)
+    .join('');
+}
+
+// Re-sort species for display:
+//   1. Position 0 (most-common) stays first
+//   2. Year-round fish next
+//   3. Then more-tag fish (3 → 2 → 1)
+//   4. Stable: ties keep original order
+function sortSpeciesForDisplay(species) {
+  if (!species || species.length <= 1) return species || [];
+  const mostCommon = species[0];
+  const rest = species.slice(1).map((f, i) => {
+    const tags = inferSeasons(f.season);
+    return {
+      fish: f,
+      isYearRound: tags.includes('yearround'),
+      tagCount: tags.length || 0,
+      originalOrder: i
+    };
+  });
+  rest.sort((a, b) => {
+    if (a.isYearRound !== b.isYearRound) return a.isYearRound ? -1 : 1;
+    if (a.tagCount !== b.tagCount) return b.tagCount - a.tagCount;
+    return a.originalOrder - b.originalOrder;
+  });
+  return [mostCommon, ...rest.map(x => x.fish)];
+}
+
+// ---------------- Info panel rendering (context-sensitive) ----------------
+function getPanel() { return document.getElementById('info-panel'); }
+
+function renderInfo(id) {
+  // Primary water body with fish data
+  const wb = FISH_DATA[id];
+  const panel = getPanel();
+  if (!wb) { panel.innerHTML = ''; return; }
+
+  const sortedSpecies = sortSpeciesForDisplay(wb.species || []);
+  const fishHtml = sortedSpecies.map((f, idx) => `
+    <li data-idx="${idx}"${idx === 0 ? ' class="most-common"' : ''}>
+      <div class="fish-name">
+        ${f.image ? `<img class="fish-thumb" src="${f.image}" alt="" onerror="this.style.display='none'">` : ''}
+        <span>
+          ${idx === 0 ? '<span class="common-star" title="Most commonly caught here">★</span>' : ''}${f.common_name}${idx === 0 ? ' <span class="common-tag">(most common)</span>' : ''}${seasonTagsHtml(f.season)}
+          ${f.scientific_name ? `<span class="fish-sci">${f.scientific_name}</span>` : ''}
+        </span>
+      </div>
+      <div class="fish-detail">
+        ${f.image ? `<img class="fish-image" src="${f.image}" alt="${f.common_name}" onerror="this.style.display='none'">` : ''}
+        ${f.blurb ? `<div class="meta-row"><strong>About</strong><span>${f.blurb}</span></div>` : ''}
+        ${f.season ? `<div class="meta-row"><strong>Season</strong><span>${f.season}</span></div>` : ''}
+        ${f.regulations ? `<div class="meta-row"><strong>Regs</strong><span>${f.regulations}</span></div>` : ''}
+        <div class="footer-note">Always check current ODFW regulations before fishing — rules change in-season.</div>
+      </div>
+    </li>
+  `).join('');
+
+  panel.innerHTML = `
+    <h2>${wb.name}</h2>
+    <div class="region">${wb.region}</div>
+    <div class="description">${wb.description}</div>
+    <h3>Fish you can find here</h3>
+    <ul class="fish-list">${fishHtml || '<li><em style="color: var(--land-shadow);">No species data yet.</em></li>'}</ul>
+    <div class="protected-note">
+      <strong>Protected species advisory:</strong> ${PROTECTED_NOTE}
+    </div>
+  `;
+
+  panel.querySelectorAll('.fish-list > li').forEach(li => {
+    li.addEventListener('click', (ev) => {
+      ev.stopPropagation();
+      const wasExpanded = li.classList.contains('expanded');
+      panel.querySelectorAll('.fish-list > li').forEach(x => x.classList.remove('expanded'));
+      if (!wasExpanded) li.classList.add('expanded');
+    });
+  });
+}
+
+function renderUnknownWater(name, kind) {
+  const panel = getPanel();
+  panel.innerHTML = `
+    <h2>${name}</h2>
+    <div class="region">${kind === 'lake' ? 'Lake' : 'Creek / tributary'} in Clatsop County</div>
+    <div class="description" style="font-style: italic; color: var(--land-shadow);">
+      No specific fishing data on file for this waterway yet. Smaller creeks often hold resident
+      cutthroat trout, sculpin, and minnows; some host seasonal salmon or steelhead runs.
+      For lightly-fished or sensitive tributaries, check current ODFW regulations before fishing —
+      some are catch-and-release, sanctuary water, or closed entirely.
+    </div>
+    <div class="protected-note">
+      <strong>Tip:</strong> If this waterway feeds one of the major rivers (Necanicum, Nehalem, Klaskanine,
+      Lewis &amp; Clark, Youngs, Big Creek, Gnat Creek, Bear Creek, Ecola), the fish list for the parent
+      river is a reasonable starting point.
+    </div>
+  `;
+}
+
+function renderLandInfo(p) {
+  const panel = getPanel();
+  const acres = p.acres ? `${p.acres.toLocaleString()} acres` : '';
+  const restrictionLabel = {
+    'public-state': 'Public access',
+    'public-federal': 'Public access',
+    'public-local': 'Public access',
+    'permit-timber': 'Permit / permission required',
+    'private': 'Private — no public access'
+  }[p.category] || 'Verify access';
+  const accentColor = p.category === 'public-state' || p.category === 'public-federal' || p.category === 'public-local'
+    ? '#4d6a3c' : '#a47728';
+
+  panel.innerHTML = `
+    <h2>${p.owner}</h2>
+    <div class="region">${acres} · <span style="color: ${accentColor}; font-weight: 600;">${restrictionLabel}</span></div>
+    <div class="description">${p.access}</div>
+    <h3>Heads up</h3>
+    <p style="font-size: 13.5px; line-height: 1.6; color: var(--ink);">
+      Land ownership data is from Clatsop County tax records and ODF managed-lands GIS. Permit programs
+      and access rules change — always confirm with the landowner or company before entering, especially
+      during fire season or active timber operations.
+    </p>
+  `;
+}
+
+function renderPOI(p) {
+  const panel = getPanel();
+  panel.innerHTML = `
+    <h2>${p.name === '(unnamed)' ? p.type_label : p.name}</h2>
+    <div class="region">${p.type_label}</div>
+    <div class="description">
+      ${p.description || 'Public boating / fishing access point identified from OpenStreetMap.'}
+      ${p.fee ? `<br><br><strong>Fee:</strong> ${p.fee}` : ''}
+      ${p.access ? `<br><strong>Access:</strong> ${p.access}` : ''}
+    </div>
+    <p style="font-size: 12.5px; color: var(--land-shadow); font-style: italic;">
+      Access points are crowdsourced from OSM. Verify current status (gated, fee, hours) before relying on it.
+    </p>
+  `;
+}
+
+function renderRiverFeature(f) {
+  const panel = getPanel();
+  const KIND_LABEL = {
+    waterfall: 'Waterfall',
+    dam: 'Dam / barrier',
+    gauge: 'Water-monitoring station',
+    weir: 'Weir',
+    rapids: 'Rapids',
+    spring: 'Spring'
+  };
+  const KIND_BLURB = {
+    waterfall: 'A natural drop on the river. Often a barrier to upstream fish migration — anadromous species (salmon, steelhead) typically can\'t pass without ladders.',
+    dam: 'Built barrier. Most are old and small in this county; some still affect flow and fish passage. May or may not be fishable nearby.',
+    gauge: 'USGS or NOAA monitoring station that publishes live water-level / flow data. Anglers check these to gauge river conditions before heading out.',
+    weir: 'Low partial barrier across the river, often used for measurement or fish counting.',
+    rapids: 'Section of fast, broken water. Holding water for fish on the seams above and below.',
+    spring: 'Natural water source — often a cold-water refugium for trout in summer.'
+  };
+  const extras = f.extras || {};
+  let extraInfo = '';
+  if (extras.height) extraInfo += `<div class="meta-row"><strong>Height/elev</strong><span>${extras.height} m</span></div>`;
+  if (extras.operator) extraInfo += `<div class="meta-row"><strong>Operator</strong><span>${extras.operator}</span></div>`;
+  if (extras.description) extraInfo += `<div class="meta-row"><strong>Notes</strong><span>${extras.description}</span></div>`;
+  let wikiLink = '';
+  if (extras.wikipedia) {
+    let url = extras.wikipedia;
+    if (url.startsWith('en:')) url = `https://en.wikipedia.org/wiki/${encodeURIComponent(url.slice(3).replace(/ /g, '_'))}`;
+    else if (!url.startsWith('http')) url = `https://en.wikipedia.org/wiki/${encodeURIComponent(url)}`;
+    wikiLink = `<a href="${url}" target="_blank" rel="noopener" style="color: var(--water-deep); border-bottom: 1px dotted var(--water);">Wikipedia entry</a>`;
+  }
+  panel.innerHTML = `
+    <h2>${f.name}</h2>
+    <div class="region">${KIND_LABEL[f.kind] || f.kind}</div>
+    <div class="description">${KIND_BLURB[f.kind] || ''}</div>
+    ${extraInfo ? `<h3>Details</h3><dl class="meta-grid">${extraInfo}</dl>` : ''}
+    ${wikiLink ? `<h3>More</h3><div style="font-size:13px;">${wikiLink}</div>` : ''}
+    <p style="font-size: 12px; color: var(--land-shadow); font-style: italic; margin-top: 16px;">
+      Feature data from OpenStreetMap. Coordinates may be approximate.
+    </p>
+  `;
+}
+
+function renderCrowdSpot(s) {
+  const panel = getPanel();
+  const confLabel = { high: 'well-sourced', medium: 'two-source', low: 'single-source' }[s.confidence] || s.confidence;
+  const fishPills = (s.what_to_catch || []).map(f => `<span class="pill">${f}</span>`).join('');
+  const sourceLinks = (s.sources || []).map(url => {
+    const host = url.replace(/^https?:\/\/(www\.)?/, '').split('/')[0];
+    return `<a href="${url}" target="_blank" rel="noopener">${host}</a>`;
+  }).join(' · ');
+  panel.innerHTML = `
+    <h2>${s.name}<span class="conf-badge ${s.confidence}">${confLabel}</span></h2>
+    <div class="region">${s.water_body} · ${s.type.replace(/-/g, ' ')}</div>
+    <div class="description">${s.blurb}</div>
+    ${fishPills ? `<h3>What people catch here</h3><div class="what-to-catch">${fishPills}</div>` : ''}
+    ${s.season_note ? `<h3>Season</h3><div style="font-size:13.5px; line-height:1.5;">${s.season_note}</div>` : ''}
+    ${s.access_note ? `<h3>Access</h3><div style="font-size:13.5px; line-height:1.5;">${s.access_note}</div>` : ''}
+    ${sourceLinks ? `<h3>Sources</h3><div class="source-list">${sourceLinks}</div>` : ''}
+    <p style="font-size: 12px; color: var(--land-shadow); font-style: italic; margin-top: 18px;">
+      Crowd-knowledge spot from public sources. Coordinates approximate.
+      Always check current ODFW regulations and verify access (private property, seasonal closures) before fishing.
+    </p>
+  `;
+}
+
+// ---------------- Unnamed streams (thin background) ----------------
+// Drawn underneath everything else so primary/secondary rivers stay readable.
+L.geoJSON(HYDRO_UNNAMED, {
+  style: { color: '#7faec5', weight: 1.2, opacity: 0.55, interactive: false }
+}).addTo(map);
+
+// ---------------- Secondary named waterways (creeks, tributaries, sloughs, small lakes) ----------------
+// Always visible, hover for name, click for panel.
+const secondaryStyles = {
+  river:  { color: '#3a7a9a', weight: 2.2, opacity: 0.85 },
+  creek:  { color: '#5798b8', weight: 1.8, opacity: 0.8 },
+  lake:   { color: '#1a4a64', weight: 1, fillColor: '#7fb1c8', fillOpacity: 0.6 },
+};
+const secondaryHover = {
+  river:  { color: '#c25a3c', weight: 3.5 },
+  creek:  { color: '#c25a3c', weight: 3 },
+  lake:   { color: '#c25a3c', weight: 1.5, fillColor: '#e89b7e', fillOpacity: 0.8 },
+};
+
+HYDRO_SECONDARY.features.forEach(feat => {
+  const name = feat.properties.name;
+  const kind = feat.properties.kind;
+  const baseStyle = secondaryStyles[kind] || secondaryStyles.creek;
+  const hoverStyle = secondaryHover[kind] || secondaryHover.creek;
+
+  const layer = L.geoJSON(feat, { style: baseStyle }).getLayers()[0];
+  layer.addTo(map);
+
+  // For polygon (small lake) the fill is the hit zone. For lines, add a hit zone polyline.
+  let eventLayer = layer;
+  if (kind !== 'lake' && layer.getLatLngs) {
+    const hit = L.polyline(layer.getLatLngs(), {
+      color: '#000', weight: 26, opacity: 0, interactive: true, bubblingMouseEvents: false
+    });
+    hit.addTo(map);
+    eventLayer = hit;
+  }
+
+  eventLayer.on('mouseover', () => {
+    layer.setStyle(hoverStyle);
+    if (layer.bringToFront) layer.bringToFront();
+    document.body.style.cursor = 'pointer';
+  });
+  eventLayer.on('mouseout', () => {
+    layer.setStyle(baseStyle);
+    document.body.style.cursor = '';
+  });
+  eventLayer.on('click', (ev) => {
+    Object.values(layersById).forEach(l => {
+      l._isSelected = false;
+      l.setStyle(l._baseStyle);
+    });
+    renderUnknownWater(name, kind);
+    zoomToFeature(layer, ev && ev.latlng);
+  });
+  eventLayer.bindTooltip(name, { sticky: true, direction: 'top', opacity: 0.95 });
+});
+
+// ---------------- Fishing access points ----------------
+// Custom small marker icon
+const POI_ICON = L.divIcon({
+  className: 'poi-marker',
+  html: '<div class="poi-dot"></div>',
+  iconSize: [30, 30],
+  iconAnchor: [15, 15]
+});
+FISHING_POIS.features.forEach(feat => {
+  const p = feat.properties;
+  const [lon, lat] = feat.geometry.coordinates;
+  const m = L.marker([lat, lon], { icon: POI_ICON, riseOnHover: true });
+  m.addTo(map);
+  const labelName = p.name && p.name !== '(unnamed)' ? p.name : p.type_label;
+  m.bindTooltip(`<strong>${labelName}</strong><br><span style="opacity:0.8;font-size:12px;">${p.type_label}</span>`,
+    { sticky: true, direction: 'top', opacity: 0.96 });
+  m.on('click', () => {
+    Object.values(layersById).forEach(l => {
+      l._isSelected = false;
+      l.setStyle(l._baseStyle);
+    });
+    renderPOI(p);
+    zoomToFeature(m);
+  });
+});
+
+// ---------------- River feature glyphs (waterfalls, dams, gauges) ----------------
+// Discreet — 14px symbols, distinct shapes per type. Hover for name, click for details.
+const FEATURE_SVG = {
+  waterfall: '<svg class="feat-symbol" width="14" height="14" viewBox="0 0 14 14"><line x1="2" y1="3" x2="12" y2="3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M 7 12.5 L 3 5 L 11 5 Z" fill="currentColor"/></svg>',
+  dam:       '<svg class="feat-symbol" width="14" height="14" viewBox="0 0 14 14"><rect x="1" y="6" width="12" height="3" fill="currentColor" rx="0.5"/><line x1="3" y1="3" x2="3" y2="6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><line x1="7" y1="3" x2="7" y2="6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><line x1="11" y1="3" x2="11" y2="6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>',
+  gauge:     '<svg class="feat-symbol" width="14" height="14" viewBox="0 0 14 14"><circle cx="7" cy="7" r="5" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="7" cy="7" r="1.6" fill="currentColor"/></svg>',
+  weir:      '<svg class="feat-symbol" width="14" height="14" viewBox="0 0 14 14"><line x1="1" y1="7" x2="13" y2="7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="3" y1="4" x2="3" y2="10" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="7" y1="4" x2="7" y2="10" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="11" y1="4" x2="11" y2="10" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>',
+  rapids:    '<svg class="feat-symbol" width="14" height="14" viewBox="0 0 14 14"><path d="M 1 4 Q 4 2, 7 4 T 13 4" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linecap="round"/><path d="M 1 8 Q 4 6, 7 8 T 13 8" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linecap="round"/><path d="M 1 12 Q 4 10, 7 12 T 13 12" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linecap="round"/></svg>',
+  spring:    '<svg class="feat-symbol" width="14" height="14" viewBox="0 0 14 14"><circle cx="7" cy="9" r="3.5" fill="currentColor"/><path d="M 7 5 Q 5 3, 7 1 Q 9 3, 7 5 Z" fill="currentColor"/></svg>'
+};
+(RIVER_FEATURES && RIVER_FEATURES.features ? RIVER_FEATURES.features : []).forEach(f => {
+  const svg = FEATURE_SVG[f.kind] || FEATURE_SVG.gauge;
+  const icon = L.divIcon({
+    className: `feat-marker feat-color-${f.kind}`,
+    html: svg,
+    iconSize: [22, 22],
+    iconAnchor: [11, 11]
+  });
+  const m = L.marker([f.lat, f.lon], { icon, riseOnHover: true });
+  m.addTo(map);
+  const KIND_TIP = { waterfall: 'Waterfall', dam: 'Dam', gauge: 'Water gauge', weir: 'Weir', rapids: 'Rapids', spring: 'Spring' };
+  m.bindTooltip(`<strong>${f.name}</strong><br><span style="opacity:0.8; font-size:12px;">${KIND_TIP[f.kind] || f.kind}</span>`,
+    { sticky: true, direction: 'top', opacity: 0.96 });
+  m.on('click', () => {
+    Object.values(layersById).forEach(l => {
+      l._isSelected = false;
+      l.setStyle(l._baseStyle);
+    });
+    renderRiverFeature(f);
+    zoomToFeature(m);
+  });
+});
+
+// ---------------- Crowd-knowledge fishing spots ----------------
+// Visual: gold to differentiate from red boat-ramp POIs.
+// Confidence: filled (high) / ring (medium) / dashed ring (low).
+(FISHING_SPOTS && FISHING_SPOTS.spots ? FISHING_SPOTS.spots : []).forEach(s => {
+  const conf = s.confidence || 'medium';
+  const icon = L.divIcon({
+    className: `spot-marker ${conf}`,
+    html: '<div class="spot-dot"></div>',
+    iconSize: [30, 30],
+    iconAnchor: [15, 15]
+  });
+  const m = L.marker([s.lat, s.lon], { icon, riseOnHover: true });
+  m.addTo(map);
+  const confDot = conf === 'high' ? '●' : conf === 'medium' ? '◐' : '○';
+  m.bindTooltip(
+    `<strong>${s.name}</strong><br>` +
+    `<span style="opacity:0.8; font-size:12px;">${s.water_body}</span><br>` +
+    `<span style="opacity:0.7; font-size:11px;">${confDot} ${conf} confidence</span>`,
+    { sticky: true, direction: 'top', opacity: 0.96 }
+  );
+  m.on('click', () => {
+    Object.values(layersById).forEach(l => {
+      l._isSelected = false;
+      l.setStyle(l._baseStyle);
+    });
+    renderCrowdSpot(s);
+    zoomToFeature(m);
+  });
+});
+
+// ---------------- Hide visual outlines for big-water entities ----------------
+// The Columbia, ocean zones, and South Jetty are obviously water on the OSM tiles.
+// Drawing lines/polygons over them just adds visual noise. Make them invisible
+// at rest, but keep hover + click working via the existing hit zones / polygon fills.
+const INVISIBLE_RIVER = { color: '#1a4a64', weight: 1, opacity: 0 };
+const INVISIBLE_OCEAN = { color: '#1a4a64', weight: 0.5, fillColor: '#5a8fa8', fillOpacity: 0.01, opacity: 0 };
+const INVISIBLE_JETTY = { color: '#3a3a3a', weight: 1, opacity: 0, dashArray: null };
+
+const HIDDEN_RIVERS = ['columbia'];
+const HIDDEN_OCEANS = ['pacific-surf', 'nearshore'];
+const HIDDEN_JETTIES = ['south-jetty'];
+
+HIDDEN_RIVERS.forEach(id => {
+  const l = layersById[id];
+  if (l) { l._baseStyle = INVISIBLE_RIVER; l.setStyle(INVISIBLE_RIVER); }
+});
+HIDDEN_OCEANS.forEach(id => {
+  const l = layersById[id];
+  if (l) { l._baseStyle = INVISIBLE_OCEAN; l.setStyle(INVISIBLE_OCEAN); }
+});
+HIDDEN_JETTIES.forEach(id => {
+  const l = layersById[id];
+  if (l) { l._baseStyle = INVISIBLE_JETTY; l.setStyle(INVISIBLE_JETTY); }
+});
+
+// ---------------- Layer ordering ----------------
+// Bring primary water bodies to front so the click priority is right.
+Object.values(layersById).forEach(l => {
+  if (l.bringToFront) l.bringToFront();
+});
+
+// Initial view is set in L.map options (zoom 10.5 centered on the populated NW of the county).
+// User can pan/zoom out freely; this just controls the load-time view.
+
+// Click on empty land (not on any feature) → reset the view back to the whole county.
+map.on('click', () => {
+  // If a feature was clicked within the last 100ms, this click is just propagation. Skip.
+  if (Date.now() - lastFeatureClickAt < 100) return;
+  // Deselect any highlighted layer
+  Object.values(layersById).forEach(l => {
+    l._isSelected = false;
+    if (l._baseStyle) l.setStyle(l._baseStyle);
+  });
+  // Clear the side panel
+  const panel = document.getElementById('info-panel');
+  if (panel) panel.innerHTML = EMPTY_PANEL_HTML;
+  // Fly back to the default view
+  map.flyTo(DEFAULT_CENTER, DEFAULT_ZOOM, { duration: 0.9 });
+});
+
+// ---------------- Land ownership layer (toggleable) ----------------
+const LAND_STYLES = {
+  'public-state': {
+    fillColor: '#7a995f',     // green
+    color: '#4d6a3c',
+    weight: 0.6,
+    fillOpacity: 0.42,
+    opacity: 0.75
+  },
+  'permit-timber': {
+    fillColor: '#daa53c',     // amber
+    color: '#a47728',
+    weight: 0.6,
+    fillOpacity: 0.40,
+    opacity: 0.75
+  }
+};
+
+const landLayerGroup = L.layerGroup();
+let landLayerInitialized = false;
+
+function initLandLayer() {
+  if (landLayerInitialized) return;
+  landLayerInitialized = true;
+  const RESTRICTION_SHORT = {
+    'public-state': 'Public',
+    'public-federal': 'Public',
+    'public-local': 'Public',
+    'permit-timber': 'Permit required'
+  };
+  L.geoJSON(LAND_OWNERSHIP, {
+    style: (feat) => LAND_STYLES[feat.properties.category] || LAND_STYLES['permit-timber'],
+    onEachFeature: (feat, layer) => {
+      const p = feat.properties;
+      const acresStr = p.acres ? `${p.acres.toLocaleString()} ac` : '';
+      const restriction = RESTRICTION_SHORT[p.category] || '';
+      // Minimal tooltip: owner, acres, restriction tag — nothing else
+      const tooltipHtml = `
+        <strong>${p.owner}</strong><br>
+        <span style="opacity:0.85;">${acresStr}${acresStr && restriction ? ' · ' : ''}${restriction}</span>
+      `;
+      layer.bindTooltip(tooltipHtml, {
+        sticky: true,
+        direction: 'top',
+        opacity: 0.96,
+        className: 'land-tooltip'
+      });
+      layer.on('mouseover', () => {
+        layer.setStyle({ weight: 1.5, fillOpacity: 0.6 });
+      });
+      layer.on('mouseout', () => {
+        const base = LAND_STYLES[feat.properties.category];
+        layer.setStyle({ weight: base.weight, fillOpacity: base.fillOpacity });
+      });
+      layer.on('click', () => {
+        markFeatureClick();
+        // Deselect water bodies so the panel cleanly shows land info
+        Object.values(layersById).forEach(l => {
+          l._isSelected = false;
+          l.setStyle(l._baseStyle);
+        });
+        renderLandInfo(p);
+      });
+    }
+  }).addTo(landLayerGroup);
+}
+
+const landToggle = document.getElementById('land-toggle');
+landToggle.addEventListener('click', () => {
+  const isOn = document.body.classList.toggle('show-land');
+  if (isOn) {
+    initLandLayer();
+    landLayerGroup.addTo(map);
+    // Send land polygons to back so river/lake hits stay on top
+    landLayerGroup.eachLayer(l => {
+      if (l.eachLayer) l.eachLayer(sub => sub.bringToBack && sub.bringToBack());
+      else if (l.bringToBack) l.bringToBack();
+    });
+    landToggle.querySelector('.toggle-label').textContent = 'Hide land ownership';
+  } else {
+    map.removeLayer(landLayerGroup);
+    landToggle.querySelector('.toggle-label').textContent = 'Show land ownership';
+  }
+});
+</script>
+</body>
+</html>
