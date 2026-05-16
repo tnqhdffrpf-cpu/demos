@@ -1,0 +1,15 @@
+[out:json][timeout:90];
+// Find Clatsop County, Oregon by admin boundary
+area["name"="Clatsop County"]["admin_level"="6"]->.clatsop;
+(
+  // All named waterways inside the county
+  way["waterway"~"^(river|stream|canal|tidal_channel)$"](area.clatsop);
+  // Lakes/reservoirs inside the county
+  way["natural"="water"](area.clatsop);
+  relation["natural"="water"](area.clatsop);
+  // The Columbia River (it's actually the boundary so may need separate query)
+  way["waterway"="river"]["name"="Columbia River"](45.85,-124.10,46.30,-123.40);
+  // Coastline / ocean
+  way["natural"="coastline"](45.85,-124.10,46.30,-123.40);
+);
+out geom;
