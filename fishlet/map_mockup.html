@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Clatsop County Fish Map — Style Comparison</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<style>
+  :root {
+    --ink: #1a2733;
+    --paper: #f5efe2;
+    --paper-deep: #ebe2cd;
+    --water: #6fa8c7;
+    --water-deep: #3a6e8a;
+    --water-shallow: #b8d4e3;
+    --land: #d9c89e;
+    --land-shadow: #b8a47a;
+    --forest: #7a8b5c;
+    --accent: #c25a3c;
+    --accent-soft: #e89b7e;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: 'Georgia', 'Times New Roman', serif;
+    background: var(--paper);
+    color: var(--ink);
+  }
+  header {
+    padding: 16px 24px;
+    background: var(--ink);
+    color: var(--paper);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  header h1 { margin: 0; font-size: 20px; font-weight: 600; }
+  header .note { font-size: 13px; opacity: 0.75; }
+  .tabs {
+    display: flex;
+    gap: 2px;
+    background: var(--paper-deep);
+    padding: 4px 24px 0;
+    border-bottom: 1px solid var(--land-shadow);
+  }
+  .tab {
+    padding: 12px 20px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 600;
+    background: transparent;
+    border: 1px solid transparent;
+    border-bottom: none;
+    border-radius: 6px 6px 0 0;
+    color: var(--ink);
+    opacity: 0.55;
+    transition: all 0.15s;
+  }
+  .tab:hover { opacity: 0.85; }
+  .tab.active {
+    background: var(--paper);
+    border-color: var(--land-shadow);
+    opacity: 1;
+  }
+  .panel { display: none; }
+  .panel.active { display: grid; }
+  .panel {
+    grid-template-columns: 1fr 340px;
+    height: calc(100vh - 110px);
+    min-height: 560px;
+  }
+  .map-area { position: relative; background: var(--water-shallow); }
+  .map-area .style-label {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    z-index: 500;
+    background: rgba(255,255,255,0.92);
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 600;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  }
+  #leaflet-map { width: 100%; height: 100%; }
+  .info-panel {
+    background: var(--paper-deep);
+    padding: 24px;
+    overflow-y: auto;
+    border-left: 1px solid var(--land-shadow);
+  }
+  .info-panel h2 {
+    font-size: 22px;
+    margin: 0 0 4px;
+    color: var(--ink);
+  }
+  .info-panel .region {
+    font-size: 13px;
+    font-style: italic;
+    color: var(--land-shadow);
+    margin-bottom: 12px;
+  }
+  .info-panel .description {
+    font-size: 14px;
+    line-height: 1.55;
+    margin-bottom: 18px;
+  }
+  .info-panel h3 {
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+    margin: 0 0 10px;
+    border-bottom: 1px solid var(--land-shadow);
+    padding-bottom: 6px;
+  }
+  .fish-list { list-style: none; padding: 0; margin: 0; }
+  .fish-list li {
+    padding: 10px 0;
+    border-bottom: 1px dashed var(--land-shadow);
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: padding 0.15s;
+  }
+  .fish-list li:hover { padding-left: 8px; color: var(--accent); }
+  .fish-list li::after { content: '›'; color: var(--land-shadow); font-size: 18px; }
+  .fish-list li.expanded { background: var(--paper); padding: 12px; border-radius: 4px; flex-direction: column; align-items: flex-start; }
+  .fish-list li.expanded::after { display: none; }
+  .fish-detail {
+    margin-top: 10px;
+    font-size: 13px;
+    line-height: 1.55;
+    width: 100%;
+  }
+  .fish-detail .meta-row {
+    display: grid;
+    grid-template-columns: 80px 1fr;
+    gap: 6px;
+    margin-bottom: 6px;
+  }
+  .fish-detail .meta-row strong {
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    color: var(--accent);
+  }
+  .fish-detail .footer-note {
+    margin-top: 10px;
+    padding-top: 8px;
+    border-top: 1px dotted var(--land-shadow);
+    font-size: 12px;
+    font-style: italic;
+    color: var(--land-shadow);
+  }
+  .empty-state {
+    color: var(--land-shadow);
+    font-style: italic;
+    font-size: 14px;
+    text-align: center;
+    padding: 40px 20px;
+  }
+
+  /* Stylized SVG map */
+  #svg-map {
+    width: 100%;
+    height: 100%;
+    display: block;
+    background:
+      radial-gradient(ellipse at 20% 50%, var(--water-shallow), var(--water) 40%, var(--water-deep) 100%);
+  }
+  .stylized .water-body { cursor: pointer; transition: all 0.2s; }
+  .stylized .water-body:hover { filter: brightness(1.15); }
+  .stylized .water-body.selected { filter: drop-shadow(0 0 8px var(--accent)); }
+  .stylized .label {
+    font-family: 'Georgia', serif;
+    font-size: 13px;
+    fill: var(--ink);
+    pointer-events: none;
+    font-style: italic;
+  }
+  .stylized .label-big { font-size: 16px; font-weight: 600; }
+  .stylized .compass {
+    fill: var(--ink);
+    font-size: 14px;
+    font-weight: 600;
+  }
+  footer {
+    padding: 8px 24px;
+    background: var(--ink);
+    color: var(--paper);
+    font-size: 12px;
+    opacity: 0.7;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Clatsop County Fish Map — Style Comparison</h1>
+  <span class="note">Click a water body to see what's catchable there. Click a fish for details.</span>
+</header>
+
+<div class="tabs">
+  <button class="tab active" data-target="leaflet">Style A · Real Geography (Leaflet + OSM)</button>
+  <button class="tab" data-target="stylized">Style B · Illustrated (custom SVG)</button>
+</div>
+
+<div class="panel active" id="leaflet-panel">
+  <div class="map-area">
+    <div class="style-label">Real map tiles · click rivers/lakes/ocean zones</div>
+    <div id="leaflet-map"></div>
+  </div>
+  <aside class="info-panel" id="info-leaflet">
+    <div class="empty-state">Click a water body on the map to see what fish are there.</div>
+  </aside>
+</div>
+
+<div class="panel" id="stylized-panel">
+  <div class="map-area stylized">
+    <div class="style-label">Hand-drawn illustration · same data, storybook feel</div>
+    <svg id="svg-map" viewBox="0 0 800 600" preserveAspectRatio="xMidYMid meet">
+      <!-- ocean gradient is on the SVG background -->
+      <!-- Pacific Ocean zone (clickable) -->
+      <rect class="water-body" data-id="pacific-surf" x="0" y="0" width="160" height="600" fill="url(#oceanGrad)" opacity="0.0"/>
+      <defs>
+        <linearGradient id="oceanGrad" x1="0" x2="1" y1="0" y2="0">
+          <stop offset="0%" stop-color="#3a6e8a" stop-opacity="0.0"/>
+          <stop offset="100%" stop-color="#3a6e8a" stop-opacity="0.0"/>
+        </linearGradient>
+        <pattern id="forest" width="20" height="20" patternUnits="userSpaceOnUse">
+          <rect width="20" height="20" fill="#9bb380"/>
+          <circle cx="5" cy="5" r="2" fill="#7a8b5c" opacity="0.6"/>
+          <circle cx="15" cy="14" r="2" fill="#7a8b5c" opacity="0.6"/>
+        </pattern>
+      </defs>
+
+      <!-- Land mass (Clatsop County) -->
+      <path d="M 160,40 Q 200,30 280,45 L 420,40 Q 560,50 720,80 L 740,180 Q 750,300 740,420 L 720,540 Q 600,560 480,558 L 320,560 Q 220,555 175,540 L 165,420 Q 155,260 160,40 Z"
+            fill="url(#forest)" stroke="#5a6b3c" stroke-width="2"/>
+
+      <!-- Columbia River (top boundary, broad) -->
+      <path class="water-body" data-id="columbia"
+            d="M 160,40 Q 280,15 440,18 Q 600,22 740,55 L 740,80 Q 600,50 440,45 Q 280,42 160,68 Z"
+            fill="#3a6e8a" stroke="#1a4a64" stroke-width="1.5"/>
+
+      <!-- Pacific Ocean / Surf zone (clickable strip) -->
+      <path class="water-body" data-id="pacific-surf"
+            d="M 0,0 L 160,40 L 165,420 L 175,540 L 0,580 Z"
+            fill="#5a8fa8" opacity="0.85" stroke="#1a4a64" stroke-width="1.5"/>
+
+      <!-- Necanicum River (squiggle through Seaside area) -->
+      <path class="water-body" data-id="necanicum"
+            d="M 175,460 Q 220,440 250,400 Q 280,360 290,310 Q 300,260 320,240"
+            fill="none" stroke="#4a85a3" stroke-width="6" stroke-linecap="round"/>
+
+      <!-- Klaskanine / Youngs (NE area near Astoria) -->
+      <path class="water-body" data-id="klaskanine"
+            d="M 320,90 Q 360,140 400,180 Q 440,220 460,260"
+            fill="none" stroke="#4a85a3" stroke-width="5" stroke-linecap="round"/>
+
+      <!-- Lewis and Clark River -->
+      <path class="water-body" data-id="lewis-clark"
+            d="M 240,90 Q 230,160 240,230 Q 245,280 260,310"
+            fill="none" stroke="#4a85a3" stroke-width="5" stroke-linecap="round"/>
+
+      <!-- Big Creek / Gnat Creek (further east along Columbia) -->
+      <path class="water-body" data-id="big-creek"
+            d="M 540,90 Q 555,140 565,180 Q 570,210 565,240"
+            fill="none" stroke="#4a85a3" stroke-width="4" stroke-linecap="round"/>
+
+      <!-- Coffenbury Lake (NW, Fort Stevens) -->
+      <ellipse class="water-body" data-id="coffenbury"
+            cx="220" cy="120" rx="22" ry="14"
+            fill="#5a9bbc" stroke="#1a4a64" stroke-width="1.5"/>
+
+      <!-- Cullaby Lake (mid-west) -->
+      <ellipse class="water-body" data-id="cullaby"
+            cx="240" cy="320" rx="20" ry="28"
+            fill="#5a9bbc" stroke="#1a4a64" stroke-width="1.5"/>
+
+      <!-- Sunset Lake -->
+      <ellipse class="water-body" data-id="sunset"
+            cx="218" cy="400" rx="14" ry="20"
+            fill="#5a9bbc" stroke="#1a4a64" stroke-width="1.5"/>
+
+      <!-- Ecola Creek (SW, Cannon Beach) -->
+      <path class="water-body" data-id="ecola"
+            d="M 175,520 Q 210,510 240,505 Q 270,500 290,495"
+            fill="none" stroke="#4a85a3" stroke-width="4" stroke-linecap="round"/>
+
+      <!-- Labels -->
+      <text class="label-big" x="440" y="60" text-anchor="middle">Columbia River</text>
+      <text class="label" x="50" y="300" transform="rotate(-90, 50, 300)" text-anchor="middle">Pacific Ocean</text>
+      <text class="label" x="290" y="220">Lewis &amp; Clark R.</text>
+      <text class="label" x="430" y="170">Klaskanine R.</text>
+      <text class="label" x="290" y="350">Necanicum R.</text>
+      <text class="label" x="595" y="170">Big Creek</text>
+      <text class="label" x="260" y="120">Coffenbury</text>
+      <text class="label" x="275" y="320">Cullaby</text>
+      <text class="label" x="240" y="402">Sunset</text>
+      <text class="label" x="305" y="498">Ecola Cr.</text>
+      <text class="label" x="350" y="100" font-size="14" font-style="normal" font-weight="600">Astoria ★</text>
+      <text class="label" x="220" y="450" font-size="12">Seaside ●</text>
+      <text class="label" x="200" y="540" font-size="12">Cannon Beach ●</text>
+      <!-- compass -->
+      <g transform="translate(700, 540)">
+        <circle r="22" fill="rgba(255,255,255,0.85)" stroke="#1a2733"/>
+        <text class="compass" text-anchor="middle" y="-8">N</text>
+        <text class="compass" text-anchor="middle" y="20">S</text>
+      </g>
+    </svg>
+  </div>
+  <aside class="info-panel" id="info-stylized">
+    <div class="empty-state">Click a water body on the map to see what fish are there.</div>
+  </aside>
+</div>
+
+<footer>Mockup uses 5 sample water bodies and abbreviated species lists. The real map will pull from clatsop_fish_data.json (17 water bodies, common species per body).</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+// ---------------- Sample data (subset of real dataset) -------------
+const WATER_BODIES = {
+  'columbia': {
+    name: 'Columbia River (Lower)',
+    region: 'Tongue Point to Buoy 10 — Astoria, Hammond, Warrenton',
+    description: 'Mainstem Columbia below Tongue Point. Co-managed by Oregon, Washington, and Treaty Tribes. The big leagues for salmon, steelhead, and sturgeon.',
+    fish: [
+      { name: 'Spring Chinook salmon', blurb: 'Hatchery spring Chinook fishery; peak fishing typically May–June.', season: 'Spring run, May–July', regs: 'Hatchery fish only in most areas.' },
+      { name: 'Fall Chinook salmon', blurb: 'Famous Buoy 10 fishery in August. The marquee Columbia salmon fishery of the year.', season: 'Aug–Dec, peak Aug–Sept', regs: 'Co-managed OR/WA. Hatchery/wild distinctions apply.' },
+      { name: 'Coho salmon', blurb: 'Strong fall coho runs through estuary and lower river.', season: 'Sept–Nov', regs: 'Hatchery retention typical; check current rules.' },
+      { name: 'White sturgeon', blurb: 'Catch-and-release in most lower Columbia areas; retention windows set annually.', season: 'Year-round (regs vary by reach)', regs: 'Retention rules set annually by ODFW.' }
+    ]
+  },
+  'necanicum': {
+    name: 'Necanicum River',
+    region: 'Seaside area, flows to Pacific Ocean',
+    description: 'Coastal river supporting salmon and steelhead runs. Tidewater offers good fall Chinook.',
+    fish: [
+      { name: 'Coho salmon', blurb: 'Wild coho run Sept–Nov; mostly catch-and-release.', season: 'Sept–Nov', regs: 'Wild coho release; hatchery retention if marked.' },
+      { name: 'Winter steelhead', blurb: 'Hatchery program supports winter fishery; wild steelhead also present.', season: 'Late winter–spring', regs: 'Hatchery may be retained; wild release only.' },
+      { name: 'Fall Chinook salmon', blurb: 'Tidewater section is the prime spot.', season: 'Aug–Dec', regs: 'See current ODFW regs for bag limits.' },
+      { name: 'Sea-run cutthroat trout', blurb: 'Returns to tidal areas late summer into fall.', season: 'Late Aug–Oct', regs: 'See current ODFW regs.' }
+    ]
+  },
+  'klaskanine': {
+    name: 'Klaskanine River',
+    region: 'Tributary to Youngs Bay, near Astoria',
+    description: 'Hatchery-supported river system with North Fork, South Fork, and mainstem.',
+    fish: [
+      { name: 'Fall Chinook salmon', blurb: 'Hatchery fall Chinook program supports fishery.', season: 'Aug–Nov', regs: 'Hatchery retention; check current ODFW rules.' },
+      { name: 'Coho salmon', blurb: 'Hatchery coho present in season.', season: 'Sept–Nov', regs: 'Hatchery retention typical.' },
+      { name: 'Winter steelhead', blurb: 'Hatchery winter steelhead program.', season: 'Dec–March', regs: 'Hatchery may be retained.' }
+    ]
+  },
+  'lewis-clark': {
+    name: 'Lewis and Clark River',
+    region: 'Empties into Youngs Bay near Astoria',
+    description: 'Smaller coastal river, primarily wild stocks.',
+    fish: [
+      { name: 'Coho salmon', blurb: 'Wild coho run; release-only in most years.', season: 'Sept–Nov', regs: 'Wild coho release.' },
+      { name: 'Winter steelhead', blurb: 'Mostly wild steelhead; release-only.', season: 'Dec–March', regs: 'Wild release only.' },
+      { name: 'Sea-run cutthroat trout', blurb: 'Present in tidewater seasonally.', season: 'Aug–Oct', regs: 'See current ODFW regs.' }
+    ]
+  },
+  'big-creek': {
+    name: 'Big Creek',
+    region: 'Tributary to lower Columbia, east of Astoria',
+    description: 'Hatchery-supported tributary with strong salmon and steelhead returns.',
+    fish: [
+      { name: 'Fall Chinook salmon', blurb: 'Big Creek Hatchery program.', season: 'Aug–Nov', regs: 'Hatchery retention.' },
+      { name: 'Coho salmon', blurb: 'Hatchery coho.', season: 'Sept–Nov', regs: 'Hatchery retention.' },
+      { name: 'Winter steelhead', blurb: 'Hatchery winter steelhead.', season: 'Dec–March', regs: 'Hatchery retention.' }
+    ]
+  },
+  'coffenbury': {
+    name: 'Coffenbury Lake',
+    region: 'Fort Stevens State Park',
+    description: '50-acre lake; popular for stocked rainbows and warmwater species. Excellent bank and boat access.',
+    fish: [
+      { name: 'Rainbow trout', blurb: 'Stocked March to mid-September; jumbo trophy rainbows planted in September.', season: 'March–Sept', regs: 'Hatchery stocked; standard ODFW limits.' },
+      { name: 'Largemouth bass', blurb: 'Self-sustaining warmwater population.', season: 'April–Oct', regs: 'See current ODFW warmwater regs.' },
+      { name: 'Bluegill', blurb: 'Sunfish panfish; self-sustaining.', season: 'April–Oct', regs: 'See current ODFW regs.' },
+      { name: 'Black crappie', blurb: 'Panfish; self-sustaining.', season: 'April–Oct', regs: 'See current ODFW regs.' },
+      { name: 'Yellow perch', blurb: 'Panfish; self-sustaining.', season: 'April–Oct', regs: 'See current ODFW regs.' }
+    ]
+  },
+  'cullaby': {
+    name: 'Cullaby Lake',
+    region: '12 miles south of Astoria, Cullaby Lake County Park',
+    description: '195-acre lake; one of the best warmwater fisheries on the north coast.',
+    fish: [
+      { name: 'Largemouth bass', blurb: 'Top largemouth water on the north coast.', season: 'April–Oct', regs: 'See current ODFW regs.' },
+      { name: 'Black crappie', blurb: 'Excellent crappie fishery.', season: 'April–Oct', regs: 'See current ODFW regs.' },
+      { name: 'Bluegill', blurb: 'Self-sustaining.', season: 'April–Oct', regs: 'See current ODFW regs.' },
+      { name: 'Rainbow trout', blurb: 'Stocked but lake warms in summer; trout caught early season.', season: 'March–May', regs: 'See current ODFW stocking schedule.' },
+      { name: 'Yellow perch', blurb: 'Panfish present.', season: 'April–Oct', regs: 'See current ODFW regs.' }
+    ]
+  },
+  'sunset': {
+    name: 'Sunset Lake',
+    region: '4.5 miles north of Gearhart',
+    description: '100-acre lake with public boat ramp and dock.',
+    fish: [
+      { name: 'Rainbow trout', blurb: 'Stocked through spring; trophy rainbows planted in September.', season: 'March–June; Sept', regs: 'See current ODFW stocking schedule.' },
+      { name: 'Largemouth bass', blurb: 'Bass population present.', season: 'April–Oct', regs: 'See current ODFW regs.' },
+      { name: 'Brown bullhead', blurb: 'Catfish population; self-sustaining.', season: 'April–Oct', regs: 'See current ODFW regs.' },
+      { name: 'Yellow perch', blurb: 'Panfish present.', season: 'April–Oct', regs: 'See current ODFW regs.' }
+    ]
+  },
+  'ecola': {
+    name: 'Ecola Creek',
+    region: 'Cannon Beach, Clatsop County',
+    description: 'Small coastal creek through Cannon Beach. Lightly fished but supports cutthroat and seasonal salmon.',
+    fish: [
+      { name: 'Sea-run cutthroat trout', blurb: 'Returns to creek in fall.', season: 'Sept–Oct', regs: 'See current ODFW regs.' },
+      { name: 'Coho salmon', blurb: 'Wild coho run; release-only.', season: 'Oct–Nov', regs: 'Wild release.' }
+    ]
+  },
+  'pacific-surf': {
+    name: 'Pacific Ocean — Clatsop Beaches (Surf)',
+    region: 'Clatsop County beaches: Sunset Beach to Seaside',
+    description: 'Open ocean surf fishing; same beaches host 95% of Oregon\'s razor clam harvest.',
+    fish: [
+      { name: 'Redtail surfperch', blurb: 'Common in holes and depressions where they gather; year-round.', season: 'Year-round', regs: 'See current ODFW marine regs.' },
+      { name: 'Striped seaperch', blurb: 'Mixed with redtail surfperch in surf zone.', season: 'Year-round', regs: 'See current ODFW marine regs.' }
+    ]
+  }
+};
+
+// ---------------- Tab switching ----------------
+document.querySelectorAll('.tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.target + '-panel').classList.add('active');
+    if (btn.dataset.target === 'leaflet' && window._leafletMap) {
+      setTimeout(() => window._leafletMap.invalidateSize(), 100);
+    }
+  });
+});
+
+// ---------------- Info panel rendering ----------------
+function renderInfo(panelId, bodyId) {
+  const wb = WATER_BODIES[bodyId];
+  const panel = document.getElementById(panelId);
+  if (!wb) {
+    panel.innerHTML = '<div class="empty-state">Click a water body on the map to see what fish are there.</div>';
+    return;
+  }
+  const fishHtml = wb.fish.map((f, idx) => `
+    <li data-idx="${idx}">${f.name}</li>
+  `).join('');
+  panel.innerHTML = `
+    <h2>${wb.name}</h2>
+    <div class="region">${wb.region}</div>
+    <div class="description">${wb.description}</div>
+    <h3>Fish you can find here</h3>
+    <ul class="fish-list">${fishHtml}</ul>
+  `;
+  panel.querySelectorAll('.fish-list li').forEach(li => {
+    li.addEventListener('click', () => {
+      const expanded = li.classList.contains('expanded');
+      panel.querySelectorAll('.fish-list li').forEach(x => {
+        x.classList.remove('expanded');
+        x.innerHTML = x.textContent.trim().split('\n')[0];
+      });
+      if (!expanded) {
+        const idx = parseInt(li.dataset.idx);
+        const f = wb.fish[idx];
+        li.classList.add('expanded');
+        li.innerHTML = `
+          <strong style="font-size:15px;">${f.name}</strong>
+          <div class="fish-detail">
+            <div class="meta-row"><strong>About</strong><span>${f.blurb}</span></div>
+            <div class="meta-row"><strong>Season</strong><span>${f.season}</span></div>
+            <div class="meta-row"><strong>Regs</strong><span>${f.regs}</span></div>
+            <div class="footer-note">Always check current ODFW regulations before fishing — rules change in-season.</div>
+          </div>
+        `;
+      }
+    });
+  });
+}
+
+// ---------------- Stylized SVG map ----------------
+document.querySelectorAll('#svg-map .water-body').forEach(el => {
+  el.addEventListener('click', () => {
+    document.querySelectorAll('#svg-map .water-body').forEach(x => x.classList.remove('selected'));
+    el.classList.add('selected');
+    renderInfo('info-stylized', el.dataset.id);
+  });
+});
+
+// ---------------- Leaflet map ----------------
+const map = L.map('leaflet-map', {
+  center: [46.05, -123.78],
+  zoom: 10,
+  scrollWheelZoom: true
+});
+window._leafletMap = map;
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '© OpenStreetMap',
+  maxZoom: 17
+}).addTo(map);
+
+const riverStyle = { color: '#1a4a64', weight: 4, opacity: 0.85 };
+const riverHover = { color: '#c25a3c', weight: 6 };
+const lakeStyle = { color: '#1a4a64', weight: 2, fillColor: '#5a9bbc', fillOpacity: 0.7 };
+const lakeHover = { color: '#c25a3c', weight: 3, fillColor: '#e89b7e', fillOpacity: 0.85 };
+const oceanStyle = { color: '#1a4a64', weight: 1.5, fillColor: '#5a8fa8', fillOpacity: 0.35 };
+const oceanHover = { color: '#c25a3c', weight: 2, fillColor: '#e89b7e', fillOpacity: 0.55 };
+
+function attachClick(layer, id, hoverStyle, baseStyle) {
+  layer.on('click', () => {
+    map.eachLayer(l => { if (l._baseStyle) l.setStyle(l._baseStyle); });
+    layer.setStyle(hoverStyle);
+    renderInfo('info-leaflet', id);
+  });
+  layer.on('mouseover', () => layer.setStyle(hoverStyle));
+  layer.on('mouseout', () => layer.setStyle(baseStyle));
+  layer._baseStyle = baseStyle;
+  return layer;
+}
+
+// Columbia River (broad polyline along northern boundary)
+attachClick(L.polyline([
+  [46.275, -124.05], [46.235, -123.97], [46.205, -123.86], [46.19, -123.78],
+  [46.18, -123.65], [46.17, -123.50], [46.165, -123.40]
+], { ...riverStyle, weight: 8 }), 'columbia', { ...riverHover, weight: 10 }, { ...riverStyle, weight: 8 }).addTo(map).bindTooltip('Columbia River');
+
+// Necanicum River
+attachClick(L.polyline([
+  [45.99, -123.93], [45.96, -123.95], [45.93, -123.94], [45.90, -123.92], [45.87, -123.90]
+], riverStyle), 'necanicum', riverHover, riverStyle).addTo(map).bindTooltip('Necanicum River');
+
+// Klaskanine
+attachClick(L.polyline([
+  [46.16, -123.78], [46.12, -123.72], [46.08, -123.65]
+], riverStyle), 'klaskanine', riverHover, riverStyle).addTo(map).bindTooltip('Klaskanine River');
+
+// Lewis and Clark
+attachClick(L.polyline([
+  [46.16, -123.86], [46.12, -123.85], [46.08, -123.84], [46.04, -123.83]
+], riverStyle), 'lewis-clark', riverHover, riverStyle).addTo(map).bindTooltip('Lewis & Clark River');
+
+// Big Creek
+attachClick(L.polyline([
+  [46.19, -123.55], [46.15, -123.53], [46.10, -123.52]
+], riverStyle), 'big-creek', riverHover, riverStyle).addTo(map).bindTooltip('Big Creek');
+
+// Ecola Creek
+attachClick(L.polyline([
+  [45.892, -123.962], [45.895, -123.94], [45.90, -123.92]
+], riverStyle), 'ecola', riverHover, riverStyle).addTo(map).bindTooltip('Ecola Creek');
+
+// Coffenbury Lake
+attachClick(L.circle([46.184, -123.973], { radius: 350, ...lakeStyle }),
+  'coffenbury', lakeHover, lakeStyle).addTo(map).bindTooltip('Coffenbury Lake');
+
+// Cullaby Lake
+attachClick(L.circle([46.077, -123.929], { radius: 600, ...lakeStyle }),
+  'cullaby', lakeHover, lakeStyle).addTo(map).bindTooltip('Cullaby Lake');
+
+// Sunset Lake
+attachClick(L.circle([46.04, -123.93], { radius: 400, ...lakeStyle }),
+  'sunset', lakeHover, lakeStyle).addTo(map).bindTooltip('Sunset Lake');
+
+// Pacific Ocean Surf zone (rough polygon along the coast)
+attachClick(L.polygon([
+  [46.275, -124.10], [46.275, -124.04], [46.20, -124.02], [46.10, -124.00],
+  [46.00, -123.97], [45.90, -123.99], [45.85, -124.02], [45.85, -124.10]
+], oceanStyle), 'pacific-surf', oceanHover, oceanStyle).addTo(map).bindTooltip('Pacific Ocean — Clatsop Beaches');
+
+// Fit map to county
+map.fitBounds([[45.85, -124.10], [46.30, -123.40]]);
+
+</script>
+</body>
+</html>
