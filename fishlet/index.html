@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fishlet — Fishing the Oregon Coast, illustrated</title>
+<style>
+  :root {
+    --ink: #1a2733;
+    --ink-soft: #3a4856;
+    --paper: #f5efe2;
+    --paper-deep: #ebe2cd;
+    --paper-deeper: #ddd0b4;
+    --water: #4a85a3;
+    --water-deep: #1a4a64;
+    --water-bright: #2d77a3;
+    --land-shadow: #b8a47a;
+    --accent: #c25a3c;
+    --accent-soft: #e89b7e;
+    --accent-deep: #9c3f24;
+    --shadow: rgba(0,0,0,0.12);
+    --shadow-soft: rgba(0,0,0,0.06);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: 'Georgia', 'Times New Roman', serif;
+    background: var(--paper);
+    color: var(--ink);
+    line-height: 1.55;
+    min-height: 100vh;
+  }
+
+  /* ---- Site header (shared between pages) ---- */
+  .site-header {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 14px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 12px var(--shadow);
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+    color: var(--paper);
+  }
+  .brand-mark {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--accent);
+    display: grid;
+    place-items: center;
+    font-family: 'Georgia', serif;
+    font-style: italic;
+    font-weight: 700;
+    font-size: 22px;
+    color: var(--paper);
+    line-height: 1;
+    box-shadow: 0 2px 8px rgba(194,90,60,0.4);
+  }
+  .brand-name {
+    font-size: 24px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  .brand-tag {
+    font-size: 12px;
+    font-style: italic;
+    color: rgba(245,239,226,0.65);
+    margin-left: 4px;
+  }
+  .site-nav {
+    display: flex;
+    gap: 4px;
+  }
+  .site-nav a {
+    color: rgba(245,239,226,0.78);
+    text-decoration: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.15s;
+    position: relative;
+  }
+  .site-nav a:hover { color: var(--paper); background: rgba(255,255,255,0.06); }
+  .site-nav a.active { color: var(--accent-soft); }
+  .site-nav a.active::after {
+    content: '';
+    position: absolute;
+    bottom: -16px;
+    left: 16px;
+    right: 16px;
+    height: 3px;
+    background: var(--accent);
+    border-radius: 2px 2px 0 0;
+  }
+  .site-nav a.coming-soon::before {
+    content: 'soon';
+    position: absolute;
+    top: -2px;
+    right: 2px;
+    font-size: 9px;
+    background: var(--accent);
+    color: var(--paper);
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    transform: rotate(8deg);
+  }
+
+  /* ---- Hero (centered single-column) ---- */
+  .hero {
+    padding: 72px 24px 48px;
+    max-width: 760px;
+    margin: 0 auto;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .hero h1 {
+    font-size: 64px;
+    line-height: 1.05;
+    margin: 0 0 8px;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+  }
+  .hero h1 em {
+    color: var(--accent);
+    font-style: italic;
+    position: relative;
+    display: inline-block;
+  }
+  .hero h1 em::after {
+    content: '';
+    position: absolute;
+    left: 6%;
+    right: 6%;
+    bottom: 0.04em;
+    height: 0.08em;
+    background: var(--accent-soft);
+    opacity: 0.55;
+    border-radius: 2px;
+    z-index: -1;
+  }
+  .hero .lede {
+    font-size: 18px;
+    line-height: 1.6;
+    color: var(--ink-soft);
+    margin: 18px auto 26px;
+    max-width: 520px;
+  }
+  .hero .meta {
+    font-size: 12.5px;
+    color: var(--land-shadow);
+    font-style: italic;
+    margin-top: 22px;
+  }
+  .hero-ctas {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .hero-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 28px;
+    background: var(--accent);
+    color: var(--paper);
+    text-decoration: none;
+    border: 2px solid transparent;
+    border-radius: 999px;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    transition: all 0.18s;
+    box-shadow: 0 6px 18px rgba(194,90,60,0.32);
+  }
+  .hero-cta:hover {
+    background: var(--accent-deep);
+    border-color: var(--accent-deep);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px rgba(194,90,60,0.42);
+  }
+  .hero-cta .arrow { font-size: 18px; transition: transform 0.18s; }
+  .hero-cta:hover .arrow { transform: translateX(4px); }
+  .hero-cta.secondary {
+    background: transparent;
+    color: var(--accent);
+    border-color: var(--accent);
+    box-shadow: none;
+  }
+  .hero-cta.secondary:hover {
+    background: var(--accent-soft);
+    color: var(--accent-deep);
+    border-color: var(--accent-deep);
+    box-shadow: 0 6px 16px rgba(194,90,60,0.16);
+  }
+
+  /* The slideshow now lives between the title and the lede */
+  .hero-art {
+    position: relative;
+    width: 100%;
+    height: 320px;
+    margin: 18px 0 8px;
+    display: grid;
+    place-items: center;
+  }
+  .hero-art::before {
+    content: '';
+    position: absolute;
+    width: 78%;
+    height: 60%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background:
+      radial-gradient(ellipse at center,
+        rgba(74,133,163,0.16) 0%,
+        rgba(74,133,163,0.08) 38%,
+        transparent 72%);
+    z-index: -1;
+    pointer-events: none;
+    filter: blur(2px);
+  }
+  .hero-art .slideshow {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: grid;
+    place-items: center;
+  }
+  .hero-art .slideshow img {
+    position: absolute;
+    max-width: 92%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 10px 18px rgba(26,39,51,0.22));
+    opacity: 0;
+    animation: heroFade 40s infinite;
+    will-change: opacity, transform;
+  }
+  /* 8-fish slideshow: each holds for ~3s, fades for ~2s, total 5s slot. 8 × 5s = 40s cycle. */
+  @keyframes heroFade {
+    0%   { opacity: 0; transform: translateY(8px) scale(0.985); }
+    3%   { opacity: 1; transform: translateY(0) scale(1); }
+    12%  { opacity: 1; transform: translateY(0) scale(1); }
+    15%  { opacity: 0; transform: translateY(-6px) scale(1.005); }
+    100% { opacity: 0; }
+  }
+  .hero-art .slideshow img:nth-child(1) { animation-delay: 0s; }
+  .hero-art .slideshow img:nth-child(2) { animation-delay: 5s; }
+  .hero-art .slideshow img:nth-child(3) { animation-delay: 10s; }
+  .hero-art .slideshow img:nth-child(4) { animation-delay: 15s; }
+  .hero-art .slideshow img:nth-child(5) { animation-delay: 20s; }
+  .hero-art .slideshow img:nth-child(6) { animation-delay: 25s; }
+  .hero-art .slideshow img:nth-child(7) { animation-delay: 30s; }
+  .hero-art .slideshow img:nth-child(8) { animation-delay: 35s; }
+
+  /* Background drifting fish — fixed to viewport, behind everything */
+  .bg-aquarium {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+  /* Subtle dappled-light shimmer — soft moving white-blue light pools.
+     Bumped opacities from 0.04-0.06 to 0.10-0.16 so it actually reads on the page. */
+  .bg-aquarium::before {
+    content: '';
+    position: absolute;
+    inset: -80px;
+    background:
+      radial-gradient(ellipse 600px 220px at 18% 22%, rgba(255,255,255,0.16), transparent 65%),
+      radial-gradient(ellipse 720px 240px at 78% 58%, rgba(150,200,225,0.14), transparent 65%),
+      radial-gradient(ellipse 520px 200px at 48% 86%, rgba(255,255,255,0.12), transparent 65%),
+      radial-gradient(ellipse 400px 160px at 92% 30%, rgba(180,215,235,0.11), transparent 65%);
+    filter: blur(6px);
+    mix-blend-mode: screen;
+    animation: shimmer 24s ease-in-out infinite;
+    will-change: transform, opacity;
+  }
+  @keyframes shimmer {
+    0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.95; }
+    33%      { transform: translate(-30px, -18px) scale(1.06); opacity: 1; }
+    66%      { transform: translate(22px, 14px) scale(0.96); opacity: 0.85; }
+  }
+
+  /* Each background fish is a wrapper div. Position + drift animation on the wrapper.
+     IMPORTANT: opacity goes on the IMG only (via CSS variable), not the wrapper —
+     otherwise the wrapper's compositing dims the bubbles too. */
+  .bg-fish {
+    position: absolute;
+    will-change: transform;
+  }
+  .bg-fish img {
+    width: 100%;
+    height: auto;
+    display: block;
+    filter: blur(0.4px);
+    opacity: var(--fish-opacity, 0.2);
+  }
+  /* Originals face LEFT. RTL motion = no flip; LTR motion = scaleX(-1) flip. */
+  @keyframes driftRTL {
+    from { transform: translateX(110vw); }
+    to   { transform: translateX(-30vw); }
+  }
+  @keyframes driftLTR {
+    from { transform: translateX(-30vw) scaleX(-1); }
+    to   { transform: translateX(110vw) scaleX(-1); }
+  }
+  /* Two bands — top (above slideshow) and bottom (below) — so they never swim behind the rotating hero fish. */
+  .bg-fish-1 { --fish-opacity: 0.22; top: 7%;  width: 130px; animation: driftLTR 70s linear infinite; animation-delay: 0s; }
+  .bg-fish-2 { --fish-opacity: 0.20; top: 16%; width: 90px;  animation: driftRTL 95s linear infinite; animation-delay: -25s; }
+  .bg-fish-3 { --fish-opacity: 0.20; top: 24%; width: 75px;  animation: driftRTL 60s linear infinite; animation-delay: -38s; }
+  .bg-fish-4 { --fish-opacity: 0.16; top: 72%; width: 160px; animation: driftLTR 110s linear infinite; animation-delay: -60s; }
+  .bg-fish-5 { --fish-opacity: 0.22; top: 82%; width: 110px; animation: driftRTL 80s linear infinite; animation-delay: -10s; }
+  .bg-fish-6 { --fish-opacity: 0.18; top: 91%; width: 100px; animation: driftLTR 90s linear infinite; animation-delay: -45s; }
+
+  /* Bubbles — at full opacity (independent of the fish image's opacity).
+     Sit at the front edge of the wrapper; scaleX flip carries them to the visible mouth. */
+  .bg-fish .bubble {
+    position: absolute;
+    left: 4%;
+    top: 44%;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background:
+      radial-gradient(circle at 35% 35%,
+        rgba(255,255,255,1) 0%,
+        rgba(220,240,250,0.9) 35%,
+        rgba(120,170,210,0.55) 75%,
+        rgba(120,170,210,0.0) 100%);
+    box-shadow:
+      0 0 3px rgba(255,255,255,0.45),
+      inset 0 0 1px rgba(255,255,255,0.6);
+    pointer-events: none;
+    animation: bubbleRise 5.5s ease-out infinite;
+    will-change: transform, opacity;
+  }
+  /* Stagger four bubbles so the stream feels continuous rather than synchronized. */
+  .bg-fish .bubble:nth-of-type(2) { animation-delay: -1.6s; left: 6%; width: 4px; height: 4px; animation-duration: 5s; }
+  .bg-fish .bubble:nth-of-type(3) { animation-delay: -3.2s; left: 3%; width: 7px; height: 7px; animation-duration: 6.5s; }
+  .bg-fish .bubble:nth-of-type(4) { animation-delay: -4.6s; left: 5%; width: 4px; height: 4px; animation-duration: 4.8s; }
+
+  @keyframes bubbleRise {
+    0%   { transform: translateY(8px) scale(0.4); opacity: 0; }
+    15%  { opacity: 0.95; }
+    80%  { opacity: 0.7;  transform: translateY(-55px) scale(1); }
+    100% { transform: translateY(-78px) scale(1.05); opacity: 0; }
+  }
+
+  /* Make sure foreground content sits above the background */
+  .site-header, .hero, .features, .stats-strip, footer, .section-rule { position: relative; z-index: 1; }
+
+  /* Respect users who don't want motion */
+  @media (prefers-reduced-motion: reduce) {
+    .hero-art .slideshow img { animation: none; opacity: 0; }
+    .hero-art .slideshow img:nth-child(1) { opacity: 1; }
+    .bg-fish { animation: none; display: none; }
+    .bg-fish .bubble { display: none; }
+    .bg-aquarium::before { animation: none; }
+  }
+
+  /* ---- Section dividers ---- */
+  .section-rule {
+    border: none;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--land-shadow), transparent);
+    margin: 40px auto;
+    max-width: 920px;
+  }
+
+  /* ---- Feature cards ---- */
+  .features {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 32px 32px 80px;
+  }
+  .features h2 {
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--accent);
+    text-align: center;
+    margin: 0 0 32px;
+  }
+  .feature-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+  .feature-card {
+    background: var(--paper-deep);
+    border: 1px solid var(--paper-deeper);
+    border-radius: 10px;
+    padding: 32px 28px;
+    text-decoration: none;
+    color: var(--ink);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 2px 8px var(--shadow-soft);
+  }
+  .feature-card.live::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--accent);
+  }
+  .feature-card.live:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px var(--shadow);
+    border-color: var(--accent-soft);
+  }
+  .feature-card.coming-soon {
+    opacity: 0.78;
+    cursor: default;
+  }
+  .feature-card.coming-soon:hover {
+    opacity: 0.92;
+  }
+  .feature-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--paper);
+    display: grid;
+    place-items: center;
+    color: var(--accent);
+    font-size: 22px;
+    border: 2px solid var(--accent-soft);
+  }
+  .feature-card h3 {
+    font-size: 22px;
+    margin: 0;
+    line-height: 1.2;
+  }
+  .feature-card p {
+    font-size: 14.5px;
+    line-height: 1.55;
+    color: var(--ink-soft);
+    margin: 0;
+    flex-grow: 1;
+  }
+  .feature-cta {
+    margin-top: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .feature-card.coming-soon .feature-cta { color: var(--land-shadow); }
+  .feature-card .badge {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 4px 9px;
+    border-radius: 11px;
+  }
+  .feature-card .badge.live {
+    background: var(--accent);
+    color: var(--paper);
+  }
+  .feature-card .badge.soon {
+    background: var(--paper-deeper);
+    color: var(--ink-soft);
+  }
+
+  /* ---- Quick stats strip ---- */
+  .stats-strip {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 36px 32px;
+    margin-top: 40px;
+  }
+  .stats-grid {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+    text-align: center;
+  }
+  .stat-num {
+    font-size: 42px;
+    font-weight: 700;
+    color: var(--accent-soft);
+    line-height: 1;
+    margin: 0;
+  }
+  .stat-label {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: rgba(245,239,226,0.65);
+    margin-top: 8px;
+  }
+
+  /* ---- Footer ---- */
+  footer {
+    padding: 28px 32px;
+    background: var(--paper-deep);
+    color: var(--ink-soft);
+    font-size: 12.5px;
+    text-align: center;
+    border-top: 1px solid var(--paper-deeper);
+  }
+  footer .sources {
+    margin-top: 8px;
+    font-size: 11.5px;
+    color: var(--land-shadow);
+    font-style: italic;
+  }
+
+  /* ---- Responsive ---- */
+  @media (max-width: 880px) {
+    .hero { padding: 56px 22px 36px; }
+    .hero h1 { font-size: 52px; }
+    .hero-art { height: 280px; margin: 14px 0 4px; }
+    .feature-grid { grid-template-columns: 1fr; }
+    .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 30px; }
+    .site-header { padding: 12px 20px; }
+    .brand-name { font-size: 20px; }
+    .brand-tag { display: none; }
+  }
+  @media (max-width: 600px) {
+    .hero { padding: 40px 18px 28px; }
+    .hero h1 { font-size: 38px; line-height: 1.04; }
+    .hero .lede { font-size: 16px; margin: 14px auto 22px; }
+    .hero-cta { padding: 12px 22px; font-size: 15px; }
+    .hero .meta { font-size: 11.5px; margin-top: 18px; }
+    .hero-art { height: 220px; margin: 12px 0 2px; }
+    .site-nav a { padding: 6px 10px; font-size: 13px; }
+  }
+  @media (max-width: 420px) {
+    .hero { padding: 32px 14px 22px; }
+    .hero h1 { font-size: 30px; }
+    .hero .lede { font-size: 15px; }
+    .hero-art { height: 170px; margin: 10px 0 0; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Drifting fish in the background — subtle, low-opacity, decorative.
+     Each fish is wrapped in a div with bubble spans so the bubbles drift with the fish. -->
+<div class="bg-aquarium" aria-hidden="true">
+  <div class="bg-fish bg-fish-1">
+    <img src="fish-images/smallmouth-bass.png" alt="" loading="lazy">
+    <span class="bubble"></span><span class="bubble"></span><span class="bubble"></span><span class="bubble"></span>
+  </div>
+  <div class="bg-fish bg-fish-2">
+    <img src="fish-images/pacific-sanddab.png" alt="" loading="lazy">
+    <span class="bubble"></span><span class="bubble"></span><span class="bubble"></span><span class="bubble"></span>
+  </div>
+  <div class="bg-fish bg-fish-3">
+    <img src="fish-images/white-sturgeon.png" alt="" loading="lazy">
+    <span class="bubble"></span><span class="bubble"></span><span class="bubble"></span><span class="bubble"></span>
+  </div>
+  <div class="bg-fish bg-fish-4">
+    <img src="fish-images/kelp-greenling.png" alt="" loading="lazy">
+    <span class="bubble"></span><span class="bubble"></span><span class="bubble"></span><span class="bubble"></span>
+  </div>
+  <div class="bg-fish bg-fish-5">
+    <img src="fish-images/starry-flounder.png" alt="" loading="lazy">
+    <span class="bubble"></span><span class="bubble"></span><span class="bubble"></span><span class="bubble"></span>
+  </div>
+  <div class="bg-fish bg-fish-6">
+    <img src="fish-images/albacore-tuna.png" alt="" loading="lazy">
+    <span class="bubble"></span><span class="bubble"></span><span class="bubble"></span><span class="bubble"></span>
+  </div>
+</div>
+
+<header class="site-header">
+  <a href="index.html" class="brand">
+    <span class="brand-mark">f</span>
+    <span>
+      <span class="brand-name">Fishlet</span>
+      <span class="brand-tag">Oregon Coast edition</span>
+    </span>
+  </a>
+  <nav class="site-nav">
+    <a href="index.html" class="active">Home</a>
+    <a href="map.html">Map</a>
+    <a href="quiz.html#browse">Browse</a>
+    <a href="quiz.html">Quiz</a>
+  </nav>
+</header>
+
+<section class="hero">
+  <h1>Know your <em>fish.</em><br>Know your <em>water.</em></h1>
+
+  <div class="hero-art">
+    <div class="slideshow">
+      <img src="fish-images/chinook-salmon.png" alt="Chinook salmon" loading="eager" onerror="this.style.display='none'">
+      <img src="fish-images/coho-salmon.png" alt="Coho salmon" loading="lazy" onerror="this.style.display='none'">
+      <img src="fish-images/lingcod.png" alt="Lingcod" loading="lazy" onerror="this.style.display='none'">
+      <img src="fish-images/cabezon.png" alt="Cabezon" loading="lazy" onerror="this.style.display='none'">
+      <img src="fish-images/pacific-halibut.png" alt="Pacific halibut" loading="lazy" onerror="this.style.display='none'">
+      <img src="fish-images/black-rockfish.png" alt="Black rockfish" loading="lazy" onerror="this.style.display='none'">
+      <img src="fish-images/rainbow-trout.png" alt="Rainbow trout" loading="lazy" onerror="this.style.display='none'">
+      <img src="fish-images/white-sturgeon.png" alt="White sturgeon" loading="lazy" onerror="this.style.display='none'">
+    </div>
+  </div>
+
+  <p class="lede">
+    Fishlet is a hand-illustrated guide to the rivers, lakes, and ocean of Clatsop County —
+    forty fish, every named waterway, fishing access points, and land-ownership boundaries
+    so you know what you're casting for and where you can legally stand.
+  </p>
+
+  <div class="hero-ctas">
+    <a href="map.html" class="hero-cta">
+      Explore the map
+      <span class="arrow">→</span>
+    </a>
+    <a href="quiz.html" class="hero-cta secondary">
+      Learn your fish
+      <span class="arrow">→</span>
+    </a>
+  </div>
+
+  <p class="meta">Data from ODFW, OSM, USGS, and Clatsop County GIS · Illustrations original</p>
+</section>
+
+<hr class="section-rule">
+
+<section class="features">
+  <h2>What's inside</h2>
+  <div class="feature-grid">
+
+    <a href="map.html" class="feature-card live">
+      <span class="badge live">Open</span>
+      <div class="feature-icon">⌖</div>
+      <h3>Interactive Map</h3>
+      <p>
+        Every river, creek, and lake in Clatsop County, traced from real OSM geometry. Click any water
+        body to see the fish you can catch there. Toggle land ownership to spot public forest vs.
+        permit-required timber. Pinned boat ramps and access points.
+      </p>
+      <span class="feature-cta">Open the map <span>→</span></span>
+    </a>
+
+    <a href="quiz.html#browse" class="feature-card live">
+      <span class="badge live">Open</span>
+      <div class="feature-icon">▦</div>
+      <h3>Browse Fish</h3>
+      <p>
+        All 40 illustrated fish in one place. Filter by habitat — ocean, river, lake, estuary —
+        or jump straight to the bonus species. Tap any fish for the full field-guide entry.
+      </p>
+      <span class="feature-cta">Open the catalog <span>→</span></span>
+    </a>
+
+    <a href="quiz.html" class="feature-card live">
+      <span class="badge live">Open</span>
+      <div class="feature-icon">?</div>
+      <h3>Study &amp; Quiz</h3>
+      <p>
+        Flip through study cards with full ID notes, tackle, season, and memory hooks for every fish.
+        Then quiz yourself — multiple choice across all 40 species, with expert mode for the bonus fish.
+      </p>
+      <span class="feature-cta">Start studying <span>→</span></span>
+    </a>
+
+  </div>
+</section>
+
+<section class="stats-strip">
+  <div class="stats-grid">
+    <div>
+      <p class="stat-num">40</p>
+      <p class="stat-label">Hand-illustrated fish</p>
+    </div>
+    <div>
+      <p class="stat-num">17</p>
+      <p class="stat-label">Major water bodies</p>
+    </div>
+    <div>
+      <p class="stat-num">231</p>
+      <p class="stat-label">Named tributaries</p>
+    </div>
+    <div>
+      <p class="stat-num">17</p>
+      <p class="stat-label">Boat ramps & piers</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  Fishlet — Clatsop County, Oregon
+  <div class="sources">
+    Fish data sourced from Oregon Dept of Fish &amp; Wildlife (ODFW). Map geometry from OpenStreetMap.
+    Land ownership from Clatsop County GIS &amp; Oregon Dept of Forestry. Always check current ODFW regulations before fishing.
+  </div>
+</footer>
+
+</body>
+</html>
