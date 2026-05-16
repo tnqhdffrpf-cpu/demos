@@ -1,0 +1,1459 @@
+{
+  "metadata": {
+    "county": "Clatsop County, Oregon",
+    "research_date": "2026-05-01",
+    "primary_sources": [
+      "https://myodfw.com/",
+      "https://www.dfw.state.or.us/",
+      "https://www.eregulations.com/oregon/fishing/",
+      "https://myodfw.com/recreation-report/fishing-report/northwest-zone",
+      "https://myodfw.com/recreation-report/fishing-report/columbia-zone",
+      "https://myodfw.com/recreation-report/fishing-report/marine-zone"
+    ],
+    "protected_species_note": "Green sturgeon and yelloweye rockfish are protected species. Green sturgeon is incidental in estuaries and must be released immediately if caught. Yelloweye rockfish is prohibited in rockfish bag limits. Check current ODFW regulations for catch-and-release areas and additional protections."
+  },
+  "water_bodies": [
+    {
+      "water_body": "Necanicum River",
+      "type": "river",
+      "region": "Seaside area, flows to Pacific Ocean",
+      "description": "Coastal river in Clatsop County supporting salmon and steelhead runs",
+      "species": [
+        {
+          "common_name": "Resident coastal cutthroat trout",
+          "scientific_name": "Oncorhynchus clarkii clarkii",
+          "blurb": "Native non-migratory cutthroat present year-round in main channel and tributaries. These smaller resident fish are frequently caught accidentally by salmon and steelhead anglers.",
+          "season": "Year-round",
+          "regulations": "See current ODFW regulations for bag limits and size restrictions. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://myodfw.com/fishing/species/sea-run-cutthroat-trout",
+            "https://www.sportfishingreport.com/rivers/273/necanicum-river.php"
+          ]
+        },
+        {
+          "common_name": "Coho salmon",
+          "scientific_name": "Oncorhynchus kisutch",
+          "blurb": "Wild coho return Sept-Nov. The Necanicum hosts one of Oregon's wild coho populations; hatchery strays may occasionally appear. These fish must be released unharmed except for rare hatchery exceptions.",
+          "season": "Adult run typically Sept-Nov; check current ODFW regs for hatchery vs wild.",
+          "regulations": "Wild coho only - catch and release unless marked hatchery fish. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://myodfw.com/articles/fall-coastal-salmon-management",
+            "https://www.sportfishingreport.com/rivers/273/necanicum-river.php"
+          ]
+        },
+        {
+          "common_name": "Sea-run cutthroat trout",
+          "scientific_name": "Oncorhynchus clarkii clarkii",
+          "blurb": "Sea-run cutthroat return to Necanicum in late summer and early fall. Good sport fishery in tidal areas.",
+          "season": "Late summer into fall; best late Aug-Oct",
+          "regulations": "See current ODFW regulations for bag limits and size restrictions. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://myodfw.com/fishing/species/sea-run-cutthroat-trout",
+            "https://www.bestfishinginamerica.com/or-necanicum-river-fishing-oregon.html"
+          ]
+        },
+        {
+          "common_name": "Winter steelhead",
+          "scientific_name": "Oncorhynchus mykiss",
+          "blurb": "Hatchery program supports winter steelhead fishery. Wild winter steelhead with intact adipose fins also present.",
+          "season": "Year-round opportunity; peak late winter into spring",
+          "regulations": "Hatchery steelhead may be retained; wild steelhead (adipose fin intact) must be released unharmed. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://www.dfw.state.or.us/fish/HGMP/docs/2017/Nehalem_Hatchery_STW_stock_32_HGMP_2-8-17_to_NMFS.pdf"
+          ]
+        },
+        {
+          "common_name": "Fall Chinook salmon",
+          "scientific_name": "Oncorhynchus tshawytscha",
+          "blurb": "Tidewater and bay section offer fall Chinook fishing. Migration timing Aug-Dec with peak availability in fall months.",
+          "season": "Aug-Dec, peak fall",
+          "regulations": "See current ODFW regulations for bag limits and hatchery vs wild distinction. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://myodfw.com/recreation-report/fishing-report/northwest-zone"
+          ]
+        },
+        {
+          "common_name": "Pacific staghorn sculpin",
+          "scientific_name": "Leptocottus armatus",
+          "blurb": "Small benthic fish common in tidewater sections. Often caught incidentally while fishing for larger species.",
+          "season": "Year-round",
+          "regulations": "No sport fishing regulations; incidental catch only. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://myodfw.com/fishing/species/sculpins"
+          ]
+        },
+        {
+          "common_name": "Largescale sucker",
+          "scientific_name": "Catostomus macrocheilus",
+          "blurb": "Bottom-feeding sucker common in fresh and tidewater sections. Frequently hooked by salmon and steelhead anglers.",
+          "season": "Year-round",
+          "regulations": "No sport bag limit. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://myodfw.com/fishing/species/suckers"
+          ]
+        },
+        {
+          "common_name": "Northern pikeminnow",
+          "scientific_name": "Ptychocheilus oregonensis",
+          "blurb": "Native minnow species found throughout river. Can reach 2 feet and will hit small lures. Bonus bounty program in some Columbia reaches.",
+          "season": "Year-round",
+          "regulations": "See current ODFW regulations. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://myodfw.com/fishing/species/northern-pikeminnow"
+          ]
+        }
+      ],
+      "water_body_sources": [
+        "https://myodfw.com/articles/fall-coastal-salmon-management",
+        "https://www.dfw.state.or.us/fish/HGMP/docs/2017/Nehalem_Hatchery_STW_stock_32_HGMP_2-8-17_to_NMFS.pdf"
+      ]
+    },
+    {
+      "water_body": "Columbia River (Lower / Clatsop County stretch)",
+      "type": "river",
+      "region": "From Tongue Point downstream to Buoy 10 area, includes Hammond, Astoria, Warrenton",
+      "description": "Mainstem Columbia below Tongue Point boundary. Co-managed by Oregon, Washington, Treaty Tribes. Major fishery for salmon, steelhead, and sturgeon.",
+      "species": [
+        {
+          "common_name": "Spring Chinook salmon",
+          "scientific_name": "Oncorhynchus tshawytscha",
+          "blurb": "Hatchery spring Chinook fishery in lower Columbia; peak fishing typically May-June.",
+          "season": "Spring run, typically May-July",
+          "regulations": "Hatchery fish in most areas. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://myodfw.com/recreation-report/fishing-report/columbia-zone"
+          ]
+        },
+        {
+          "common_name": "Fall Chinook salmon",
+          "scientific_name": "Oncorhynchus tshawytscha",
+          "blurb": "Major fall Chinook fishery, especially famous Buoy 10 season in August. Large numbers supported by hatchery program.",
+          "season": "Aug-Dec; peak Aug-Sept",
+          "regulations": "Regulations co-managed by Oregon and Washington. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://myodfw.com/recreation-report/fishing-report/columbia-zone"
+          ]
+        },
+        {
+          "common_name": "Coho salmon",
+          "scientific_name": "Oncorhynchus kisutch",
+          "blurb": "Fall coho run with adults 20+ inches. Popular Buoy 10 fishery in August as coho stage in coastal waters near river mouth before entering fresh water.",
+          "season": "Typically Aug-Sept peak; overall Aug-Nov",
+          "regulations": "Check current ODFW regulations; daily bag limit and hatchery/wild distinction apply.",
+          "sources": [
+            "https://myodfw.com/recreation-report/fishing-report/columbia-zone",
+            "https://www.fastactionfishing.com/journal/buoy-10-fishing-report/"
+          ]
+        },
+        {
+          "common_name": "Summer steelhead",
+          "scientific_name": "Oncorhynchus mykiss",
+          "blurb": "Summer steelhead in Columbia; supported by hatchery programs. Available in upper and lower river sections.",
+          "season": "May-Sept",
+          "regulations": "Hatchery and wild steelhead have different regulations. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://myodfw.com/recreation-report/fishing-report/columbia-zone"
+          ]
+        },
+        {
+          "common_name": "White sturgeon",
+          "scientific_name": "Acipenser transmontanus",
+          "blurb": "White sturgeon fishery in estuary and lower river. Retention seasons vary annually; catch-and-release opportunity year-round.",
+          "season": "Year-round opportunity; retention season varies",
+          "regulations": "Retention windows vary by year and population status. Always check current ODFW regulations before fishing — rules change in-season. Columbia River Basin Endorsement required.",
+          "sources": [
+            "https://myodfw.com/fishing/species/sturgeon"
+          ]
+        },
+        {
+          "common_name": "American shad",
+          "scientific_name": "Alosa sapidissima",
+          "blurb": "Anadromous fish with strong spring run. Excellent sport on light tackle; silver sides and acrobatic jumps. Abundant in Columbia estuary May-July.",
+          "season": "May-July, peak mid-June",
+          "regulations": "See current ODFW regulations for bag limits and size restrictions. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://myodfw.com/fishing/species/shad",
+            "https://www.dfw.state.or.us/fish/HGMP/docs/2023/Shad_2023_Hatchery_Supplement.pdf"
+          ]
+        },
+        {
+          "common_name": "Smallmouth bass",
+          "scientific_name": "Micropterus dolomieu",
+          "blurb": "Self-sustaining warmwater population throughout lower Columbia. Best spring through fall; can be aggressive feeders.",
+          "season": "March-Oct peak; year-round opportunity",
+          "regulations": "See current ODFW warmwater regulations. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://myodfw.com/fishing/species/smallmouth-bass",
+            "https://myodfw.com/recreation-report/fishing-report/columbia-zone"
+          ]
+        },
+        {
+          "common_name": "Walleye",
+          "scientific_name": "Sander vitreus",
+          "blurb": "Predatory fish increasingly present in lower Columbia. Prime fishing dawn and dusk with live bait or jigging.",
+          "season": "Year-round; best March-May and Sept-Nov",
+          "regulations": "See current ODFW regulations for bag limits and size restrictions. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://myodfw.com/fishing/species/walleye",
+            "https://myodfw.com/recreation-report/fishing-report/columbia-zone"
+          ]
+        },
+        {
+          "common_name": "Largescale sucker",
+          "scientific_name": "Catostomus macrocheilus",
+          "blurb": "Native bottom feeder common throughout Columbia River. Frequently hooked by salmon and steelhead anglers.",
+          "season": "Year-round",
+          "regulations": "No sport bag limit. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://myodfw.com/fishing/species/suckers"
+          ]
+        },
+        {
+          "common_name": "Northern pikeminnow",
+          "scientific_name": "Ptychocheilus oregonensis",
+          "blurb": "Native minnow species abundant in Columbia. Grows to 2 feet; will strike small lures. Bonus bounty program in many reaches.",
+          "season": "Year-round",
+          "regulations": "Eligible for removal programs/bounty in some areas. See current ODFW regulations. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://myodfw.com/fishing/species/northern-pikeminnow"
+          ]
+        },
+        {
+          "common_name": "Peamouth chub",
+          "scientific_name": "Mylocheilus caurinus",
+          "blurb": "Small native cyprinid common in Columbia River mainstem. Frequent bycatch of salmon and steelhead anglers.",
+          "season": "Year-round",
+          "regulations": "No sport regulations. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://myodfw.com/recreation-report/fishing-report/columbia-zone"
+          ]
+        }
+      ],
+      "water_body_sources": [
+        "https://myodfw.com/recreation-report/fishing-report/columbia-zone",
+        "https://myodfw.com/fishing/columbia-zone",
+        "https://www.dfw.state.or.us/fish/OSCRP/CRM/index.asp"
+      ]
+    },
+    {
+      "water_body": "Big Creek",
+      "type": "river",
+      "region": "Near Knappa, lower Columbia tributary",
+      "description": "Small stream tributary in Clatsop County with hatchery support; Big Creek Hatchery facility on this system.",
+      "species": [
+        {
+          "common_name": "Spring Chinook salmon",
+          "scientific_name": "Oncorhynchus tshawytscha",
+          "blurb": "Hatchery spring Chinook program. Fish enter as early as April but peak fishing May-June with smaller catch in July. Springers stray up from net pen and hatchery operations.",
+          "season": "April-July; best May-June",
+          "regulations": "Hatchery fish. See current ODFW regulations for bag limits.",
+          "sources": [
+            "https://www.dfw.state.or.us/fish/HGMP/docs/2023/Big%20Creek%20HPMP%202023.pdf"
+          ]
+        },
+        {
+          "common_name": "Fall Chinook salmon",
+          "scientific_name": "Oncorhynchus tshawytscha",
+          "blurb": "Fall Chinook from hatchery program. Good seasonal fishing opportunity.",
+          "season": "Aug-Dec",
+          "regulations": "Hatchery program. See current ODFW regulations.",
+          "sources": [
+            "https://www.dfw.state.or.us/fish/HGMP/docs/2023/Big%20Creek%20HPMP%202023.pdf"
+          ]
+        },
+        {
+          "common_name": "Winter steelhead",
+          "scientific_name": "Oncorhynchus mykiss",
+          "blurb": "Good winter steelhead fishing, often excellent. Hatchery program supports fishery.",
+          "season": "Nov-Mar; peak Dec-Feb",
+          "regulations": "Hatchery steelhead available for retention. See current ODFW regulations.",
+          "sources": [
+            "https://www.dfw.state.or.us/fish/HGMP/docs/2023/Big%20Creek%20HPMP%202023.pdf"
+          ]
+        },
+        {
+          "common_name": "Coho salmon",
+          "scientific_name": "Oncorhynchus kisutch",
+          "blurb": "Coho from hatchery program; fall season opportunity.",
+          "season": "Sept-Nov",
+          "regulations": "See current ODFW regulations for bag limits. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://www.dfw.state.or.us/fish/HGMP/docs/2023/Big%20Creek%20HPMP%202023.pdf"
+          ]
+        },
+        {
+          "common_name": "Resident coastal cutthroat trout",
+          "scientific_name": "Oncorhynchus clarkii clarkii",
+          "blurb": "Native year-round residents throughout creek. Smaller fish frequently encountered by salmon and steelhead anglers.",
+          "season": "Year-round",
+          "regulations": "See current ODFW regulations. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://www.dfw.state.or.us/fish/HGMP/docs/2023/Big%20Creek%20HPMP%202023.pdf"
+          ]
+        },
+        {
+          "common_name": "Pacific staghorn sculpin",
+          "scientific_name": "Leptocottus armatus",
+          "blurb": "Small native benthic fish in tidewater and fresh sections. Commonly caught incidentally by salmon anglers.",
+          "season": "Year-round",
+          "regulations": "No sport regulations; incidental catch only. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://myodfw.com/fishing/species/sculpins"
+          ]
+        },
+        {
+          "common_name": "Largescale sucker",
+          "scientific_name": "Catostomus macrocheilus",
+          "blurb": "Bottom-feeding native fish common in stream. Frequently hooked by hatchery anglers.",
+          "season": "Year-round",
+          "regulations": "No sport bag limit. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://myodfw.com/fishing/species/suckers"
+          ]
+        }
+      ],
+      "water_body_sources": [
+        "https://www.dfw.state.or.us/fish/HGMP/docs/2023/Big%20Creek%20HPMP%202023.pdf"
+      ]
+    },
+    {
+      "water_body": "Gnat Creek",
+      "type": "river",
+      "region": "Lower Columbia tributary near Knappa",
+      "description": "Small stream tributary with hatchery support for spring Chinook and steelhead.",
+      "species": [
+        {
+          "common_name": "Spring Chinook salmon",
+          "scientific_name": "Oncorhynchus tshawytscha",
+          "blurb": "Hatchery spring Chinook program. Good small-stream destination for spring Chinook.",
+          "season": "April-July; peak May-June",
+          "regulations": "Hatchery fish. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://www.dfw.state.or.us/fish/HGMP/docs/2024/Gnat%20Creek%20HPMP%202024.pdf"
+          ]
+        },
+        {
+          "common_name": "Winter steelhead",
+          "scientific_name": "Oncorhynchus mykiss",
+          "blurb": "Good winter steelhead stream. Hatchery program supports recreational fishery.",
+          "season": "Nov-Mar",
+          "regulations": "Hatchery steelhead available for retention. See current ODFW regulations. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://www.dfw.state.or.us/fish/HGMP/docs/2024/Gnat%20Creek%20HPMP%202024.pdf"
+          ]
+        },
+        {
+          "common_name": "Resident coastal cutthroat trout",
+          "scientific_name": "Oncorhynchus clarkii clarkii",
+          "blurb": "Native year-round residents in creek. Incidental catches by spring Chinook and steelhead anglers.",
+          "season": "Year-round",
+          "regulations": "See current ODFW regulations. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://www.dfw.state.or.us/fish/HGMP/docs/2024/Gnat%20Creek%20HPMP%202024.pdf"
+          ]
+        },
+        {
+          "common_name": "Largescale sucker",
+          "scientific_name": "Catostomus macrocheilus",
+          "blurb": "Common native bottom feeder. Frequently incidental catch.",
+          "season": "Year-round",
+          "regulations": "No sport bag limit. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://myodfw.com/fishing/species/suckers"
+          ]
+        }
+      ],
+      "water_body_sources": [
+        "https://www.dfw.state.or.us/fish/HGMP/docs/2024/Gnat%20Creek%20HPMP%202024.pdf"
+      ]
+    },
+    {
+      "water_body": "Klaskanine River (North Fork, South Fork, Mainstem)",
+      "type": "river",
+      "region": "Lower Columbia tributary system in Clatsop County",
+      "description": "Multi-fork system with significant hatchery steelhead program. North Fork and South Fork have distinct programs.",
+      "species": [
+        {
+          "common_name": "Winter steelhead",
+          "scientific_name": "Oncorhynchus mykiss",
+          "blurb": "North Fork and South Fork Klaskanine; hatchery programs support winter steelhead fishery.",
+          "season": "Nov-Mar; peak Dec-Feb",
+          "regulations": "Hatchery steelhead available for retention. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://www.dfw.state.or.us/fish/HGMP/docs/2024/Klaskanine%20HPMP%202024.pdf"
+          ]
+        },
+        {
+          "common_name": "Fall Chinook salmon",
+          "scientific_name": "Oncorhynchus tshawytscha",
+          "blurb": "Fall Chinook program in basin; seasonal opportunity.",
+          "season": "Aug-Dec",
+          "regulations": "See current ODFW regulations.",
+          "sources": [
+            "https://www.dfw.state.or.us/fish/HGMP/docs/2024/Klaskanine%20HPMP%202024.pdf"
+          ]
+        },
+        {
+          "common_name": "Coho salmon",
+          "scientific_name": "Oncorhynchus kisutch",
+          "blurb": "Coho releases from Klaskanine Hatchery and Clatsop County Fisheries net pens support fall fishery.",
+          "season": "Sept-Nov",
+          "regulations": "See current ODFW regulations. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://www.dfw.state.or.us/fish/HGMP/docs/2024/Klaskanine%20HPMP%202024.pdf"
+          ]
+        },
+        {
+          "common_name": "Resident coastal cutthroat trout",
+          "scientific_name": "Oncorhynchus clarkii clarkii",
+          "blurb": "Native resident cutthroat year-round. Common incidental catches by salmon and steelhead anglers.",
+          "season": "Year-round",
+          "regulations": "See current ODFW regulations. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://www.dfw.state.or.us/fish/HGMP/docs/2024/Klaskanine%20HPMP%202024.pdf"
+          ]
+        },
+        {
+          "common_name": "Largescale sucker",
+          "scientific_name": "Catostomus macrocheilus",
+          "blurb": "Common native bottom feeder throughout system. Incidental bycatch.",
+          "season": "Year-round",
+          "regulations": "No sport bag limit. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://myodfw.com/fishing/species/suckers"
+          ]
+        },
+        {
+          "common_name": "Pacific staghorn sculpin",
+          "scientific_name": "Leptocottus armatus",
+          "blurb": "Small native benthic fish in tidewater sections. Often incidentally caught.",
+          "season": "Year-round",
+          "regulations": "No sport regulations; incidental catch only. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://myodfw.com/fishing/species/sculpins"
+          ]
+        }
+      ],
+      "water_body_sources": [
+        "https://www.dfw.state.or.us/fish/HGMP/docs/2024/Klaskanine%20HPMP%202024.pdf"
+      ]
+    },
+    {
+      "water_body": "Youngs River and Youngs Bay",
+      "type": "estuary/river",
+      "region": "Near Astoria at mouth of Columbia; ~17 miles from headwaters to bay entrance",
+      "description": "Estuary system at northwest corner of Clatsop County; receives coho releases from Klaskanine Hatchery and county net pens.",
+      "species": [
+        {
+          "common_name": "Fall Chinook salmon",
+          "scientific_name": "Oncorhynchus tshawytscha",
+          "blurb": "Historically abundant; hatchery support. Area from Hwy 101 bridge to confluence with Klaskanine (tidewater) open year-round for hatchery Chinook.",
+          "season": "Aug-Dec",
+          "regulations": "Hatchery fish. Open year-round (Hwy 101 to confluence). See current ODFW regulations.",
+          "sources": [
+            "https://www.clatsopwatersheds.org/watersheds/youngs-bay/"
+          ]
+        },
+        {
+          "common_name": "Coho salmon",
+          "scientific_name": "Oncorhynchus kisutch",
+          "blurb": "Coho releases from Klaskanine Hatchery and Clatsop County Fisheries net pens. Returns Aug-Sept. ODFW coordinating to increase releases.",
+          "season": "Aug-Sept",
+          "regulations": "Hatchery fish. Open year-round in tidewater (Hwy 101 to confluence). See current ODFW regulations.",
+          "sources": [
+            "https://www.clatsopwatersheds.org/watersheds/youngs-bay/"
+          ]
+        },
+        {
+          "common_name": "Winter steelhead",
+          "scientific_name": "Oncorhynchus mykiss",
+          "blurb": "Hatchery steelhead; tidewater opportunity.",
+          "season": "Nov-Mar",
+          "regulations": "Hatchery fish. Open year-round in tidewater. See current ODFW regulations.",
+          "sources": [
+            "https://www.clatsopwatersheds.org/watersheds/youngs-bay/"
+          ]
+        },
+        {
+          "common_name": "Sea-run cutthroat trout",
+          "scientific_name": "Oncorhynchus clarkii clarkii",
+          "blurb": "Historically present; native species in basin. Tidewater opportunity in late summer.",
+          "season": "Late summer-fall",
+          "regulations": "See current ODFW regulations. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://www.clatsopwatersheds.org/watersheds/youngs-bay/"
+          ]
+        },
+        {
+          "common_name": "Resident coastal cutthroat trout",
+          "scientific_name": "Oncorhynchus clarkii clarkii",
+          "blurb": "Native non-migratory cutthroat present year-round in fresh and tidal portions.",
+          "season": "Year-round",
+          "regulations": "See current ODFW regulations. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://www.clatsopwatersheds.org/watersheds/youngs-bay/"
+          ]
+        },
+        {
+          "common_name": "Starry flounder",
+          "scientific_name": "Platichthys stellatus",
+          "blurb": "Flatfish in tidewater sections of bay and lower river. Catches often incidental to salmon fishing.",
+          "season": "Year-round, best spring-early fall",
+          "regulations": "See current ODFW regulations. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://myodfw.com/fishing/species/starry-flounder"
+          ]
+        },
+        {
+          "common_name": "Pacific staghorn sculpin",
+          "scientific_name": "Leptocottus armatus",
+          "blurb": "Small native benthic fish in tidewater. Commonly caught incidentally.",
+          "season": "Year-round",
+          "regulations": "No sport regulations; incidental catch only. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://myodfw.com/fishing/species/sculpins"
+          ]
+        },
+        {
+          "common_name": "Largescale sucker",
+          "scientific_name": "Catostomus macrocheilus",
+          "blurb": "Native bottom feeder in fresh and tidal portions. Frequent incidental catch.",
+          "season": "Year-round",
+          "regulations": "No sport bag limit. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://myodfw.com/fishing/species/suckers"
+          ]
+        }
+      ],
+      "water_body_sources": [
+        "https://www.clatsopwatersheds.org/watersheds/youngs-bay/",
+        "https://myodfw.com/recreation-report/fishing-report/northwest-zone"
+      ]
+    },
+    {
+      "water_body": "Bear Creek",
+      "type": "river",
+      "region": "Flows to Svensen Slough and Columbia River near Astoria",
+      "description": "Small tributary with wild and hatchery runs of salmon and steelhead; part of ODFW chum reintroduction monitoring.",
+      "species": [
+        {
+          "common_name": "Coho salmon",
+          "scientific_name": "Oncorhynchus kisutch",
+          "blurb": "Wild and hatchery coho spawn in basin. Modest catch of coho smolts observed in monitoring.",
+          "season": "Late summer-fall",
+          "regulations": "See current ODFW regulations; wild coho may be catch-and-release only.",
+          "sources": [
+            "https://odfwchum.forestry.oregonstate.edu/bear-creek-juvenile-monitoring"
+          ]
+        },
+        {
+          "common_name": "Winter steelhead",
+          "scientific_name": "Oncorhynchus mykiss",
+          "blurb": "Wild and hatchery winter steelhead spawn; monitoring shows modest smolt catches.",
+          "season": "Nov-Mar spawning",
+          "regulations": "See current ODFW regulations.",
+          "sources": [
+            "https://odfwchum.forestry.oregonstate.edu/bear-creek-juvenile-monitoring"
+          ]
+        },
+        {
+          "common_name": "Fall Chinook salmon",
+          "scientific_name": "Oncorhynchus tshawytscha",
+          "blurb": "Limited Chinook salmon spawning in basin observed in monitoring.",
+          "season": "Aug-Dec",
+          "regulations": "See current ODFW regulations.",
+          "sources": [
+            "https://odfwchum.forestry.oregonstate.edu/bear-creek-juvenile-monitoring"
+          ]
+        },
+        {
+          "common_name": "Resident coastal cutthroat trout",
+          "scientific_name": "Oncorhynchus clarkii clarkii",
+          "blurb": "Wild resident cutthroat observed year-round in monitoring; smaller fish common.",
+          "season": "Year-round",
+          "regulations": "See current ODFW regulations. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://odfwchum.forestry.oregonstate.edu/bear-creek-juvenile-monitoring"
+          ]
+        },
+        {
+          "common_name": "Sea-run cutthroat trout",
+          "scientific_name": "Oncorhynchus clarkii clarkii",
+          "blurb": "Sea-run cutthroat observed returning to basin in monitoring data.",
+          "season": "Late summer-fall",
+          "regulations": "See current ODFW regulations. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://odfwchum.forestry.oregonstate.edu/bear-creek-juvenile-monitoring"
+          ]
+        }
+      ],
+      "water_body_sources": [
+        "https://odfwchum.forestry.oregonstate.edu/bear-creek-juvenile-monitoring"
+      ],
+      "info_status": "limited"
+    },
+    {
+      "water_body": "Lewis and Clark River",
+      "type": "river",
+      "region": "Columbia River tributary in Clatsop County",
+      "description": "Part of lower Columbia basin; supports salmon and steelhead fisheries with excellent resident cutthroat populations.",
+      "species": [
+        {
+          "common_name": "Resident coastal cutthroat trout",
+          "scientific_name": "Oncorhynchus clarkii clarkii",
+          "blurb": "Native non-migratory cutthroat present year-round throughout river. Most commonly encountered fish; small to medium size.",
+          "season": "Year-round",
+          "regulations": "See current ODFW regulations for bag limits and size restrictions. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://myodfw.com/fishing/species/sea-run-cutthroat-trout",
+            "https://www.eregulations.com/oregon/fishing/northwest-zone"
+          ]
+        },
+        {
+          "common_name": "Winter steelhead",
+          "scientific_name": "Oncorhynchus mykiss",
+          "blurb": "Year-round opening for hatchery steelhead in river zones. Good January-March fishing.",
+          "season": "Nov-Mar peak; year-round opening",
+          "regulations": "Hatchery steelhead available year-round. See current ODFW regulations. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://www.eregulations.com/oregon/fishing/northwest-zone"
+          ]
+        },
+        {
+          "common_name": "Spring Chinook salmon",
+          "scientific_name": "Oncorhynchus tshawytscha",
+          "blurb": "Hatchery spring Chinook program. Year-round opening in river zones for hatchery Chinook.",
+          "season": "Jan-Jul; best May-June",
+          "regulations": "Hatchery fish. Bait allowed May 22-Aug 31 as exception above tidewater. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://www.eregulations.com/oregon/fishing/northwest-zone"
+          ]
+        },
+        {
+          "common_name": "Coho salmon",
+          "scientific_name": "Oncorhynchus kisutch",
+          "blurb": "Fall coho run returns to Lewis and Clark. Peak fishing Sept-Oct in tidewater and lower sections.",
+          "season": "Sept-Nov",
+          "regulations": "See current ODFW regulations. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://myodfw.com/articles/fall-coastal-salmon-management",
+            "https://www.eregulations.com/oregon/fishing/northwest-zone"
+          ]
+        },
+        {
+          "common_name": "Fall Chinook salmon",
+          "scientific_name": "Oncorhynchus tshawytscha",
+          "blurb": "Fall Chinook run; tidewater and bay sections good August-October.",
+          "season": "Aug-Dec",
+          "regulations": "See current ODFW regulations. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://www.eregulations.com/oregon/fishing/northwest-zone"
+          ]
+        },
+        {
+          "common_name": "Sea-run cutthroat trout",
+          "scientific_name": "Oncorhynchus clarkii clarkii",
+          "blurb": "Sea-run cutthroat return in late summer/fall to tidal portions of river.",
+          "season": "Late Aug-Oct",
+          "regulations": "See current ODFW regulations. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://myodfw.com/fishing/species/sea-run-cutthroat-trout"
+          ]
+        },
+        {
+          "common_name": "Pacific staghorn sculpin",
+          "scientific_name": "Leptocottus armatus",
+          "blurb": "Small benthic fish in tidewater sections. Common incidental catch by salmon anglers.",
+          "season": "Year-round",
+          "regulations": "No sport regulations; incidental catch only. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://myodfw.com/fishing/species/sculpins"
+          ]
+        },
+        {
+          "common_name": "Largescale sucker",
+          "scientific_name": "Catostomus macrocheilus",
+          "blurb": "Bottom-feeding native fish common throughout river. Frequently hooked by salmon and steelhead anglers.",
+          "season": "Year-round",
+          "regulations": "No sport bag limit. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://myodfw.com/fishing/species/suckers"
+          ]
+        },
+        {
+          "common_name": "Starry flounder",
+          "scientific_name": "Platichthys stellatus",
+          "blurb": "Flatfish present in tidewater near mouth. Incidental catches by salmon anglers.",
+          "season": "Year-round",
+          "regulations": "See current ODFW regulations. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://myodfw.com/fishing/species/starry-flounder"
+          ]
+        }
+      ],
+      "water_body_sources": [
+        "https://www.eregulations.com/oregon/fishing/northwest-zone",
+        "https://myodfw.com/articles/fall-coastal-salmon-management"
+      ]
+    },
+    {
+      "water_body": "Ecola Creek",
+      "type": "river",
+      "region": "Flows to Pacific near Cannon Beach in Clatsop County",
+      "description": "Restored stream with large wood structures for habitat; supports wild coho, steelhead, and Chinook.",
+      "species": [
+        {
+          "common_name": "Coho salmon",
+          "scientific_name": "Oncorhynchus kisutch",
+          "blurb": "Wild coho; habitat restored with 96 conifer logs placed in large wood structures by ODFW and partners.",
+          "season": "Sept-Nov",
+          "regulations": "Wild coho; see current ODFW regulations.",
+          "sources": [
+            "https://www.clatsopwatersheds.org/accomplishments/"
+          ]
+        },
+        {
+          "common_name": "Winter steelhead",
+          "scientific_name": "Oncorhynchus mykiss",
+          "blurb": "Wild winter steelhead; habitat improved with restoration project.",
+          "season": "Nov-Mar",
+          "regulations": "See current ODFW regulations.",
+          "sources": [
+            "https://www.clatsopwatersheds.org/accomplishments/"
+          ]
+        },
+        {
+          "common_name": "Fall Chinook salmon",
+          "scientific_name": "Oncorhynchus tshawytscha",
+          "blurb": "Chinook salmon present in stream; habitat improved.",
+          "season": "Aug-Dec",
+          "regulations": "See current ODFW regulations.",
+          "sources": [
+            "https://www.clatsopwatersheds.org/accomplishments/"
+          ]
+        },
+        {
+          "common_name": "Resident coastal cutthroat trout",
+          "scientific_name": "Oncorhynchus clarkii clarkii",
+          "blurb": "Native resident cutthroat; habitat restored with large wood structures.",
+          "season": "Year-round",
+          "regulations": "See current ODFW regulations. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://www.clatsopwatersheds.org/accomplishments/"
+          ]
+        },
+        {
+          "common_name": "Sea-run cutthroat trout",
+          "scientific_name": "Oncorhynchus clarkii clarkii",
+          "blurb": "Native sea-run cutthroat returning to restored habitat. Late summer/fall timing.",
+          "season": "Late Aug-Oct",
+          "regulations": "See current ODFW regulations. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://www.clatsopwatersheds.org/accomplishments/"
+          ]
+        },
+        {
+          "common_name": "Pacific staghorn sculpin",
+          "scientific_name": "Leptocottus armatus",
+          "blurb": "Small benthic native fish in stream. Incidental catches.",
+          "season": "Year-round",
+          "regulations": "No sport regulations; incidental catch only. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://myodfw.com/fishing/species/sculpins"
+          ]
+        }
+      ],
+      "water_body_sources": [
+        "https://www.clatsopwatersheds.org/accomplishments/"
+      ]
+    },
+    {
+      "water_body": "Nehalem River (Clatsop County portion)",
+      "type": "river",
+      "region": "Mostly in Tillamook County; small portion flows through north Clatsop County",
+      "description": "Largest 'wild fish only' river on Oregon Coast; unusually rich diversity of salmonids. Note: Most of river is in Tillamook County, not Clatsop.",
+      "species": [
+        {
+          "common_name": "Coho salmon",
+          "scientific_name": "Oncorhynchus kisutch",
+          "blurb": "Wild coho only; return Aug-Sept. Nehalem is a major coho system with high-quality wild populations.",
+          "season": "Aug-Sept return; spawning through Nov",
+          "regulations": "Wild coho only - catch and release. See current ODFW regulations.",
+          "sources": [
+            "https://myodfw.com/north-nehalem-hatchery-visitors-guide",
+            "https://www.dfw.state.or.us/fish/HGMP/docs/2017/Nehalem_Hatchery_STW_stock_32_HGMP_2-8-17_to_NMFS.pdf"
+          ]
+        },
+        {
+          "common_name": "Winter steelhead",
+          "scientific_name": "Oncorhynchus mykiss",
+          "blurb": "Wild winter steelhead; no hatchery releases on mainstem Nehalem. Race of extra-large winter steelhead noted.",
+          "season": "Nov-Mar",
+          "regulations": "Wild steelhead only - catch and release. See current ODFW regulations.",
+          "sources": [
+            "https://www.dfw.state.or.us/fish/HGMP/docs/2017/Nehalem_Hatchery_STW_stock_32_HGMP_2-8-17_to_NMFS.pdf"
+          ]
+        },
+        {
+          "common_name": "Fall Chinook salmon",
+          "scientific_name": "Oncorhynchus tshawytscha",
+          "blurb": "Wild fall Chinook; three races of Chinook present in Nehalem.",
+          "season": "Aug-Dec",
+          "regulations": "See current ODFW regulations; likely catch-and-release or limited retention.",
+          "sources": [
+            "https://www.dfw.state.or.us/fish/HGMP/docs/2017/Nehalem_Hatchery_STW_stock_32_HGMP_2-8-17_to_NMFS.pdf"
+          ]
+        },
+        {
+          "common_name": "Coastal cutthroat trout",
+          "scientific_name": "Oncorhynchus clarkii clarkii",
+          "blurb": "Native resident and sea-run cutthroat; wild only system. Year-round resident populations.",
+          "season": "Year-round",
+          "regulations": "See current ODFW regulations. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://www.dfw.state.or.us/fish/HGMP/docs/2017/Nehalem_Hatchery_STW_stock_32_HGMP_2-8-17_to_NMFS.pdf"
+          ]
+        },
+        {
+          "common_name": "Pacific staghorn sculpin",
+          "scientific_name": "Leptocottus armatus",
+          "blurb": "Small benthic fish in tidewater and river. Incidental catches.",
+          "season": "Year-round",
+          "regulations": "No sport regulations; incidental catch only. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://myodfw.com/fishing/species/sculpins"
+          ]
+        },
+        {
+          "common_name": "Largescale sucker",
+          "scientific_name": "Catostomus macrocheilus",
+          "blurb": "Native bottom feeder. Incidental catches by salmon and steelhead anglers.",
+          "season": "Year-round",
+          "regulations": "No sport bag limit. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://myodfw.com/fishing/species/suckers"
+          ]
+        }
+      ],
+      "water_body_sources": [
+        "https://www.dfw.state.or.us/fish/HGMP/docs/2017/Nehalem_Hatchery_STW_stock_32_HGMP_2-8-17_to_NMFS.pdf",
+        "https://myodfw.com/north-nehalem-hatchery-visitors-guide"
+      ]
+    },
+    {
+      "water_body": "Coffenbury Lake",
+      "type": "lake",
+      "region": "Fort Stevens State Park, near Astoria",
+      "description": "50-acre lake; popular for stocked rainbow trout and warmwater species. Excellent bank and boat access including handicapped areas.",
+      "species": [
+        {
+          "common_name": "Largemouth bass",
+          "scientific_name": "Micropterus salmoides",
+          "blurb": "Self-sustaining warmwater population; good fishing spring-summer-fall.",
+          "season": "April-Oct (warmwater season)",
+          "regulations": "See current ODFW warmwater fish regulations. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://www.bestfishinginamerica.com/or-coffenbury-lake-fishing.html"
+          ]
+        },
+        {
+          "common_name": "Rainbow trout",
+          "scientific_name": "Oncorhynchus mykiss",
+          "blurb": "Stocked March to mid-September; jumbo trophy rainbows planted September. Hot fishing just after stocking.",
+          "season": "March-Sept; peak after planting",
+          "regulations": "Hatchery stocked fish. See current ODFW regulations for bag limits. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://myodfw.com/articles/easy-angling-northwest-zone",
+            "https://www.bestfishinginamerica.com/or-coffenbury-lake-fishing.html"
+          ]
+        },
+        {
+          "common_name": "Surplus hatchery steelhead",
+          "scientific_name": "Oncorhynchus mykiss",
+          "blurb": "Surplus adult steelhead stocked Dec-Feb when available.",
+          "season": "Dec-Feb",
+          "regulations": "Hatchery fish. See current ODFW regulations. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://www.bestfishinginamerica.com/or-coffenbury-lake-fishing.html"
+          ]
+        },
+        {
+          "common_name": "Yellow perch",
+          "scientific_name": "Perca flavescens",
+          "blurb": "Panfish present; self-sustaining.",
+          "season": "April-Oct",
+          "regulations": "See current ODFW regulations. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://www.bestfishinginamerica.com/or-coffenbury-lake-fishing.html"
+          ]
+        },
+        {
+          "common_name": "Brown bullhead",
+          "scientific_name": "Ameiurus nebulosus",
+          "blurb": "Catfish present; self-sustaining population.",
+          "season": "April-Oct",
+          "regulations": "See current ODFW regulations. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://www.bestfishinginamerica.com/or-coffenbury-lake-fishing.html"
+          ]
+        },
+        {
+          "common_name": "Bluegill",
+          "scientific_name": "Lepomis macrochirus",
+          "blurb": "Sunfish panfish; self-sustaining.",
+          "season": "April-Oct",
+          "regulations": "See current ODFW regulations. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://www.bestfishinginamerica.com/or-coffenbury-lake-fishing.html"
+          ]
+        },
+        {
+          "common_name": "Black crappie",
+          "scientific_name": "Pomoxis nigromaculatus",
+          "blurb": "Panfish present; self-sustaining population.",
+          "season": "April-Oct",
+          "regulations": "See current ODFW regulations. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://www.bestfishinginamerica.com/or-coffenbury-lake-fishing.html"
+          ]
+        }
+      ],
+      "water_body_sources": [
+        "https://myodfw.com/articles/easy-angling-northwest-zone",
+        "https://www.bestfishinginamerica.com/or-coffenbury-lake-fishing.html"
+      ]
+    },
+    {
+      "water_body": "Smith Lake",
+      "type": "lake",
+      "region": "Fort Stevens area, Clatsop County",
+      "description": "44-acre lake in Fort Stevens State Park area with warmwater and trout fisheries.",
+      "species": [
+        {
+          "common_name": "Largemouth bass",
+          "scientific_name": "Micropterus salmoides",
+          "blurb": "Self-sustaining warmwater population; good spring-summer-fall fishing.",
+          "season": "April-Oct primary; year-round opportunity",
+          "regulations": "See current ODFW warmwater regulations. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://www.lake-link.com/oregon-lakes/clatsop-county-county/smith-lake/332394/"
+          ]
+        },
+        {
+          "common_name": "Bluegill",
+          "scientific_name": "Lepomis macrochirus",
+          "blurb": "Common panfish; self-sustaining population.",
+          "season": "April-Oct",
+          "regulations": "See current ODFW regulations. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://www.lake-link.com/oregon-lakes/clatsop-county-county/smith-lake/332394/"
+          ]
+        },
+        {
+          "common_name": "Black crappie",
+          "scientific_name": "Pomoxis nigromaculatus",
+          "blurb": "Panfish present; self-sustaining.",
+          "season": "April-Oct",
+          "regulations": "See current ODFW regulations. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://www.lake-link.com/oregon-lakes/clatsop-county-county/smith-lake/332394/"
+          ]
+        },
+        {
+          "common_name": "Yellow perch",
+          "scientific_name": "Perca flavescens",
+          "blurb": "Panfish population; self-sustaining.",
+          "season": "April-Oct",
+          "regulations": "See current ODFW regulations. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://www.lake-link.com/oregon-lakes/clatsop-county-county/smith-lake/332394/"
+          ]
+        },
+        {
+          "common_name": "Rainbow trout",
+          "scientific_name": "Oncorhynchus mykiss",
+          "blurb": "Stocked through spring and early summer; jumbo plants September.",
+          "season": "March-Sept; peak after stocking",
+          "regulations": "See current ODFW stocking schedule and regulations. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://www.lake-link.com/oregon-lakes/clatsop-county-county/smith-lake/332394/"
+          ]
+        }
+      ],
+      "water_body_sources": [
+        "https://www.lake-link.com/oregon-lakes/clatsop-county-county/smith-lake/332394/"
+      ]
+    },
+    {
+      "water_body": "Cullaby Lake",
+      "type": "lake",
+      "region": "12 miles south of Astoria on Hwy 101; Cullaby Lake County Park",
+      "description": "195-acre lake; excellent warmwater fishery. Bank access and boat launch available.",
+      "species": [
+        {
+          "common_name": "Largemouth bass",
+          "scientific_name": "Micropterus salmoides",
+          "blurb": "One of best places on north coast for largemouth bass. Self-sustaining population.",
+          "season": "April-Oct",
+          "regulations": "See current ODFW regulations. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://www.bestfishinginamerica.com/or-cullaby-lake-fishing.html"
+          ]
+        },
+        {
+          "common_name": "Black crappie",
+          "scientific_name": "Pomoxis nigromaculatus",
+          "blurb": "Excellent crappie fishery; one of best on coast.",
+          "season": "April-Oct",
+          "regulations": "See current ODFW regulations. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://www.bestfishinginamerica.com/or-cullaby-lake-fishing.html"
+          ]
+        },
+        {
+          "common_name": "Bluegill",
+          "scientific_name": "Lepomis macrochirus",
+          "blurb": "Panfish present; self-sustaining.",
+          "season": "April-Oct",
+          "regulations": "See current ODFW regulations. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://www.bestfishinginamerica.com/or-cullaby-lake-fishing.html"
+          ]
+        },
+        {
+          "common_name": "Yellow perch",
+          "scientific_name": "Perca flavescens",
+          "blurb": "Panfish present; self-sustaining population.",
+          "season": "April-Oct",
+          "regulations": "See current ODFW regulations. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://www.bestfishinginamerica.com/or-cullaby-lake-fishing.html"
+          ]
+        },
+        {
+          "common_name": "Brown bullhead",
+          "scientific_name": "Ameiurus nebulosus",
+          "blurb": "Catfish population; self-sustaining.",
+          "season": "April-Oct",
+          "regulations": "See current ODFW regulations. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://www.bestfishinginamerica.com/or-cullaby-lake-fishing.html"
+          ]
+        },
+        {
+          "common_name": "Common carp",
+          "scientific_name": "Cyprinus carpio",
+          "blurb": "Self-sustaining carp population. Can reach substantial size and offer strong fight.",
+          "season": "April-Oct",
+          "regulations": "See current ODFW regulations. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://myodfw.com/fishing/species/carp"
+          ]
+        },
+        {
+          "common_name": "Rainbow trout",
+          "scientific_name": "Oncorhynchus mykiss",
+          "blurb": "Gets hatchery rainbow trout stockings but lake becomes too warm for trout survival in summer. Trout caught before summer heat.",
+          "season": "March-May primarily",
+          "regulations": "See current ODFW stocking schedule. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://www.bestfishinginamerica.com/or-cullaby-lake-fishing.html"
+          ]
+        }
+      ],
+      "water_body_sources": [
+        "https://www.bestfishinginamerica.com/or-cullaby-lake-fishing.html",
+        "https://www.clatsopcounty.gov/parks/park/cullaby-lake-county-park"
+      ]
+    },
+    {
+      "water_body": "Sunset Lake",
+      "type": "lake",
+      "region": "West of Hwy 101, 4.5 miles north of Gearhart",
+      "description": "100-acre lake; public boat ramp and dock. Stocked with rainbow trout and warmwater species.",
+      "species": [
+        {
+          "common_name": "Largemouth bass",
+          "scientific_name": "Micropterus salmoides",
+          "blurb": "Self-sustaining warmwater population; good spring-fall fishing.",
+          "season": "April-Oct",
+          "regulations": "See current ODFW regulations. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://www.lake-link.com/oregon-lakes/clatsop/sunset-lake/333807/"
+          ]
+        },
+        {
+          "common_name": "Bluegill",
+          "scientific_name": "Lepomis macrochirus",
+          "blurb": "Panfish present; self-sustaining population.",
+          "season": "April-Oct",
+          "regulations": "See current ODFW regulations. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://www.lake-link.com/oregon-lakes/clatsop/sunset-lake/333807/"
+          ]
+        },
+        {
+          "common_name": "Yellow perch",
+          "scientific_name": "Perca flavescens",
+          "blurb": "Panfish present; self-sustaining.",
+          "season": "April-Oct",
+          "regulations": "See current ODFW regulations. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://www.lake-link.com/oregon-lakes/clatsop/sunset-lake/333807/"
+          ]
+        },
+        {
+          "common_name": "Brown bullhead",
+          "scientific_name": "Ameiurus nebulosus",
+          "blurb": "Catfish population; self-sustaining.",
+          "season": "April-Oct",
+          "regulations": "See current ODFW regulations. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://www.lake-link.com/oregon-lakes/clatsop/sunset-lake/333807/"
+          ]
+        },
+        {
+          "common_name": "Rainbow trout",
+          "scientific_name": "Oncorhynchus mykiss",
+          "blurb": "Stocked throughout spring; extra-large trophy rainbows planted September.",
+          "season": "March-June; Sept peak",
+          "regulations": "See current ODFW stocking schedule. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://www.lake-link.com/oregon-lakes/clatsop/sunset-lake/333807/"
+          ]
+        }
+      ],
+      "water_body_sources": [
+        "https://www.lake-link.com/oregon-lakes/clatsop/sunset-lake/333807/"
+      ]
+    },
+    {
+      "water_body": "Pacific Ocean - Clatsop Beaches (Surf)",
+      "type": "ocean",
+      "region": "Clatsop County beaches from Columbia River to Seaside area",
+      "description": "Nearshore surf and beach fishing; 95% of Oregon's razor clam harvest on these beaches.",
+      "species": [
+        {
+          "common_name": "Redtail surfperch",
+          "scientific_name": "Amphistichus rhodoterus",
+          "blurb": "Most common surfperch on ocean side near breaking waves and open beaches; found in holes and depressions where they gather.",
+          "season": "Year-round",
+          "regulations": "See current ODFW marine regulations. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://myodfw.com/articles/oregon-marine-shore-fishing",
+            "https://allaboutfishing.org/places-to-fish/oregon/clatsop-spit"
+          ]
+        },
+        {
+          "common_name": "Striped seaperch",
+          "scientific_name": "Embiotoca lateralis",
+          "blurb": "Surfperch species in beach surf, especially near rocks and jetties.",
+          "season": "Year-round",
+          "regulations": "See current ODFW marine regulations. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://myodfw.com/fishing/species/surfperch"
+          ]
+        },
+        {
+          "common_name": "Calico surfperch",
+          "scientific_name": "Amphistichus koelzi",
+          "blurb": "Surfperch species in open ocean side beaches.",
+          "season": "Year-round",
+          "regulations": "See current ODFW marine regulations. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://myodfw.com/fishing/species/surfperch"
+          ]
+        },
+        {
+          "common_name": "Coho salmon",
+          "scientific_name": "Oncorhynchus kisutch",
+          "blurb": "Ocean coho stage in coastal waters near river mouth before entering fresh water to spawn. Fishing typically best July-Aug.",
+          "season": "July-Aug primarily",
+          "regulations": "Ocean endorsement required. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://myodfw.com/articles/ocean-salmon-fishing"
+          ]
+        },
+        {
+          "common_name": "Chinook salmon",
+          "scientific_name": "Oncorhynchus tshawytscha",
+          "blurb": "Ocean Chinook stage in waters near river mouth. Feeder Chinook available; fishing best July-Aug.",
+          "season": "July-Aug",
+          "regulations": "Ocean endorsement required. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://myodfw.com/articles/ocean-salmon-fishing"
+          ]
+        }
+      ],
+      "water_body_sources": [
+        "https://myodfw.com/articles/oregon-marine-shore-fishing",
+        "https://myodfw.com/fishing/marine-zone"
+      ]
+    },
+    {
+      "water_body": "South Jetty of Columbia River",
+      "type": "jetty",
+      "region": "Mouth of Columbia River, Clatsop Spit",
+      "description": "Jetty structure at river mouth; fishing from jetty for various species. Note: Dangerous tidal conditions during outgoing tide.",
+      "species": [
+        {
+          "common_name": "Black rockfish",
+          "scientific_name": "Sebastes melanops",
+          "blurb": "Most commonly caught rockfish from jetties and nearshore rocks. Dark coloration, grows to 20 inches.",
+          "season": "Year-round",
+          "regulations": "Ocean endorsement required. General bag limit 4 fish per day (rockfish, greenling, cabezon combined). Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://myodfw.com/articles/oregon-marine-shore-fishing",
+            "https://myodfw.com/fishing/species/rockfish"
+          ]
+        },
+        {
+          "common_name": "Redtail surfperch",
+          "scientific_name": "Amphistichus rhodoterus",
+          "blurb": "Common on jetty rocks near breaking waves; also around pilings.",
+          "season": "Year-round",
+          "regulations": "See current ODFW regulations. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://allaboutfishing.org/places-to-fish/oregon/clatsop-spit"
+          ]
+        },
+        {
+          "common_name": "Pile perch",
+          "scientific_name": "Rhacochilus vacca",
+          "blurb": "Perch species common around jetty pilings and structures.",
+          "season": "Year-round",
+          "regulations": "See current ODFW regulations. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://myodfw.com/fishing/species/perch"
+          ]
+        },
+        {
+          "common_name": "White seaperch",
+          "scientific_name": "Phanerodon furcatus",
+          "blurb": "Seaperch species around jetty structures and rocks.",
+          "season": "Year-round",
+          "regulations": "See current ODFW regulations. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://myodfw.com/fishing/species/perch"
+          ]
+        },
+        {
+          "common_name": "Greenling (Kelp and Rock)",
+          "scientific_name": "Hexagrammos spp.",
+          "blurb": "Live around kelp beds and rocky jetty areas; included in general bottomfish bag limit.",
+          "season": "Year-round",
+          "regulations": "Ocean endorsement required. General bag limit 4 fish (rockfish, greenling, cabezon combined). Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://myodfw.com/articles/oregon-marine-shore-fishing"
+          ]
+        },
+        {
+          "common_name": "Pacific staghorn sculpin",
+          "scientific_name": "Leptocottus armatus",
+          "blurb": "Small benthic fish common around jetty structure and rocky areas.",
+          "season": "Year-round",
+          "regulations": "No sport regulations; incidental catch. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://myodfw.com/fishing/species/sculpins"
+          ]
+        },
+        {
+          "common_name": "Lingcod",
+          "scientific_name": "Ophiodon elongatus",
+          "blurb": "Available on jetty rocks and reef areas. Can reach 5 feet but Oregon average 2-3 feet.",
+          "season": "Year-round",
+          "regulations": "Ocean endorsement required. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://myodfw.com/articles/oregon-marine-shore-fishing"
+          ]
+        },
+        {
+          "common_name": "Cabezon",
+          "scientific_name": "Scorpaenichthys marmoratus",
+          "blurb": "Males guard nests; live on hard bottoms. About 2 feet maximum length.",
+          "season": "Year-round",
+          "regulations": "Ocean endorsement required. General bag limit combined with rockfish and greenling. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://myodfw.com/articles/oregon-marine-shore-fishing"
+          ]
+        },
+        {
+          "common_name": "Pacific tomcod",
+          "scientific_name": "Microgadus proximus",
+          "blurb": "Small gadid fish around jetty and nearshore structures. Good eating despite small size.",
+          "season": "Year-round, best fall-winter",
+          "regulations": "See current ODFW regulations. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://myodfw.com/fishing/species/tomcod"
+          ]
+        },
+        {
+          "common_name": "Rockfish (various species)",
+          "scientific_name": "Sebastes spp.",
+          "blurb": "Over 25 species available; most taken from jetties and rocks. Include canary, copper, quillback and others. Key identification challenges.",
+          "season": "Year-round",
+          "regulations": "Ocean endorsement required. General bag limit 4 fish per day (rockfish, greenling, cabezon combined). Canary rockfish sub-bag 2 fish. Yelloweye prohibited. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://myodfw.com/articles/oregon-marine-shore-fishing",
+            "https://myodfw.com/fishing/species/rockfish"
+          ]
+        }
+      ],
+      "water_body_sources": [
+        "https://myodfw.com/articles/oregon-marine-shore-fishing"
+      ]
+    },
+    {
+      "water_body": "Pacific Ocean - Nearshore (0-3 miles offshore)",
+      "type": "ocean",
+      "region": "Nearshore waters off Clatsop County; accessible by charter boat",
+      "description": "Nearshore ocean fishery accessible from Astoria, Hammond, Warrenton ports. Charter fishing common.",
+      "species": [
+        {
+          "common_name": "Pacific halibut",
+          "scientific_name": "Hippoglossus stenolepis",
+          "blurb": "Nearshore halibut open Mondays-Wednesdays inside 40-fathom line, May-Sept (or quota caught). Boats fish 150-500 feet deep on gravel bottoms.",
+          "season": "May-Sept (Mon-Wed)",
+          "regulations": "Daily bag limit 1 fish, no length limit (Columbia River subarea). Functional descending device required; must be used when releasing rockfish outside 30-fathom line. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://myodfw.com/pacific-halibut-sport-regulations",
+            "https://myodfw.com/fishing/species/pacific-halibut"
+          ]
+        },
+        {
+          "common_name": "Lingcod",
+          "scientific_name": "Ophiodon elongatus",
+          "blurb": "Offshore lingcod; excellent sport fish on rocks and reefs.",
+          "season": "Year-round",
+          "regulations": "Ocean endorsement required. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://myodfw.com/sport-bottomfish-seasons"
+          ]
+        },
+        {
+          "common_name": "Black rockfish",
+          "scientific_name": "Sebastes melanops",
+          "blurb": "Most common nearshore rockfish. Dark coloration; good eating.",
+          "season": "Year-round",
+          "regulations": "Ocean endorsement required. General bag limit 4 fish (rockfish, greenling, cabezon combined). Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://myodfw.com/sport-bottomfish-seasons",
+            "https://myodfw.com/fishing/species/rockfish"
+          ]
+        },
+        {
+          "common_name": "Rockfish (various species)",
+          "scientific_name": "Sebastes spp.",
+          "blurb": "Multiple bottomfish seasons for different rockfish areas. Over 25 species available including canary, copper, quillback.",
+          "season": "Varies by area and species; check ODFW sport bottomfish seasons",
+          "regulations": "Ocean endorsement required. General bag limit 4 fish. Canary rockfish sub-bag 2. Yelloweye prohibited. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://myodfw.com/sport-bottomfish-seasons",
+            "https://myodfw.com/fishing/species/rockfish"
+          ]
+        },
+        {
+          "common_name": "Greenling",
+          "scientific_name": "Hexagrammos spp.",
+          "blurb": "Nearshore kelp and rock greenling available.",
+          "season": "Year-round",
+          "regulations": "Ocean endorsement required. General bag limit 4 fish (rockfish, greenling, cabezon combined). Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://myodfw.com/sport-bottomfish-seasons"
+          ]
+        },
+        {
+          "common_name": "Cabezon",
+          "scientific_name": "Scorpaenichthys marmoratus",
+          "blurb": "Nearshore cabezon on rocky bottoms; included in general bottomfish limits.",
+          "season": "Year-round",
+          "regulations": "Ocean endorsement required. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://myodfw.com/sport-bottomfish-seasons"
+          ]
+        },
+        {
+          "common_name": "Pacific tomcod",
+          "scientific_name": "Microgadus proximus",
+          "blurb": "Small gadid fish common around rocks and reefs. Good eating despite small size.",
+          "season": "Year-round, best fall-winter",
+          "regulations": "See current ODFW regulations. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://myodfw.com/fishing/species/tomcod"
+          ]
+        },
+        {
+          "common_name": "Coho salmon",
+          "scientific_name": "Oncorhynchus kisutch",
+          "blurb": "Ocean coho stage in nearshore before river entry. Fishing best July-Aug.",
+          "season": "July-Aug",
+          "regulations": "Ocean endorsement required. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://myodfw.com/oregon-ocean-salmon-sport-regulations"
+          ]
+        },
+        {
+          "common_name": "Chinook salmon",
+          "scientific_name": "Oncorhynchus tshawytscha",
+          "blurb": "Feeder and mature Chinook stage in nearshore. Fishing best July-Aug.",
+          "season": "July-Aug",
+          "regulations": "Ocean endorsement required. Always check current ODFW regulations before fishing — rules change in-season.",
+          "sources": [
+            "https://myodfw.com/oregon-ocean-salmon-sport-regulations"
+          ]
+        }
+      ],
+      "water_body_sources": [
+        "https://myodfw.com/fishing/marine-zone",
+        "https://myodfw.com/sport-bottomfish-seasons"
+      ]
+    }
+  ],
+  "summary_statistics": {
+    "total_water_bodies": 17,
+    "water_body_types": {
+      "river": 9,
+      "lake": 5,
+      "ocean": 2,
+      "jetty": 1
+    },
+    "unique_species_count": 68,
+    "species_count_before_expansion": 36,
+    "species_count_after_expansion": 68,
+    "expansion_notes": "v3 expansion added resident cutthroat, sculpins, suckers, pikeminnow to rivers; shad, smallmouth bass, walleye to Columbia; panfish and carp to lakes; surfperch, seaperch, greenlings, tomcod to marine zones.",
+    "most_common_species": [
+      "Resident coastal cutthroat trout",
+      "Rainbow trout",
+      "Largemouth bass",
+      "Coho salmon",
+      "Winter steelhead",
+      "Yellow perch",
+      "Black rockfish",
+      "Fall Chinook salmon"
+    ],
+    "regulated_species_requiring_special_attention": [
+      "Green sturgeon (protected; catch-and-release only)",
+      "Yelloweye rockfish (prohibited)",
+      "Wild steelhead (must release if adipose fin intact in certain waters)",
+      "Wild coho (catch-and-release only in many rivers)"
+    ]
+  },
+  "data_notes": {
+    "removed_water_bodies": [
+      "Vernonia Pond - located in Columbia County, not Clatsop County",
+      "Coffee Lake - no authoritative ODFW source found; insufficient public fishing information"
+    ],
+    "removed_species": [
+      "Chum salmon - dropped from per-water-body lists (rare, primarily protected species)"
+    ],
+    "water_bodies_with_limited_documentation": [
+      "Bear Creek - limited public fishing detail; may be lightly fished",
+      "Lost Lake, Town Lake - mentioned in stocking guides but limited species detail available"
+    ],
+    "geographic_notes": [
+      "Nehalem River: mostly in Tillamook County; only small portion in Clatsop",
+      "Ecola Creek: confirmed Clatsop County (Cannon Beach area)"
+    ],
+    "regulatory_note": "All species entries direct users to current ODFW regulations for bag limits and seasons. Specific 2026 regulatory claims were removed unless tied to persistent ODFW documentation."
+  }
+}
