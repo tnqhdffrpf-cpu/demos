@@ -1,0 +1,27 @@
+[out:json][timeout:60];
+(
+  // Waterfalls
+  node["waterway"="waterfall"](45.85,-124.10,46.30,-123.40);
+  way["waterway"="waterfall"](45.85,-124.10,46.30,-123.40);
+  node["natural"="waterfall"](45.85,-124.10,46.30,-123.40);
+  // Dams
+  node["waterway"="dam"](45.85,-124.10,46.30,-123.40);
+  way["waterway"="dam"](45.85,-124.10,46.30,-123.40);
+  node["man_made"="dam"](45.85,-124.10,46.30,-123.40);
+  way["man_made"="dam"](45.85,-124.10,46.30,-123.40);
+  // Weirs
+  node["waterway"="weir"](45.85,-124.10,46.30,-123.40);
+  way["waterway"="weir"](45.85,-124.10,46.30,-123.40);
+  // Rapids
+  node["waterway"="rapids"](45.85,-124.10,46.30,-123.40);
+  way["waterway"="rapids"](45.85,-124.10,46.30,-123.40);
+  // Springs
+  node["natural"="spring"](45.85,-124.10,46.30,-123.40);
+  // Hot springs
+  node["natural"="hot_spring"](45.85,-124.10,46.30,-123.40);
+  // Stream gauges
+  node["man_made"="monitoring_station"]["monitoring:water_level"="yes"](45.85,-124.10,46.30,-123.40);
+  // Lock gates
+  node["waterway"="lock_gate"](45.85,-124.10,46.30,-123.40);
+);
+out center;
