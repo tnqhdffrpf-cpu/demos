@@ -1,0 +1,2644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Clatsop County Fish ID</title>
+<style>
+:root{
+  --bg:#0a1628;
+  --card:#0f2040;
+  --card2:#162a50;
+  --accent:#00b4d8;
+  --accent2:#0090b0;
+  --success:#2ecc71;
+  --danger:#e74c3c;
+  --text:#e8f4f8;
+  --text2:#a0c4d8;
+  --gold:#f39c12;
+  --nav-h:70px;
+  --safe-bottom:env(safe-area-inset-bottom,0px);
+}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:16px}
+body{display:flex;flex-direction:column}
+
+/* Water ripple BG */
+.water-bg{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.water-bg::before,.water-bg::after{
+  content:'';position:absolute;border-radius:50%;
+  animation:ripple 8s ease-in-out infinite;opacity:0.04;
+  background:radial-gradient(circle,var(--accent) 0%,transparent 70%);
+}
+.water-bg::before{width:600px;height:600px;top:-150px;left:-150px;animation-delay:0s}
+.water-bg::after{width:800px;height:800px;bottom:-200px;right:-200px;animation-delay:4s}
+@keyframes ripple{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
+
+/* Layout */
+#app{position:relative;z-index:1;display:flex;flex-direction:column;height:100%}
+.screen{display:none;flex-direction:column;flex:1;overflow:hidden}
+.screen.active{display:flex}
+.scroll-area{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px 16px calc(var(--nav-h) + var(--safe-bottom) + 8px)}
+
+/* Bottom Nav */
+#nav{
+  position:fixed;bottom:0;left:0;right:0;
+  height:calc(var(--nav-h) + var(--safe-bottom));
+  background:rgba(10,22,40,0.96);
+  backdrop-filter:blur(12px);
+  border-top:1px solid #1a3060;
+  display:flex;align-items:flex-start;padding-top:6px;
+  padding-bottom:var(--safe-bottom);
+  z-index:100;
+}
+.nav-btn{
+  flex:1;display:flex;flex-direction:column;align-items:center;
+  background:none;border:none;color:var(--text2);
+  font-size:10px;padding:4px 2px;cursor:pointer;gap:2px;
+  transition:color 0.2s;
+}
+.nav-btn.active{color:var(--accent)}
+.nav-icon{font-size:22px;line-height:1}
+
+/* Cards */
+.card{background:var(--card);border-radius:16px;padding:16px;margin-bottom:12px;border:1px solid #1a3060}
+.card2{background:var(--card2);border-radius:12px;padding:12px;margin-bottom:8px;border:1px solid #1a3060}
+
+/* Buttons */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;
+  background:var(--accent);color:#000;font-weight:600;
+  border:none;border-radius:12px;padding:12px 20px;
+  font-size:15px;cursor:pointer;transition:opacity 0.15s;min-height:44px;
+}
+.btn:active{opacity:0.8}
+.btn.secondary{background:var(--card2);color:var(--text);border:1px solid #2a4a80}
+.btn.danger{background:var(--danger);color:#fff}
+.btn.success{background:var(--success);color:#000}
+.btn.full{width:100%;display:flex}
+
+/* Screen headers */
+.screen-header{
+  padding:14px 16px 10px;
+  border-bottom:1px solid #1a3060;
+  display:flex;align-items:center;gap:10px;
+  background:rgba(10,22,40,0.9);backdrop-filter:blur(8px);
+  position:sticky;top:0;z-index:10;
+}
+.screen-header h1{font-size:18px;font-weight:700;margin:0;flex:1}
+
+/* ── STUDY SCREEN ── */
+.study-card-wrap{
+  display:flex;flex-direction:column;align-items:center;
+  padding:20px 16px;
+}
+.fish-card{
+  width:100%;max-width:360px;
+  background:var(--card);border-radius:20px;
+  border:1px solid #1a3060;overflow:hidden;
+  box-shadow:0 8px 32px rgba(0,180,216,0.08);
+}
+.fish-card-img{width:100%;height:200px;object-fit:cover;display:block;background:#0a1e3a}
+.fish-card-body{padding:16px}
+.fish-name{font-size:20px;font-weight:700;margin:0 0 2px}
+.fish-nickname{font-size:13px;color:var(--text2);margin:0 0 8px}
+.fish-emoji-badge{font-size:28px;float:right;margin-top:-4px}
+.fish-habitat-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.habitat-tag{
+  font-size:11px;padding:3px 8px;border-radius:20px;font-weight:600;
+  background:#1a3060;color:var(--accent);border:1px solid #2a4a80;
+}
+.fish-section{margin-bottom:12px}
+.fish-section-label{font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;font-weight:600}
+.fish-section-value{font-size:14px;line-height:1.5}
+
+/* Seasonal calendar strip */
+.season-strip{display:flex;gap:2px;margin-top:6px;border-radius:8px;overflow:hidden}
+.season-month{
+  flex:1;height:16px;position:relative;
+  display:flex;align-items:center;justify-content:center;
+}
+.season-month span{
+  font-size:8px;color:rgba(255,255,255,0.7);
+  position:absolute;font-weight:600;
+}
+.season-peak{background:#2ecc71}
+.season-possible{background:#f39c12}
+.season-closed{background:#1a3060}
+
+/* Difficulty */
+.difficulty-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.diff-rods{font-size:16px;letter-spacing:2px}
+.diff-label{font-size:12px;color:var(--text2)}
+
+/* Regulation badge */
+.reg-badge{
+  display:inline-flex;align-items:center;gap:4px;
+  font-size:11px;padding:3px 8px;border-radius:20px;
+  background:#1a2a50;border:1px solid #f39c12;color:#f39c12;
+  font-weight:600;margin-bottom:8px;
+}
+
+/* Tackle section */
+.tackle-grid{display:flex;flex-direction:column;gap:6px}
+.tackle-row{display:flex;gap:8px;align-items:flex-start}
+.tackle-icon{font-size:16px;min-width:24px}
+.tackle-text{font-size:13px;line-height:1.4}
+.tackle-label{font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:0.06em}
+
+/* Lure chips */
+.lure-chips{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+.lure-chip{
+  font-size:11px;padding:3px 8px;border-radius:20px;
+  background:#1a3060;color:var(--text2);border:1px solid #2a4a80;
+}
+
+/* Memory hook */
+.memory-hook{
+  background:linear-gradient(135deg,#0f2040,#162a50);
+  border:1px solid var(--accent);border-radius:12px;
+  padding:12px;margin-top:8px;
+}
+.memory-hook-label{font-size:10px;color:var(--accent);font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px}
+.memory-hook-text{font-size:13px;line-height:1.5;font-style:italic}
+
+/* Fun facts */
+.fun-fact{
+  background:#0a1e3a;border-left:3px solid var(--gold);
+  padding:8px 10px;border-radius:0 8px 8px 0;
+  font-size:13px;line-height:1.5;margin-bottom:6px;
+}
+
+/* GPS hint */
+.gps-hint{display:flex;align-items:flex-start;gap:6px;font-size:12px;color:var(--text2);margin-top:4px;line-height:1.4}
+
+/* Swipe hint */
+.swipe-hint{display:flex;justify-content:space-between;width:100%;max-width:360px;margin-top:12px;padding:0 8px}
+.swipe-hint span{font-size:12px;color:var(--text2);display:flex;align-items:center;gap:4px}
+.study-actions{display:flex;gap:12px;width:100%;max-width:360px;margin-top:16px}
+.study-actions .btn{flex:1}
+.study-stats{display:flex;gap:12px;margin-bottom:16px}
+.study-stat{flex:1;background:var(--card);border-radius:12px;padding:12px;text-align:center;border:1px solid #1a3060}
+.study-stat .stat-num{font-size:24px;font-weight:700;color:var(--accent)}
+.study-stat .stat-lbl{font-size:11px;color:var(--text2);margin-top:2px}
+.card-counter{font-size:13px;color:var(--text2);text-align:center;margin-bottom:8px}
+
+/* ── QUIZ MODE ── */
+.quiz-question{text-align:center;margin-bottom:16px}
+.quiz-question img{width:100%;max-height:220px;object-fit:cover;border-radius:16px;margin-bottom:12px}
+.quiz-question h2{font-size:18px;font-weight:600;line-height:1.3}
+.quiz-options{display:flex;flex-direction:column;gap:10px}
+.quiz-opt{
+  background:var(--card2);border:2px solid #1a3060;
+  border-radius:12px;padding:14px 16px;font-size:15px;
+  cursor:pointer;text-align:left;color:var(--text);transition:all 0.2s;
+}
+.quiz-opt.correct{border-color:var(--success);background:rgba(46,204,113,0.15)}
+.quiz-opt.wrong{border-color:var(--danger);background:rgba(231,76,60,0.15)}
+.quiz-feedback{
+  margin-top:14px;padding:12px 14px;border-radius:12px;
+  font-size:14px;line-height:1.5;
+}
+.quiz-feedback.correct{background:rgba(46,204,113,0.12);border:1px solid var(--success)}
+.quiz-feedback.wrong{background:rgba(231,76,60,0.12);border:1px solid var(--danger)}
+.quiz-progress{height:4px;background:#1a3060;border-radius:2px;margin-bottom:16px;overflow:hidden}
+.quiz-progress-bar{height:100%;background:var(--accent);transition:width 0.3s}
+.quiz-score-display{font-size:13px;color:var(--text2);margin-bottom:8px;text-align:center}
+.quiz-next-btn{margin-top:12px;width:100%}
+
+/* ── MATCH MODE ── */
+.match-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.match-card{
+  background:var(--card2);border:2px solid #1a3060;
+  border-radius:12px;padding:10px;text-align:center;
+  cursor:pointer;transition:all 0.2s;min-height:70px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;line-height:1.3;
+}
+.match-card:active{transform:scale(0.96)}
+.match-card.selected{border-color:var(--accent);background:rgba(0,180,216,0.12)}
+.match-card.matched{border-color:var(--success);background:rgba(46,204,113,0.12);opacity:0.5;pointer-events:none}
+.match-card.wrong{border-color:var(--danger);animation:shake 0.4s}
+.match-card img{width:60px;height:45px;object-fit:cover;border-radius:6px}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.match-stats{display:flex;gap:12px;margin-bottom:16px}
+.match-stat{flex:1;text-align:center}
+.match-stat-num{font-size:22px;font-weight:700;color:var(--accent)}
+.match-stat-lbl{font-size:11px;color:var(--text2)}
+
+/* ── SPEED MODE ── */
+.speed-timer{text-align:center;margin-bottom:12px}
+.speed-timer .time{font-size:48px;font-weight:700;color:var(--accent);font-variant-numeric:tabular-nums}
+.speed-timer .time.warning{color:var(--gold)}
+.speed-timer .time.danger{color:var(--danger)}
+.speed-prompt{text-align:center;margin-bottom:16px}
+.speed-prompt img{width:100%;max-height:160px;object-fit:cover;border-radius:12px;margin-bottom:10px}
+.speed-prompt h2{font-size:20px;font-weight:600}
+.speed-input-wrap{margin-bottom:12px}
+.speed-input{
+  width:100%;background:var(--card2);border:2px solid #2a4a80;
+  border-radius:12px;padding:14px 16px;font-size:18px;color:var(--text);
+  outline:none;box-sizing:border-box;
+}
+.speed-input:focus{border-color:var(--accent)}
+.speed-input.correct{border-color:var(--success)}
+.speed-input.wrong{border-color:var(--danger)}
+.speed-streak{font-size:13px;color:var(--gold);text-align:center;margin-bottom:8px}
+
+/* ── BROWSE MODE ── */
+.filter-row{display:flex;gap:8px;margin-bottom:14px;overflow-x:auto;padding-bottom:4px}
+.filter-btn{
+  flex-shrink:0;padding:6px 14px;border-radius:20px;
+  border:1px solid #2a4a80;background:var(--card2);
+  color:var(--text2);font-size:13px;cursor:pointer;white-space:nowrap;
+}
+.filter-btn.active{background:var(--accent);color:#000;border-color:var(--accent);font-weight:600}
+.fish-list-item{
+  display:flex;align-items:center;gap:12px;
+  background:var(--card);border-radius:14px;padding:10px 12px;
+  margin-bottom:8px;border:1px solid #1a3060;cursor:pointer;
+}
+.fish-list-img{width:60px;height:45px;object-fit:cover;border-radius:8px;background:#0a1e3a;flex-shrink:0}
+.fish-list-info{flex:1;min-width:0}
+.fish-list-name{font-size:14px;font-weight:600}
+.fish-list-nick{font-size:12px;color:var(--text2)}
+.fish-list-habitats{display:flex;gap:4px;margin-top:3px}
+.fish-list-hab{font-size:10px;padding:1px 6px;border-radius:10px;background:#1a3060;color:var(--text2)}
+.bonus-section-label{
+  font-size:11px;color:var(--text2);text-transform:uppercase;
+  letter-spacing:0.1em;font-weight:700;padding:8px 0 4px;
+  border-top:1px solid #1a3060;margin-top:8px;
+}
+.bonus-badge{
+  font-size:10px;padding:2px 6px;border-radius:8px;
+  background:#1a2040;border:1px solid var(--gold);color:var(--gold);
+  font-weight:600;margin-left:6px;
+}
+
+/* ── LEARN TAB ── */
+.learn-section{margin-bottom:10px}
+.learn-section-header{
+  display:flex;align-items:center;justify-content:space-between;
+  background:var(--card2);border:1px solid #1a3060;
+  border-radius:12px;padding:14px 16px;cursor:pointer;
+  transition:border-color 0.2s;
+}
+.learn-section-header.open{border-color:var(--accent);border-bottom-left-radius:0;border-bottom-right-radius:0}
+.learn-section-title{font-size:15px;font-weight:600;display:flex;align-items:center;gap:8px}
+.learn-section-arrow{font-size:14px;color:var(--text2);transition:transform 0.2s}
+.learn-section-header.open .learn-section-arrow{transform:rotate(180deg)}
+.learn-section-body{
+  background:var(--card);border:1px solid var(--accent);
+  border-top:none;border-radius:0 0 12px 12px;
+  padding:16px;display:none;
+}
+.learn-section-header.open + .learn-section-body{display:block}
+.learn-h2{font-size:14px;font-weight:700;color:var(--accent);margin:14px 0 6px;text-transform:uppercase;letter-spacing:0.06em}
+.learn-h2:first-child{margin-top:0}
+.learn-p{font-size:13px;line-height:1.6;color:var(--text);margin-bottom:10px}
+.learn-ul{margin:0 0 10px;padding-left:18px}
+.learn-ul li{font-size:13px;line-height:1.7;color:var(--text)}
+.learn-table{width:100%;border-collapse:collapse;margin-bottom:12px;font-size:12px}
+.learn-table th{background:#162a50;color:var(--accent);padding:6px 8px;text-align:left;font-weight:600}
+.learn-table td{padding:6px 8px;border-bottom:1px solid #1a3060;vertical-align:top}
+.learn-table tr:last-child td{border-bottom:none}
+.knot-step{
+  background:#0a1e3a;border-left:3px solid var(--accent);
+  padding:8px 10px;border-radius:0 8px 8px 0;
+  font-size:13px;line-height:1.5;margin-bottom:6px;
+}
+.knot-name{font-size:15px;font-weight:700;color:var(--gold);margin:14px 0 6px}
+.knot-name:first-child{margin-top:0}
+.tip-box{
+  background:#0f2040;border:1px solid var(--gold);border-radius:10px;
+  padding:10px 12px;margin-bottom:10px;font-size:13px;line-height:1.5;
+}
+.tip-label{font-size:10px;color:var(--gold);font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:3px}
+.warn-box{
+  background:#1a0e0e;border:1px solid var(--danger);border-radius:10px;
+  padding:10px 12px;margin-bottom:10px;font-size:13px;line-height:1.5;color:#f5a0a0;
+}
+.warn-label{font-size:10px;color:var(--danger);font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:3px}
+
+/* Expert mode toggle */
+.expert-toggle-row{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--card);border-radius:12px;margin-bottom:12px;border:1px solid #1a3060}
+.expert-toggle-label{font-size:14px;font-weight:600}
+.expert-toggle-sub{font-size:11px;color:var(--text2);margin-top:2px}
+.toggle-switch{position:relative;width:48px;height:26px}
+.toggle-switch input{opacity:0;width:0;height:0}
+.toggle-slider{
+  position:absolute;inset:0;background:#1a3060;border-radius:13px;cursor:pointer;
+  transition:background 0.2s;
+}
+.toggle-slider::before{
+  content:'';position:absolute;height:20px;width:20px;left:3px;top:3px;
+  background:#fff;border-radius:50%;transition:transform 0.2s;
+}
+.toggle-switch input:checked + .toggle-slider{background:var(--gold)}
+.toggle-switch input:checked + .toggle-slider::before{transform:translateX(22px)}
+
+/* Results screen */
+.results-wrap{display:flex;flex-direction:column;align-items:center;padding:24px 16px;text-align:center}
+.results-emoji{font-size:64px;margin-bottom:12px}
+.results-score{font-size:40px;font-weight:700;color:var(--accent)}
+.results-label{font-size:16px;color:var(--text2);margin-bottom:20px}
+.results-breakdown{width:100%;max-width:340px;text-align:left;margin-bottom:20px}
+
+/* Modal / Detail overlay */
+.detail-overlay{
+  position:fixed;inset:0;z-index:200;
+  background:rgba(0,0,0,0.7);backdrop-filter:blur(4px);
+  display:none;overflow-y:auto;-webkit-overflow-scrolling:touch;
+}
+.detail-overlay.open{display:block}
+.detail-panel{
+  background:var(--bg);min-height:100%;padding:0 0 calc(var(--nav-h) + 24px);
+  max-width:480px;margin:0 auto;
+}
+.detail-close{
+  position:sticky;top:0;z-index:10;
+  display:flex;align-items:center;gap:10px;
+  background:rgba(10,22,40,0.95);backdrop-filter:blur(8px);
+  padding:12px 16px;border-bottom:1px solid #1a3060;
+}
+.detail-close button{
+  background:var(--card2);border:1px solid #2a4a80;color:var(--text);
+  border-radius:10px;padding:6px 14px;font-size:14px;cursor:pointer;
+}
+.detail-img{width:100%;height:220px;object-fit:cover;display:block}
+.detail-body{padding:16px}
+
+/* Misc */
+.section-label{font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:0.1em;font-weight:700;margin-bottom:8px}
+.empty-state{text-align:center;padding:40px 20px;color:var(--text2)}
+.empty-state .emoji{font-size:48px;margin-bottom:12px}
+.badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600}
+.badge-ocean{background:#0a2a50;color:#64b5f6;border:1px solid #1a4a80}
+.badge-river{background:#0a2a20;color:#4db6ac;border:1px solid #1a4a40}
+.badge-lake{background:#1a1a40;color:#9575cd;border:1px solid #2a2a60}
+.badge-estuary{background:#2a1a10;color:#ff8a65;border:1px solid #4a2a20}
+
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.fade-in{animation:fadeIn 0.3s ease}
+
+/* Identifying features */
+.id-feature{display:flex;align-items:flex-start;gap:6px;font-size:13px;margin-bottom:5px}
+.id-feature::before{content:'→';color:var(--accent);font-weight:700;flex-shrink:0;margin-top:1px}
+</style>
+</head>
+<body>
+<div class="water-bg"></div>
+<div id="app">
+
+<!-- STUDY SCREEN -->
+<div class="screen" id="screen-study">
+  <div class="screen-header">
+    <h1>📖 Study Cards</h1>
+    <div id="study-counter" class="card-counter" style="font-size:13px;color:var(--text2)"></div>
+  </div>
+  <div class="scroll-area" id="study-scroll">
+    <div class="study-stats">
+      <div class="study-stat"><div class="stat-num" id="stat-known">0</div><div class="stat-lbl">Known</div></div>
+      <div class="study-stat"><div class="stat-num" id="stat-learning">0</div><div class="stat-lbl">Learning</div></div>
+      <div class="study-stat"><div class="stat-num" id="stat-total">20</div><div class="stat-lbl">Total</div></div>
+    </div>
+    <div id="study-card-area" class="study-card-wrap"></div>
+    <div class="swipe-hint" id="swipe-hint">
+      <span>👈 Still Learning</span>
+      <span>Known ✅ 👉</span>
+    </div>
+    <div class="study-actions">
+      <button class="btn secondary" onclick="studyMark(false)">👈 Learning</button>
+      <button class="btn success" onclick="studyMark(true)">Known ✅</button>
+    </div>
+  </div>
+</div>
+
+<!-- QUIZ SCREEN -->
+<div class="screen" id="screen-quiz">
+  <div class="screen-header">
+    <h1>🎯 Quiz Mode</h1>
+  </div>
+  <div class="scroll-area">
+    <div id="quiz-setup" class="fade-in">
+      <div class="card" style="margin-bottom:16px">
+        <div class="section-label">Quiz Type</div>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px">
+          <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:14px">
+            <input type="radio" name="qtype" value="name" checked style="accent-color:var(--accent)"> Identify by Photo
+          </label>
+          <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:14px">
+            <input type="radio" name="qtype" value="tackle"> Best Tackle/Technique
+          </label>
+          <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:14px">
+            <input type="radio" name="qtype" value="season"> Season & Location
+          </label>
+          <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:14px">
+            <input type="radio" name="qtype" value="fact"> Fun Fact Match
+          </label>
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:16px">
+        <div class="section-label">Questions</div>
+        <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
+          <button class="btn secondary" onclick="setQCount(10)" id="qcount-10">10</button>
+          <button class="btn secondary active" onclick="setQCount(20)" id="qcount-20" style="border-color:var(--accent)">20</button>
+          <button class="btn secondary" onclick="setQCount(40)" id="qcount-40">All</button>
+        </div>
+      </div>
+      <div class="expert-toggle-row">
+        <div>
+          <div class="expert-toggle-label">🏆 Expert Mode</div>
+          <div class="expert-toggle-sub">Includes 20 bonus/lesser-known species</div>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" id="expert-toggle">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+      <button class="btn full" onclick="startQuiz()">Start Quiz 🎯</button>
+    </div>
+    <div id="quiz-play" style="display:none">
+      <div class="quiz-progress"><div class="quiz-progress-bar" id="quiz-pbar"></div></div>
+      <div class="quiz-score-display" id="quiz-score-disp"></div>
+      <div id="quiz-question-wrap" class="quiz-question fade-in"></div>
+      <div id="quiz-options" class="quiz-options"></div>
+      <div id="quiz-feedback" style="display:none" class="quiz-feedback"></div>
+      <button class="btn full quiz-next-btn" id="quiz-next-btn" onclick="quizNext()" style="display:none">Next →</button>
+    </div>
+    <div id="quiz-results" style="display:none">
+      <div class="results-wrap">
+        <div class="results-emoji" id="result-emoji"></div>
+        <div class="results-score" id="result-score"></div>
+        <div class="results-label" id="result-label"></div>
+        <div class="results-breakdown card" id="result-breakdown" style="width:100%;text-align:left;margin-bottom:20px"></div>
+        <button class="btn full" onclick="showQuizSetup()">Try Again</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MATCH SCREEN -->
+<div class="screen" id="screen-match">
+  <div class="screen-header">
+    <h1>🃏 Match Game</h1>
+    <button class="btn secondary" style="padding:6px 12px;font-size:13px" onclick="initMatch()">Restart</button>
+  </div>
+  <div class="scroll-area">
+    <div class="match-stats">
+      <div class="match-stat"><div class="match-stat-num" id="match-moves">0</div><div class="match-stat-lbl">Moves</div></div>
+      <div class="match-stat"><div class="match-stat-num" id="match-matched">0</div><div class="match-stat-lbl">Matched</div></div>
+      <div class="match-stat"><div class="match-stat-num" id="match-time">0:00</div><div class="match-stat-lbl">Time</div></div>
+    </div>
+    <div id="match-grid" class="match-grid"></div>
+    <div id="match-complete" style="display:none" class="results-wrap">
+      <div class="results-emoji">🎉</div>
+      <div class="results-score" id="match-final-moves"></div>
+      <div class="results-label">moves to complete!</div>
+      <button class="btn full" style="margin-top:16px" onclick="initMatch()">Play Again</button>
+    </div>
+  </div>
+</div>
+
+<!-- SPEED SCREEN -->
+<div class="screen" id="screen-speed">
+  <div class="screen-header">
+    <h1>⚡ Speed Round</h1>
+  </div>
+  <div class="scroll-area">
+    <div id="speed-setup">
+      <div class="card" style="margin-bottom:16px;text-align:center">
+        <div style="font-size:40px;margin-bottom:8px">⚡</div>
+        <div style="font-size:16px;font-weight:600;margin-bottom:6px">60-Second Blitz</div>
+        <div style="font-size:13px;color:var(--text2);line-height:1.5">Type the name of each fish as fast as you can. Partial names count! Streak bonus multiplies your score.</div>
+      </div>
+      <div class="expert-toggle-row">
+        <div>
+          <div class="expert-toggle-label">🏆 Expert Mode</div>
+          <div class="expert-toggle-sub">Include bonus species</div>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" id="speed-expert-toggle">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+      <button class="btn full" onclick="startSpeed()">Start ⚡</button>
+    </div>
+    <div id="speed-play" style="display:none">
+      <div class="speed-timer"><div class="time" id="speed-time">60</div></div>
+      <div class="speed-streak" id="speed-streak">Streak: 0 🔥</div>
+      <div class="speed-prompt">
+        <img id="speed-img" src="" alt="" loading="lazy">
+        <h2 id="speed-question"></h2>
+      </div>
+      <div class="speed-input-wrap">
+        <input type="text" class="speed-input" id="speed-input" placeholder="Type fish name..." autocomplete="off" autocorrect="off" spellcheck="false">
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--text2)">
+        <span>Score: <strong id="speed-score" style="color:var(--accent)">0</strong></span>
+        <span>Fish: <strong id="speed-count" style="color:var(--text)">0</strong></span>
+      </div>
+    </div>
+    <div id="speed-results" style="display:none">
+      <div class="results-wrap">
+        <div class="results-emoji">⚡</div>
+        <div class="results-score" id="speed-final-score"></div>
+        <div class="results-label" id="speed-final-label"></div>
+        <div id="speed-missed" class="card" style="width:100%;text-align:left;margin-bottom:16px"></div>
+        <button class="btn full" onclick="resetSpeed()">Play Again</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- BROWSE SCREEN -->
+<div class="screen" id="screen-browse">
+  <div class="screen-header">
+    <h1>🐟 Browse Fish</h1>
+  </div>
+  <div class="scroll-area">
+    <div class="filter-row">
+      <button class="filter-btn active" onclick="filterBrowse('all')">All</button>
+      <button class="filter-btn" onclick="filterBrowse('ocean')">🌊 Ocean</button>
+      <button class="filter-btn" onclick="filterBrowse('river')">🏔 River</button>
+      <button class="filter-btn" onclick="filterBrowse('lake')">🌲 Lake</button>
+      <button class="filter-btn" onclick="filterBrowse('estuary')">🦀 Estuary</button>
+      <button class="filter-btn" onclick="filterBrowse('bonus')">⭐ Bonus</button>
+    </div>
+    <div id="browse-list"></div>
+  </div>
+</div>
+
+<!-- LEARN SCREEN -->
+<div class="screen" id="screen-learn">
+  <div class="screen-header">
+    <h1>🎓 Techniques</h1>
+  </div>
+  <div class="scroll-area" id="learn-scroll">
+    <div id="learn-content"></div>
+  </div>
+</div>
+
+<!-- DETAIL OVERLAY -->
+<div class="detail-overlay" id="detail-overlay">
+  <div class="detail-panel">
+    <div class="detail-close">
+      <button onclick="closeDetail()">✕ Back</button>
+      <span id="detail-title" style="font-size:15px;font-weight:600"></span>
+    </div>
+    <img id="detail-img" class="detail-img" src="" alt="" loading="lazy">
+    <div class="detail-body" id="detail-body"></div>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<nav id="nav">
+  <button class="nav-btn active" onclick="navTo('study')" id="nav-study"><span class="nav-icon">📖</span>Study</button>
+  <button class="nav-btn" onclick="navTo('quiz')" id="nav-quiz"><span class="nav-icon">🎯</span>Quiz</button>
+  <button class="nav-btn" onclick="navTo('match')" id="nav-match"><span class="nav-icon">🃏</span>Match</button>
+  <button class="nav-btn" onclick="navTo('speed')" id="nav-speed"><span class="nav-icon">⚡</span>Speed</button>
+  <button class="nav-btn" onclick="navTo('browse')" id="nav-browse"><span class="nav-icon">🐟</span>Browse</button>
+  <button class="nav-btn" onclick="navTo('learn')" id="nav-learn"><span class="nav-icon">🎓</span>Learn</button>
+
+<!-- LEARN SECTION BODIES -->
+<div style="display:none">
+  <div id="learn-body-0">
+<div class="learn-h2">What It Is</div>
+<p class="learn-p">Spin fishing uses a spinning or baitcasting reel to cast weighted lures or bait. It's versatile — you can fish rivers, lakes, ocean surf, and estuaries. Most anglers in Clatsop County start here.</p>
+
+<div class="learn-h2">Rod Types</div>
+<table class="learn-table">
+<tr><th>Rod Power</th><th>Target Species</th><th>Length</th></tr>
+<tr><td>Ultralight</td><td>Panfish, trout in small streams</td><td>4.5-6ft</td></tr>
+<tr><td>Light</td><td>Trout, bass, perch</td><td>6-7ft</td></tr>
+<tr><td>Medium</td><td>Bass, steelhead (lighter), salmon (lighter)</td><td>6.5-7.5ft</td></tr>
+<tr><td>Medium-Heavy</td><td>Salmon, steelhead, lingcod</td><td>7-9ft</td></tr>
+<tr><td>Heavy</td><td>Halibut, sturgeon, offshore</td><td>7-9ft</td></tr>
+</table>
+
+<div class="learn-h2">Spinning vs. Baitcasting Reels</div>
+<p class="learn-p"><strong>Spinning reels</strong> (hang under the rod): Easier to use, great for lighter lines and finesse techniques. The bail flips to release line. The spool is fixed and doesn't rotate — the line peels off the end. Best choice for beginners and most freshwater fishing.</p>
+<p class="learn-p"><strong>Baitcasting reels</strong> (sit on top of rod): More precise for heavy applications (salmon, bass) and can cast heavier lures more accurately. The spool rotates during the cast — thumb control prevents "backlash" (bird's nest). Steeper learning curve but preferred by experienced anglers for power fishing.</p>
+
+<div class="learn-h2">Line Types</div>
+<table class="learn-table">
+<tr><th>Type</th><th>Pros</th><th>Cons</th><th>Best Use</th></tr>
+<tr><td>Monofilament</td><td>Cheap, stretchy (shock absorption), floats</td><td>Stretches (reduced sensitivity), absorbs water</td><td>Beginners, surf fishing, topwater lures</td></tr>
+<tr><td>Fluorocarbon</td><td>Near-invisible in water, sinks, abrasion-resistant</td><td>Expensive, stiffer, less castable</td><td>Leaders, clear water, finesse fishing</td></tr>
+<tr><td>Braided</td><td>Strongest, thinnest, zero stretch (sensitivity), casts far</td><td>Visible, no stretch, can cut fingers</td><td>All-purpose main line, especially deep water</td></tr>
+</table>
+<div class="tip-box"><div class="tip-label">💡 Pro Setup</div>Use braid as your main line (say 30lb) with a fluorocarbon leader (12-15lb, 3-6ft) tied on with a Double Uni knot. Best of both worlds.</div>
+
+<div class="learn-h2">Leaders</div>
+<p class="learn-p">A leader is a length of usually-fluorocarbon line between your main line and your hook/lure. Leaders serve multiple purposes: abrasion resistance near rocks, invisibility in clear water, and a weak link that breaks before your main line if snagged. For salmon, use 20-30lb fluoro leaders 2-4ft long. For trout, use 6-10lb fluoro 2-3ft long.</p>
+
+<div class="learn-h2">Terminal Tackle</div>
+<ul class="learn-ul">
+<li><strong>Swivels</strong>: Barrel swivels prevent line twist from spinning lures. Snap swivels allow quick lure changes. Always use a swivel between braid and fluoro leader when using rotating lures.</li>
+<li><strong>Split rings</strong>: Small wire rings that attach hooks to lure bodies. Use split ring pliers — never try to force open with fingernails.</li>
+<li><strong>Snaps</strong>: Quick-change connectors between line and lure. Convenient but add a weak point — not ideal for heavy fish.</li>
+</ul>
+
+<div class="learn-h2">Lure Types & How to Fish Them</div>
+<ul class="learn-ul">
+<li><strong>Spinners</strong> (Blue Fox Vibrax, Mepps): Cast across current, retrieve at steady speed. Blade rotates creating flash and vibration. Excellent for salmon, steelhead, trout. Size up in high/murky water.</li>
+<li><strong>Spoons</strong> (Kastmaster, Crippled Herring): Wobbling metal lures that mimic injured baitfish. Cast and retrieve or jig vertically. Great for salmon, lingcod, tuna.</li>
+<li><strong>Crankbaits</strong> (Rapala, Shad Rap): Hard-body lures that dive to a set depth. Troll or cast and retrieve. Match depth to fish location. Good for bass, walleye, salmon trolling.</li>
+<li><strong>Soft plastics</strong> (Senko, tubes, grubs): Flexible plastic bodies on jig heads. Extremely versatile — fish near bottom for bass/walleye, mid-water for rockfish. Scented versions add attractant.</li>
+<li><strong>Jigs</strong>: Weighted hook with bucktail, marabou, or soft plastic body. Bounce along bottom, jig vertically, or swim through water column. One of the most versatile lure types.</li>
+</ul>
+
+<div class="learn-h2">Retrieve Techniques</div>
+<ul class="learn-ul">
+<li><strong>Steady retrieve</strong>: Consistent, medium-speed reel. Basic and effective for spinners and crankbaits.</li>
+<li><strong>Stop-and-go</strong>: Reel, pause, reel, pause. Triggering for bass and trout — they often strike on the drop.</li>
+<li><strong>Jigging</strong>: Rod tip sweeps up, then drops back as you reel in slack. Creates up-down lure action. Essential for rockfish, lingcod, bottom fish.</li>
+<li><strong>Deadstick</strong>: Do absolutely nothing. Let the lure sit. Deadly for pressured fish in cold water. Trout anglers use this in winter.</li>
+</ul></div>
+  <div id="learn-body-1">
+<div class="learn-h2">Still Fishing vs. Drift Fishing</div>
+<p class="learn-p"><strong>Still fishing</strong>: Casting bait to a spot and waiting. Used in lakes (trout, catfish, bass) and slow river areas (sturgeon). Gear stays in one place.</p>
+<p class="learn-p"><strong>Drift fishing</strong>: Letting bait tumble naturally downstream with the current. The premier technique for steelhead and salmon in rivers. Bait should drift at the same speed as the current, ticking the bottom.</p>
+
+<div class="learn-h2">Float/Bobber Fishing</div>
+<p class="learn-p"><strong>Fixed float</strong>: Float attached at a fixed point. Simple, good for still water and shallow depths (under 4 feet). Classic bobber setup.</p>
+<p class="learn-p"><strong>Slip float</strong>: Float slides freely on the line; a stop bead and knot (bobber stop) halts it at your chosen depth. Allows you to cast precisely even when fishing 10+ feet deep. Essential for steelhead and salmon with jigs/eggs.</p>
+<p class="learn-p"><strong>Strike detection</strong>: Watch the float intently. Quick submersion = fish. Slow movement sideways = fish moving. Bobbing/twitching can be bites — set the hook immediately.</p>
+<p class="learn-p"><strong>Depth setting</strong>: Set your float so bait drifts 6-12 inches off the bottom. Too deep = constant snags. Too shallow = fish won't see it. Adjust until bait occasionally ticks bottom.</p>
+
+<div class="learn-h2">Bottom Fishing Rigs</div>
+<ul class="learn-ul">
+<li><strong>Egg sinker (sliding) rig</strong>: Sinker slides freely on line — fish can pick up bait without feeling resistance. Best for lake fishing (trout, catfish, bass) where fish taste the bait before committing.</li>
+<li><strong>Carolina rig</strong>: Sinker above swivel with 12-18 inch fluorocarbon leader to hook/soft plastic. Fish the leader length off the bottom. Bass fishing staple.</li>
+<li><strong>Dropper loop (spreader) rig</strong>: Multiple hooks tied above the sinker at intervals. Great for bottomfishing multiple species at once (rockfish, perch, cod).</li>
+<li><strong>3-way swivel rig</strong>: Main line to swivel, dropper to sinker, leader to hook. Used for sturgeon and halibut — allows bait to float up while sinker anchors.</li>
+</ul>
+
+<div class="learn-h2">Natural Baits for Clatsop County</div>
+<table class="learn-table">
+<tr><th>Bait</th><th>Target Species</th><th>Notes</th></tr>
+<tr><td>Salmon eggs (cured)</td><td>Steelhead, salmon, trout</td><td>Cure in borax/salt; orange/pink color</td></tr>
+<tr><td>Nightcrawlers</td><td>Trout, catfish, bass, perch</td><td>Best all-around lake bait</td></tr>
+<tr><td>Sand shrimp (ghost shrimp)</td><td>Steelhead, sturgeon, surfperch, salmon</td><td>Buy fresh at local shops; dig in sandy beaches</td></tr>
+<tr><td>Shrimp (store-bought)</td><td>Rockfish, flatfish, perch</td><td>Cheap and effective for bottom species</td></tr>
+<tr><td>Herring (whole or cut)</td><td>Salmon, halibut, lingcod</td><td>Troll whole or plug-cut; freeze fresh</td></tr>
+<tr><td>Anchovies</td><td>Salmon, tuna</td><td>Used for trolling, purchased frozen</td></tr>
+<tr><td>Sand lance (candlefish)</td><td>Lingcod, rockfish, flounder</td><td>Net-caught during spring runs; freeze for later</td></tr>
+</table>
+
+<div class="learn-h2">Curing Salmon Eggs for Steelhead</div>
+<p class="learn-p">Cured eggs outfish raw eggs significantly for steelhead and salmon. Basic cure: collect fresh skein (egg sack) from a harvested salmon. Cut into 1-inch clusters. Lay on newspaper or paper towels. Sprinkle borax, fine salt, and sugar over eggs. Optional: add Pautzke Fire Cure powder for bright orange color and scent. Let sit 24 hours (or microwave 30 seconds for quick cure). Eggs should be firm, slightly tacky, with good color. Store in sealed container in refrigerator (2 weeks) or freezer (6 months).</p>
+
+<div class="learn-h2">Hook Selection Guide</div>
+<table class="learn-table">
+<tr><th>Hook Type</th><th>Best Use</th><th>How to Use</th></tr>
+<tr><td>Circle hook</td><td>Sturgeon, halibut, salmon (bait)</td><td>Do NOT set hook — just keep steady pressure; circle hook sets itself in corner of mouth</td></tr>
+<tr><td>J-hook (octopus)</td><td>Steelhead eggs, general bait</td><td>Set hook with firm sweep when bite detected</td></tr>
+<tr><td>Bait holder hook</td><td>Worms, dough baits</td><td>Barbs on shank hold soft bait in place</td></tr>
+<tr><td>Treble hook</td><td>Crankbaits, catfish bait rigs</td><td>Better hooking percentage; handle carefully</td></tr>
+</table>
+<div class="tip-box"><div class="tip-label">💡 Size Rule</div>Hook sizes get SMALLER as numbers get BIGGER for small hooks (a #10 is smaller than a #6). But for large hooks, sizes are preceded by "0" — a 4/0 is larger than a 1/0, and much larger than a #4.</div></div>
+  <div id="learn-body-2">
+<div class="learn-h2">What Makes Fly Fishing Different</div>
+<p class="learn-p">Unlike spin fishing where the lure has weight, fly fishing uses the weight of the fly line itself to carry the nearly weightless fly to the fish. The cast is fundamentally different — you're casting the line, not the lure. It requires learning a new casting motion but opens up fishing opportunities that spin gear cannot match.</p>
+
+<div class="learn-h2">Rod Weight System</div>
+<table class="learn-table">
+<tr><th>Weight</th><th>Use</th><th>Clatsop Application</th></tr>
+<tr><td>3-4 wt</td><td>Small trout in small streams</td><td>Cutthroat in Necanicum headwaters</td></tr>
+<tr><td>5-6 wt</td><td>Trout, bass, sea-run cutthroat</td><td>General Clatsop County trout streams</td></tr>
+<tr><td>7-8 wt</td><td>Salmon, light steelhead</td><td>Coho in smaller rivers</td></tr>
+<tr><td>9-10 wt</td><td>Steelhead, large salmon, saltwater</td><td>Winter steelhead, Chinook</td></tr>
+</table>
+
+<div class="learn-h2">Fly Line Types</div>
+<ul class="learn-ul">
+<li><strong>Weight Forward (WF)</strong>: Heavy head at the front tapers to thin running line. Most common — good for most fishing. Easier to cast long distances.</li>
+<li><strong>Double Taper (DT)</strong>: Thicker in the middle, tapers both ends. Delicate presentation for spooky fish. Can flip line end-for-end to double line life.</li>
+<li><strong>Shooting head</strong>: Short, heavy head designed for maximum distance casting. Used for steelhead swinging on big rivers.</li>
+<li><strong>Sinking lines</strong>: Sink-tip or full-sink lines get flies deeper. Critical for steelhead in winter.</li>
+</ul>
+
+<div class="learn-h2">Leaders and Tippet</div>
+<p class="learn-p"><strong>Tapered leader</strong>: Pre-made monofilament section that narrows from thick (connected to fly line) to thin (at the fly). Typically 7.5 or 9 feet. The taper transfers energy smoothly to turn the fly over.</p>
+<p class="learn-p"><strong>Tippet</strong>: Additional line added to the thin end of the leader to extend its life. Sizes: 4X (about 6lb) for most trout fishing, 3X (8lb) for larger trout and cutthroat, 1X or 0X (up to 15lb) for salmon/steelhead. Lower X number = heavier tippet.</p>
+
+<div class="learn-h2">Fly Types for Clatsop County</div>
+<ul class="learn-ul">
+<li><strong>Dry flies</strong>: Float on the surface. Cutthroat hit dries in summer in small streams. Elk Hair Caddis, Royal Wulff, Parachute Adams.</li>
+<li><strong>Nymphs</strong>: Subsurface flies imitating invertebrate larvae. Fished under an indicator (strike indicator = fly fishing bobber). Hare's Ear, Pheasant Tail, Bead Head Stonefly.</li>
+<li><strong>Streamers</strong>: Large flies that mimic baitfish. Strip through the water on the retrieve. Woolly Bugger (the universal fly), Clouser Minnow, Sculpzilla.</li>
+<li><strong>Egg patterns</strong>: Round, colorful flies imitating salmon eggs. Essential for steelhead and cutthroat during salmon runs. Glo-bug, Nuclear Egg, Iliamna Pinkie.</li>
+<li><strong>Intruders and Spey flies</strong>: Large, flowing two-hook flies designed for swinging for steelhead. Tied with marabou, ostrich, and flowing materials. Often 4-6 inches long.</li>
+</ul>
+
+<div class="learn-h2">Essential Casts</div>
+<ul class="learn-ul">
+<li><strong>Overhead cast</strong>: The basic cast. Back cast loads the rod; forward cast delivers the fly. Key: stop the rod at 10 o'clock on the back cast, let line fully extend, then drive forward to 2 o'clock.</li>
+<li><strong>Roll cast</strong>: No back cast — used when trees or banks prevent a full back cast. Roll the line in a D-loop beside you and shoot it forward. Essential for tight Clatsop County streams.</li>
+<li><strong>Mending</strong>: After the fly lands, flip (mend) the line upstream to prevent current from dragging the fly unnaturally. Critical for dead-drift nymphing. Upstream mend = slower drift.</li>
+</ul>
+
+<div class="learn-h2">Key Techniques</div>
+<p class="learn-p"><strong>Dead drift nymphing</strong>: Nymph under indicator, drifting at exact current speed. Any drag = unnatural = no bite. Mend constantly to achieve perfect drift. Most effective method for trout in Clatsop County.</p>
+<p class="learn-p"><strong>Swinging a wet fly</strong>: Cast across current at 45°, let fly swing in an arc below you. Classic steelhead method. Takes patience — the grab comes at the end of the swing, often a crushing take. Fish one step downstream, repeat.</p>
+<p class="learn-p"><strong>Dry fly presentation</strong>: Cast above rising fish, let fly drift naturally over them. Drag = death. Use upstream presentations and long leaders (12-15ft) for spooky fish in clear water.</p>
+
+<div class="learn-h2">Best Clatsop County Fly Fishing</div>
+<ul class="learn-ul">
+<li><strong>Necanicum River</strong>: Sea-run cutthroat in fall (Sept-Oct). Small stream, roll cast essential. Elk Hair Caddis or Woolly Bugger.</li>
+<li><strong>Winter steelhead rivers</strong>: Necanicum, Youngs, Klaskanine. Dec-March. Egg patterns and Intruders fished on sink-tip lines.</li>
+<li><strong>Coffenbury Lake</strong>: Bluegill and bass on poppers (surface flies) in calm summer evenings. Easy and fun intro to fly fishing.</li>
+</ul>
+
+<div class="learn-h2">Wading Safety</div>
+<ul class="learn-ul">
+<li><strong>Wading staff</strong>: Third leg of stability. Collapsible wading staff = essential on slippery Oregon rivers. Never wade without one in fast water.</li>
+<li><strong>Felt vs. rubber soles</strong>: Felt grips smooth algae-covered rocks better. Rubber soles are fine in sandy/gravel rivers. Many waters now ban felt (invasive species transport).</li>
+<li><strong>Wading belt</strong>: On chest waders, always wear a belt around your waist. If you fall in, the belt traps air in waders keeping you buoyant. Without it, waders fill with water and can pull you under.</li>
+<li><strong>Go slow</strong>: One foot at a time. Test each step before committing weight. Face upstream to use current against you. Never turn your back to fast current.</li>
+</ul></div>
+  <div id="learn-body-3">
+<div class="learn-h2">When to Troll vs. Cast</div>
+<p class="learn-p">Trolling (dragging lures or bait behind a moving boat) covers water quickly, keeping lures at a consistent depth and speed. It's the premier method for ocean salmon, lake trout, and large lake species. Casting is better in small areas with visible fish, or when fish are concentrated in one spot.</p>
+
+<div class="learn-h2">Salmon Trolling Setup</div>
+<p class="learn-p"><strong>Flasher + Hoochie</strong>: A rotating flasher (11-12 inch chrome or brass plate) attached above a hoochie (squid-like rubber lure) on 18-24 inch leader. The flasher creates flash and wobble; the hoochie dances behind it. This is the standard ocean salmon rig. Fish Blue/Green flashers for Chinook, Pink/Chrome for Coho.</p>
+<p class="learn-p"><strong>Whole/Cut herring rigs</strong>: A whole herring rigged on a bait rig (two hooks through the herring) trolled behind a flasher. Or "plug-cut" herring: cut the head at an angle so the herring rolls and spins as it's trolled. Rig the cut end on a double-hook setup. Very effective for Chinook.</p>
+
+<div class="learn-h2">Downriggers</div>
+<p class="learn-p">A downrigger uses a heavy cannonball weight (10-15 lbs) lowered on a cable to carry your line to precise depths. Your fishing line is clipped to the cannonball via a release clip. When a fish strikes, the line pops free and you fight the fish without the weight. Essential for getting salmon down to 40-100+ feet in the ocean.</p>
+<p class="learn-p"><strong>How to set depth</strong>: Lower cannonball to desired depth (displayed on downrigger counter). Attach your rod line to the downrigger clip. Let out 6-15 feet of line between clip and lure (this is the "leader" behind the cannonball). Put rod in holder and watch the tip for taps indicating a fish.</p>
+
+<div class="learn-h2">Planer Boards</div>
+<p class="learn-p">Planer boards are plastic devices that run off to the side of the boat on a cord, pulling your fishing line out horizontally from the boat path. This lets you troll multiple lines that don't interfere with each other, spreading coverage across a wide area. Great for covering schools of Coho near the surface.</p>
+
+<div class="learn-h2">Trolling Speed</div>
+<p class="learn-p">For salmon: 1.5-3.5 mph (measured by GPS). Coho typically prefer 2.5-3.5 mph. Chinook slower, 1.5-2.5 mph. Adjust speed and watch your flasher — it should have an aggressive wobble but not spin wildly. Use a kicker motor for precise speed control. Prop wash and current affect actual bait speed.</p>
+
+<div class="learn-h2">Dodgers vs. Flashers</div>
+<ul class="learn-ul">
+<li><strong>Flasher</strong>: Rotates 360° — creates intense flash and vibration. More attractor action. Better in deep, dark water or for aggressive fish. Use for Chinook and ocean Coho.</li>
+<li><strong>Dodger</strong>: Side-to-side wobble, does NOT rotate. Imparts action to the fly/lure behind it. Softer, more subtle action. Better for trout trolling in lakes and Coho in rivers.</li>
+</ul>
+
+<div class="learn-h2">Columbia River Bar Safety</div>
+<div class="warn-box"><div class="warn-label">⚠️ Critical Safety</div>The Columbia River Bar is one of the most dangerous river mouths in the world — "The Graveyard of the Pacific." Hundreds of ships have sunk here. Never cross the bar without checking the NOAA marine forecast (winds and wave height), having a VHF radio, wearing a life jacket, and knowing your boat's limitations. When in doubt, don't go out. If conditions are above 4-6 foot seas, even experienced anglers stay in.</div></div>
+  <div id="learn-body-4">
+<div class="learn-h2">Specialized Surf Gear</div>
+<ul class="learn-ul">
+<li><strong>Surf rods</strong>: 10-14 feet long (Penn Prevail II Surf, Ugly Stik Bigwater). Length allows casting over breaking waves and keeping line above them. Medium-heavy power with a fast tip.</li>
+<li><strong>Surf reels</strong>: Larger spinning reels (5000-8000 size) with high line capacity and strong drag. Penn Battle III, Shimano Baitrunner, Daiwa BG. Load with 20-30lb mono or braid.</li>
+<li><strong>Pyramid sinkers</strong>: Angular pyramid shape digs into sand, anchoring your rig in strong surf. Use 2-4 oz depending on wave and wind conditions.</li>
+<li><strong>Sand spikes</strong>: PVC tubes pounded into the sand to hold your rod while you wait. Essential for hands-free surf fishing.</li>
+</ul>
+
+<div class="learn-h2">Surf Rigs</div>
+<p class="learn-p"><strong>High-Low rig</strong>: Two hooks tied at intervals above the sinker (one closer to sinker, one higher). Lets you fish two different depths simultaneously. Best for perch, flounder, smelt.</p>
+<p class="learn-p"><strong>Fish finder rig</strong>: Sliding sinker on main line above a swivel, with 18-24 inch leader to hook. Fish can pick up bait and run without feeling the sinker weight. Good for larger species like striped bass.</p>
+
+<div class="learn-h2">Reading the Beach</div>
+<ul class="learn-ul">
+<li><strong>Troughs</strong>: Depressions between the beach and outer sandbars. Fish feed in these channels. Look for darker water (indicates depth) running parallel to the beach.</li>
+<li><strong>Rip currents</strong>: Water flowing seaward through gaps in sandbars. Identify by choppy, darker water cutting perpendicular through the wave break. Dangerous for swimmers but an excellent fishing spot — baitfish and gamefish concentrate here.</li>
+<li><strong>Structure</strong>: Rock outcroppings, jetty ends, and creek mouths on the beach all concentrate fish. The Peter Iredale shipwreck at Fort Stevens is a classic example — the submerged structure holds perch.</li>
+</ul>
+
+<div class="learn-h2">Target Species from Clatsop Beaches</div>
+<ul class="learn-ul">
+<li><strong>Redtail Surfperch</strong>: Primary target. Sand shrimp on bottom, 1-3 waves out. February-May peak.</li>
+<li><strong>Striped Bass</strong>: Occasional near Columbia River mouth. Large swimbaits and poppers in summer.</li>
+<li><strong>Starry Flounder</strong>: Sandy bottom in calmer surf, nightcrawlers.</li>
+</ul>
+
+<div class="learn-h2">Best Beaches</div>
+<ul class="learn-ul">
+<li><strong>Seaside Beach</strong>: Gentle approach, good access, consistent surfperch fishing at the river mouth area.</li>
+<li><strong>Cannon Beach</strong>: Beautiful setting, surfperch in the troughs, rocks near Haystack provide structure.</li>
+<li><strong>Del Rey Beach</strong>: Less crowded, good surfperch fishing. Park at Del Rey Beach Road end.</li>
+<li><strong>Fort Stevens State Park</strong>: Drive-on beach area near Peter Iredale wreck. Excellent access, multiple species.</li>
+</ul>
+
+<div class="learn-h2">Tides and Timing</div>
+<p class="learn-p">For surfperch: fish the incoming tide, especially 2 hours before to 2 hours after high tide. As the tide pushes in, water floods the beach troughs and surfperch follow the baitfish and sand crabs into the shallows. The first big incoming tide after a week of outgoing tides can be spectacular. Check NOAA tide charts (tidesandcurrents.noaa.gov) for Astoria/Columbia River entrance.</p>
+<div class="tip-box"><div class="tip-label">💡 Free Fishing</div>No fishing license is required to catch surfperch from an Oregon ocean beach (tide lands). This makes surf fishing for redtail surfperch one of the most accessible forms of fishing in the state.</div></div>
+  <div id="learn-body-5">
+<div class="learn-h2">Charter Boats</div>
+<p class="learn-p">Charter boats operate from Warrenton (Pacific Way Marina) and Astoria (East Mooring Basin). Full-day trips run 5-8 hours. Half-day trips 4-5 hours. Charters supply rods, reels, bait, and tackle — just bring your license and food/drinks. Tip the deckhand well — they work extremely hard. Book in advance during peak season (June-September).</p>
+<p class="learn-p"><strong>Key charter operators</strong>: Search "Astoria charter fishing" for current operations. Prices vary $150-$250+ per person for full-day salmon or halibut trips.</p>
+
+<div class="learn-h2">Bottomfishing: Rockfish, Lingcod, Cabezon</div>
+<p class="learn-p">Bottomfishing targets species that live near the seafloor. Standard setup: a dropper loop rig with 2-3 hooks at intervals above a heavy sinker (6-16 oz). Bait with herring strips, squid, or shrimp. Drop to the bottom, reel up 3-5 feet, then jig slowly. Rockfish hit immediately when the bait reaches their depth. On charter boats, the crew will tell you the target depth.</p>
+<p class="learn-p">Lingcod, cabezon, and large rockfish respond well to large rubber swimbaits (3-5 inch Berkley Powerbait Swimmers) on leadhead jigs. Drop to bottom, rip up 5 feet, let fall back. Strikes typically come on the fall.</p>
+
+<div class="learn-h2">Halibut: Drift Fishing</div>
+<p class="learn-p">Pacific Halibut season is typically May-September (check ODFW annually — quota closures occur). Target depth: 40-80 fathoms (240-480 ft). Standard technique: anchor or drift over sandy bottom. Use a spreader bar rig: 80-100lb fluorocarbon leader, 8/0-10/0 circle hook, whole herring or large smelt as bait. The boat drifts, dragging bait along the bottom. When a halibut grabs the bait, don't yank — apply steady pressure and let the circle hook set itself. Fight is a deadlift from depth — halibut don't jump but large fish are like pulling a door up from 300 feet.</p>
+
+<div class="learn-h2">Offshore Salmon Trolling</div>
+<p class="learn-p">Ocean Chinook and Coho are targeted 1-20 miles offshore from May-October (check ODFW for current seasons and area openings). Typical setup: downriggers set to 20-60 feet, with flasher + hoochie or whole/plug-cut herring. Speed 2-3.5 mph. Work temperature breaks (where cold and warm water meet) and look for birds diving on baitfish.</p>
+
+<div class="learn-h2">Albacore Tuna (Offshore)</div>
+<p class="learn-p">Albacore fishing happens 40-80 miles offshore when warm Pacific water (59°F+) pushes inshore — typically August-October. Full-day charter trips are 12+ hours. Technique: troll at 6-9 knots with cedar plugs, feathers, and spreader bars. When a school is found, boats stop and anglers cast metal jigs or swimbaits to the tuna feeding at the surface. Action can be furious — multiple hook-ups simultaneously. Ocean boat license required in addition to regular angling license.</p>
+
+<div class="learn-h2">Ocean Safety Checklist</div>
+<ul class="learn-ul">
+<li>Check NOAA Marine Forecast (weather.gov/pqr) before every trip — minimum 2 days out</li>
+<li>Life jacket for every person aboard — wear it in rough conditions</li>
+<li>VHF Marine Radio (Channel 16 monitored for emergencies) — a cell phone is not adequate offshore</li>
+<li>Float plan: tell someone where you're going and when you'll return</li>
+<li>Know your boat's limitations — if it's rated for 4-foot waves, don't push it</li>
+<li>Bar crossing: check USCG bar conditions (Marine Safety Radio Channel 16 or app)</li>
+</ul>
+
+<div class="learn-h2">Licensing: Oregon Ocean Boat License</div>
+<p class="learn-p">Any vessel used for ocean sport fishing needs an Oregon Ocean Boat License ($26/year). Anglers also need a valid Oregon angling license plus a Combined Angling Tag for salmon/steelhead/sturgeon. Licenses available at ODFW offices, most sporting goods stores, and online at myodfw.com.</p></div>
+  <div id="learn-body-6">
+<div class="learn-h2">Dungeness Crab</div>
+<p class="learn-p">Oregon's most prized crustacean. Full-season crabbing is one of Clatsop County's best outdoor traditions. Season is typically December 1 through August 14 (ODFW sets dates annually based on meat fill and safety — verify before every trip).</p>
+
+<div class="learn-h2">Gear: Ring Nets vs. Pots</div>
+<ul class="learn-ul">
+<li><strong>Ring nets</strong>: Two rings connected by mesh, baited and dropped to the bottom. Pull up quickly every 20-30 minutes. Legal from shore and piers without a boat. Easy to use.</li>
+<li><strong>Crab pots</strong>: Rigid wire cages with entrance funnels. Left on bottom for hours. More effective per pull but require a boat and license. Pots must have escape rings and ID tags.</li>
+</ul>
+
+<div class="learn-h2">Bait for Crab</div>
+<ul class="learn-ul">
+<li><strong>Chicken legs/backs</strong>: Cheap, readily available, effective. Smell draws crabs from a distance.</li>
+<li><strong>Fish carcasses</strong>: After filleting a fish, freeze the carcass and use for crab bait. Free and very effective.</li>
+<li><strong>Commercial crab bait</strong> (Dungeness crab attractant): Available at local shops. Concentrated scent.</li>
+</ul>
+
+<div class="learn-h2">Regulations and Measuring</div>
+<p class="learn-p"><strong>Minimum size</strong>: 5¾ inches across the widest part of the carapace (shell). Measure with calipers. Do not estimate — undersized crab must go back immediately.</p>
+<p class="learn-p"><strong>Males only</strong>: Only male (buck) Dungeness can be retained. Females have a wider, rounded abdomen flap; males have a narrow, pointed flap. Female crabs, small males, and soft-shelled crabs must be released immediately and gently.</p>
+<p class="learn-p"><strong>Bag limit</strong>: 12 Dungeness crab per day. Shellfish license required (included in combo license or $10 add-on for non-license holders).</p>
+
+<div class="learn-h2">Best Crabbing Spots in Clatsop County</div>
+<ul class="learn-ul">
+<li><strong>South Jetty (Fort Stevens)</strong>: Ring nets from the jetty rocks. Walk from the parking area. Highly productive.</li>
+<li><strong>Youngs Bay</strong>: From boat — large bay with excellent crab habitat. Launch from Astoria waterfront.</li>
+<li><strong>Columbia River estuary channels</strong>: Deeper channels hold large crab. Boat access required.</li>
+</ul>
+
+<div class="learn-h2">Razor Clams</div>
+<p class="learn-p">Oregon razor clams are a prized delicacy found in sandy beach surf zones. Licensing: regular Oregon angling license + shellfish endorsement required. Season: typically October through May, with specific beach openings set by ODFW after biotoxin (paralytic shellfish poisoning) testing. Always verify current beach openings at myodfw.com — biotoxin closures can occur without warning and are a health hazard.</p>
+
+<div class="learn-h2">How to Dig Razor Clams</div>
+<p class="learn-p"><strong>Clam gun (tube)</strong>: Insert tube over the clam's breathing hole (a dimple in the sand), push down, cover the air hole with thumb, pull up — captures a core of sand with the clam. Easier for beginners.</p>
+<p class="learn-p"><strong>Shovel</strong>: More traditional. Dig quickly beside the dimple (not on it), tilt sand toward you, reach down and grab the clam before it retreats. Fast hands required — razors can retreat 6 inches in seconds.</p>
+<p class="learn-p"><strong>Finding clams</strong>: Look for dimples (round depressions) or keyholes (oval depressions) in wet sand near the water's edge at low tide. Tap the sand with your foot — clams retreat, leaving a more visible dimple. Best tides: minus tides (below zero) expose the most beach.</p>
+<p class="learn-p"><strong>Best beaches</strong>: Long Beach, WA (just north) and Cannon Beach/Seaside areas when open. Fort Stevens beach at low tide.</p>
+
+<div class="learn-h2">Daily Limits</div>
+<table class="learn-table">
+<tr><th>Species</th><th>Daily Limit</th><th>Notes</th></tr>
+<tr><td>Dungeness Crab</td><td>12 males, min 5¾"</td><td>Shellfish license required</td></tr>
+<tr><td>Razor Clams</td><td>15 per person</td><td>Must check beach-specific opening</td></tr>
+<tr><td>Cockles/Bay Clams</td><td>36 combined</td><td>Check specific area limits</td></tr>
+<tr><td>Mussels</td><td>72 total</td><td>Check biotoxin closures first</td></tr>
+</table>
+<div class="warn-box"><div class="warn-label">⚠️ Biotoxin Warning</div>Paralytic Shellfish Poisoning (PSP) from contaminated shellfish is a serious health hazard that can be fatal. ALWAYS check current biotoxin closure status at myodfw.com or call the shellfish hotline (800-448-2474) before harvesting any shellfish.</div></div>
+  <div id="learn-body-7">
+<p class="learn-p">Every angler needs 5 reliable knots. Practice them at home until you can tie them in the dark, in the rain, with cold hands. A poorly tied knot is the #1 cause of lost fish.</p>
+
+<div class="knot-name">1. Improved Clinch Knot — Attaching lure or hook to monofilament/fluorocarbon</div>
+<p class="learn-p"><strong>Best for</strong>: Mono or fluoro, light to medium applications. Simple and reliable. Not ideal for braid.</p>
+<p class="learn-p"><strong>Strength</strong>: ⭐⭐⭐ (95% of line strength when tied correctly)</p>
+<div class="knot-step">1. Thread 6 inches of line through the hook eye.</div>
+<div class="knot-step">2. Wrap the tag end around the main line 5-6 times (more for light line, fewer for heavy).</div>
+<div class="knot-step">3. Pass tag end through the loop nearest the hook eye.</div>
+<div class="knot-step">4. Pass tag end back through the large loop just created (this is the "improved" part).</div>
+<div class="knot-step">5. Wet the knot with saliva, pull slowly until tight. Trim tag end close.</div>
+
+<div class="knot-name">2. Palomar Knot — Best for braided line to lure</div>
+<p class="learn-p"><strong>Best for</strong>: Braid or fluoro to hook or lure. Easiest strongest knot. The go-to for braid.</p>
+<p class="learn-p"><strong>Strength</strong>: ⭐⭐⭐⭐⭐ (virtually 100% of line strength)</p>
+<div class="knot-step">1. Double 6 inches of line and pass the loop through the hook eye.</div>
+<div class="knot-step">2. Tie a simple overhand knot with the doubled line (but don't tighten — leave a loop).</div>
+<div class="knot-step">3. Pass the hook through the loop.</div>
+<div class="knot-step">4. Wet and pull both tag end and main line simultaneously. Hook should center below the knot.</div>
+<div class="knot-step">5. Trim tag end.</div>
+<div class="tip-box"><div class="tip-label">💡 Note</div>The Palomar requires passing the hook through a loop — doesn't work well for lures with large body or treble hooks where the loop won't pass over easily. Use Uni knot in that case.</div>
+
+<div class="knot-name">3. Uni Knot — Versatile all-purpose</div>
+<p class="learn-p"><strong>Best for</strong>: All line types to hooks, lures, or swivels. Works on mono, fluoro, and braid. Very reliable.</p>
+<p class="learn-p"><strong>Strength</strong>: ⭐⭐⭐⭐ (90-95% line strength)</p>
+<div class="knot-step">1. Thread 6+ inches of line through hook eye. Double back parallel to main line, creating a loop.</div>
+<div class="knot-step">2. Wrap the tag end around both lines and through the loop 4-6 times.</div>
+<div class="knot-step">3. Wet the knot and pull the tag end to tighten the coils together.</div>
+<div class="knot-step">4. Slide the knot down to the hook eye by pulling the main line.</div>
+<div class="knot-step">5. Pull firmly to seat. Trim tag end close.</div>
+
+<div class="knot-name">4. Blood Knot — Joining two similar-diameter lines</div>
+<p class="learn-p"><strong>Best for</strong>: Joining two lengths of monofilament or fluorocarbon of similar diameter. Building custom leaders. Adding tippet to fly leader.</p>
+<p class="learn-p"><strong>Strength</strong>: ⭐⭐⭐⭐ (85-90% line strength)</p>
+<div class="knot-step">1. Overlap the two line ends by about 6 inches.</div>
+<div class="knot-step">2. Wrap one tag end around the other line 4-5 times, bring back through the center opening.</div>
+<div class="knot-step">3. Wrap the other tag end around the first line 4-5 times, bring back through the SAME center opening but from the opposite side.</div>
+<div class="knot-step">4. The two tag ends should exit the center in opposite directions.</div>
+<div class="knot-step">5. Wet thoroughly, pull both main lines simultaneously. Trim both tag ends.</div>
+
+<div class="knot-name">5. Double Uni Knot — Connecting braid to fluorocarbon leader</div>
+<p class="learn-p"><strong>Best for</strong>: Connecting braid mainline to fluoro leader. The most important line-to-line knot for modern anglers. Also works for mono-to-mono.</p>
+<p class="learn-p"><strong>Strength</strong>: ⭐⭐⭐⭐⭐ (Strong enough for any application)</p>
+<div class="knot-step">1. Overlap the two lines by 12 inches, holding in the middle.</div>
+<div class="knot-step">2. Tie a Uni knot with the braid around the fluoro: fold braid back on itself, wrap 4 times through the loop, tighten down (but not to fluoro yet).</div>
+<div class="knot-step">3. Tie a Uni knot with the fluoro around the braid: same process, 4 wraps. Tighten separately.</div>
+<div class="knot-step">4. Now pull both main lines in opposite directions — the two uni knots slide together and lock against each other.</div>
+<div class="knot-step">5. Trim both tag ends close. The finished knot passes smoothly through rod guides.</div>
+<div class="tip-box"><div class="tip-label">💡 Practice Tip</div>Watch YouTube videos for each knot — seeing hands tie them is much faster than reading. Then practice until you can tie them smoothly in 30 seconds each. Your fish-landing rate will improve immediately.</div></div>
+  <div id="learn-body-8">
+<div class="warn-box"><div class="warn-label">⚠️ Always Verify</div>Regulations change annually. Always verify current rules at myodfw.com or the current ODFW Sport Fishing Regulations booklet before fishing. This section provides general guidance only — it is NOT a substitute for the official regulations.</div>
+
+<div class="learn-h2">License Requirements</div>
+<table class="learn-table">
+<tr><th>License Type</th><th>Who Needs It</th><th>Cost (approx)</th></tr>
+<tr><td>Oregon Angling License</td><td>All anglers 12+</td><td>$44/year (resident), $90 (non-resident)</td></tr>
+<tr><td>Combined Angling Tag</td><td>Required to fish for/retain salmon, steelhead, sturgeon, halibut, Pacific lamprey</td><td>$32 (resident), $98 (non-resident)</td></tr>
+<tr><td>Shellfish License</td><td>To harvest crab, clams, and other shellfish</td><td>$10 add-on or included in combo license</td></tr>
+<tr><td>Ocean Boat License</td><td>Any vessel used for ocean sport fishing</td><td>$26/year</td></tr>
+</table>
+<p class="learn-p"><strong>Exception</strong>: No license required to catch surfperch from Oregon ocean beaches (tide lands). No license for anglers under 12.</p>
+
+<div class="learn-h2">Salmon and Steelhead</div>
+<ul class="learn-ul">
+<li><strong>Combined Angling Tag</strong>: Required to target or retain salmon, steelhead, sturgeon. Buy with your annual license.</li>
+<li><strong>Wild vs. Hatchery</strong>: In most Oregon waters, only hatchery salmon and steelhead (with clipped adipose fin) may be retained. Wild fish (intact adipose fin) must be released unharmed immediately. The adipose fin is the small fin behind the dorsal fin.</li>
+<li><strong>Bag limits</strong>: Typically 2 adult salmon or steelhead per day, combined. Check species-specific and water-specific rules.</li>
+<li><strong>Jack salmon</strong>: Small salmon (under 24 inches) that return after 1 year at sea. May have different retention rules — check regs.</li>
+</ul>
+
+<div class="learn-h2">Sturgeon (Columbia River)</div>
+<ul class="learn-ul">
+<li><strong>Slot limit</strong>: Only sturgeon 44-50 inches fork length (tip of lower jaw to fork of tail) may be retained. All other sizes must be released carefully.</li>
+<li><strong>Fork length</strong>: Measured from tip of lower jaw to fork in tail fin (not the whiskers/rostrum). Have a measuring tape ready — oversized fish are as common as legal fish.</li>
+<li><strong>Season</strong>: Check current ODFW season — retention seasons can be as short as a few days. Confirm before going.</li>
+<li><strong>Releasing oversized sturgeon</strong>: Keep in water as much as possible. Do not lift by the gills or tail. Use a large net or cradle. Revive by moving back and forth in water before releasing.</li>
+</ul>
+
+<div class="learn-h2">Key Clatsop County Regulation Zones</div>
+<ul class="learn-ul">
+<li><strong>Columbia River</strong>: Complex multi-jurisdiction rules (Oregon, Washington, federal tribal rights). Check the Columbia River Supplement section of ODFW regs carefully. Rules differ by species, season, and specific river section.</li>
+<li><strong>Ocean regulations</strong>: Oregon ocean salmon regulations are set jointly by the Pacific Fishery Management Council (PFMC) and may change year to year based on stock assessments. Check the Marine Zone section.</li>
+<li><strong>Coastal rivers</strong>: Each coastal river (Necanicum, Youngs, Klaskanine) may have specific rules. Always check the Coast Streams section for the specific river you plan to fish.</li>
+</ul>
+
+<div class="learn-h2">Catch-and-Release Best Practices</div>
+<ul class="learn-ul">
+<li>Use barbless hooks when required (required on many C&R-only waters) or pinch barbs for ey�sy removal</li>
+<li>Keep fish in water as much as possible — a fish out of water is a fish suffocating</li>
+<li>Wet your hands before touching fish — dry hands remove the protective slime coat</li>
+<li>Use forceps/pliers to remove hooks quickly — minimize handling time</li>
+<li>Don't squeeze the fish — support horizontally, never hang vertically by jaw</li>
+<li>For deep-hooked fish: cut the line rather than digging for the hook. Circle hooks help prevent deep hooking.</li>
+<li>Revive fish before releasing — hold in current until it swims away strongly</li>
+</ul>
+
+<div class="learn-h2">Find Official Regulations</div>
+<p class="learn-p">Oregon Department of Fish and Wildlife: <strong>myodfw.com</strong> | Phone: (503) 947-6000 | Columbia River Violations Hotline: (800) 452-7888</p></div>
+  <div id="learn-body-9">
+<div class="learn-h2">Budget Beginner Setup ($75-150 total)</div>
+<p class="learn-p">Perfect for surfperch, trout, panfish, and bass in Clatsop County lakes:</p>
+<ul class="learn-ul">
+<li><strong>Rod/Reel Combo</strong>: Ugly Stik GX2 6ft medium spinning combo ($50-60) — nearly indestructible, very sensitive for the price</li>
+<li><strong>Line</strong>: Berkley Trilene XL 8lb monofilament (pre-spooled or $6 spool)</li>
+<li><strong>Tackle kit</strong>: Eagle Claw hook assortment, split shot sinkers, ssorted bobbers, swivels ($15-20)</li>
+<li><strong>Lures</strong>: 1/8oz Rooster Tail spinner, Kastmaster 1/4oz spoon, Berkley PowerBait dough ($15-20)</li>
+<li><strong>License</strong>: Oregon angling license (~$44 resident)</li>
+</ul>
+
+<div class="learn-h2">Mid-Range Versatile Setup ($200-400)</div>
+<p class="learn-p">Covers most Clatsop County fishing — trout, salmon, bass, rockfish:</p>
+<ul class="learn-ul">
+<li><strong>Spinning rod</strong>: St. Croix Triumph 7ft medium ($100-130) — quality blank, sensitive tip</li>
+<li><strong>Reel</strong>: Shimano Stradic FL 3000 ($120-140) — smooth, reliable, long-lasting</li>
+<li><strong>Line</strong>: Power Pro 30lb braid + 10lb Seaguar Red Label fluoro leader</li>
+<li><strong>Plus</strong>: A selection of spinners, spoons, and soft plastics</li>
+</ul>
+
+<div class="learn-h2">Salmon/Steelhead Dedicated Setup ($400-800)</div>
+<ul class="learn-ul">
+<li><strong>River rod</strong>: Lamiglas Certified Pro 9.5ft MH ($200) or St. Croix Mojo Bass/Salmon 9ft</li>
+<li><strong>Reel</strong>: Shimano Cardiff 400A (centerpin) for float fishing, or Shimano Curado DC baitcaster</li>
+<li><strong>Line</strong>: 40-50lb Sufix 832 braid + 20-25lb Seaguar Abrazx fluoro leader</li>
+<li><strong>Waders</strong>: Simms Tributary stockingfoot ($180) or Frogg Toggs waders ($80 budget option)</li>
+<li><strong>Wading boots</strong>: Simms Tributary ($120) or Redington Skagit ($100)</li>
+</ul>
+
+<div class="learn-h2">Ocean/Charter Fishing: What to Bring</div>
+<ul class="learn-ul">
+<li><strong>The charter provides</strong>: Rod, reel, bait, tackle, and usually a cooler for your fish</li>
+<li><strong>You bring</strong>: Oregon angling license + Combined Angling Tag, motion sickness meds (take the night before — too late if taken day-of), layers (it's cold on the ocean), sunscreen, food and drinks, dry bag for valuables</li>
+<li><strong>Seasickness tip</strong>: Dramamine (original) taken the evening before works far better than taking it morning-of. Scopolamine patch (prescription) is the most effective option for chronic sufferers.</li>
+</ul>
+
+<div class="learn-h2">Essential Tackle Box for Clatsop County</div>
+<table class="learn-table">
+<tr><th>Item</th><th>Why You Need It</th></tr>
+<tr><td>Blue Fox Vibrax spinners #3, #4, #5</td><td>Coho, steelhead, sea-run cutthroat</td></tr>
+<tr><td>Spin-N-Glo (orange, pink)</td><td>Steelhead and salmon bait rig</td></tr>
+<tr><td>Berkley PowerBait dough</td><td>Stocked trout in lakes</td></tr>
+<tr><td>Assorted jig heads 1/8, 1/4, 1/2 oz</td><td>Universal — rockfish, bass, perch</td></tr>
+<tr><td>Berkley Gulp Grubs/Shrimp</td><td>Rockfish, surfperch</td></tr>
+<tr><td>Egg sinkers 1/4-2oz</td><td>Bottom rigs for all species</td></tr>
+<tr><td>Slip floats (small and medium)</td><td>Steelhead/salmon drift fishing</td></tr>
+<tr><td>Swivels (#4, #6, #8) and snaps</td><td>Universal connection hardware</td></tr>
+<tr><td>Fluorocarbon leader material 10, 15, 20lb</td><td>Leader construction</td></tr>
+<tr><td>Forceps/needle-nose pliers</td><td>Hook removal (critical)</td></tr>
+</table>
+
+<div class="learn-h2">Waders Buying Guide</div>
+<ul class="learn-ul">
+<li><strong>Neoprene waders</strong>: Warm (good for winter steelhead in cold water), buoyant, durable. Heavier. 3mm for Clatsop County winter use.</li>
+<li><strong>Breathable waders</strong>: Lighter, comfortable in warmer weather, packable. Less warm but comfortable spring through fall. Gore-Tex = most breathable but expensive. Cheaper membranes work fine for occasional use.</li>
+<li><strong>Boot-foot</strong>: Boots attached — convenient, warm, no separate boot needed. Heavier.</li>
+<li><strong>Stockingfoot</strong>: Neoprene sock, separate wading boots required. Better fit, more ankle support, lighter. Recommended for technical wading.</li>
+</ul>
+
+<div class="learn-h2">Other Essential Gear</div>
+<ul class="learn-ul">
+<li><strong>Landing net</strong>: Rubber mesh nets are mandatory for catch-and-release (preserve fish slime). Frabill or Ego nets with rubber mesh.</li>
+<li><strong>Fish grip</strong>: Plastic lip gripper (Bass Pro or Rapala) — hold fish safely without removing slime. Must for bass and large fish.</li>
+<li><strong>Forceps/pliers</strong>: 7-inch stainless forceps ($8) are the single most-used item in your tackle box. Use for hook removal, crimping split shot, cutting line.</li>
+<li><strong>Tackle bag vs. box</strong>: Soft tackle bag for wading (straps over shoulder). Hard box for boat or bank fishing. Plano boxes with adjustable dividers for organization.</li>
+</ul></div>
+</div>
+</nav>
+
+<script>
+
+
+// ============================================================
+// FISH DATA
+// ============================================================
+var FISH = [
+  {
+    id:0, name:'Chinook Salmon', nickname:'King Salmon', bonus:false,
+    habitat:['ocean','river'], emoji:'👑',
+    image:'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/Chinook_Salmon_Adult_Male.jpg/330px-Chinook_Salmon_Adult_Male.jpg',
+    description:'The largest Pacific salmon, with robust silver body and black spots on upper back and BOTH lobes of tail. Adults develop hooked jaw (kype). Black gum line is the key ID marker.',
+    season:'Spring Chinook: Apr-Jun in Columbia. Fall Chinook: Aug-Oct. Ocean: May-Sept offshore.',
+    seasonMonths:[0,0,0,1,2,2,1,2,2,1,0,0],
+    locations:['Columbia River near Astoria','Youngs Bay','Pacific Ocean off Cannon Beach','Buoy 10 fishery'],
+    gpsHints:['Buoy 10 at the Columbia River mouth — launch from East Mooring Basin Astoria','Youngs Bay off of Hwy 202'],
+    difficulty:3, diffLabel:'Expert',
+    regulations:'Combined Angling Tag required. Hatchery only (clipped adipose fin) for retention in most areas. Check ODFW for current limits.',
+    tackle:{
+      rod:'8.5-10ft medium-heavy salmon/steelhead rod',
+      reel:'Level-wind baitcasting reel with 25lb+ drag',
+      line:'30-50lb braid with 20-30lb fluorocarbon leader',
+      lures:['Kwikfish K14-K16','Blue Fox Vibrax #5-6','Sand shrimp on Spin-N-Glo','Herring under diver','Egg clusters (cured)'],
+      technique:'Back-troll Kwikfish or plug-cut herring in the Columbia. Anchor and plunk egg clusters in side channels. Troll hoochies/flashers offshore.'
+    },
+    funFacts:['Can weigh over 100 lbs and live up to 8 years','Travels hundreds of miles upriver to spawn in the same gravel bed it was born in','The Columbia River once produced the largest Chinook runs in the world'],
+    memoryHook:'KING-sized fish: black gum line, black spots on BOTH tail lobes — the KING rules all salmon',
+    identifyingFeatures:['Black gums (unique among Pacific salmon)','Black spots on both lobes of tail fin','Large body — adults 20-60 lbs locally','Irregularly shaped black spots on back']
+  },
+  {
+    id:1, name:'Coho Salmon', nickname:'Silver Salmon', bonus:false,
+    habitat:['ocean','river'], emoji:'🥈',
+    image:'https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Oncorhynchus_keta.jpeg/330px-Oncorhynchus_keta.jpeg',
+    description:'Bright silver ocean fish with small black spots only on the UPPER lobe of the tail. White gums with black tip on tongue. Aggressive strikers make them favorites.',
+    season:'Ocean: Aug-Oct. Columbia River: Sept-Nov. Necanicum/Nehalem: Oct-Dec.',
+    seasonMonths:[0,0,0,0,0,0,0,1,2,2,1,0],
+    locations:['Ocean off Seaside/Cannon Beach','Columbia River Astoria area','Necanicum River','Youngs River'],
+    gpsHints:['Necanicum River — Hwy 101 bridge in Seaside is a classic bank spot','Charter boats from Warrenton Marina for ocean Coho'],
+    difficulty:2, diffLabel:'Intermediate',
+    regulations:'Combined Angling Tag required. Hatchery only (check adipose fin clip). Bag limit typically 2/day in river.',
+    tackle:{
+      rod:'8-9ft medium-heavy spinning or casting rod',
+      reel:'3000-4000 spinning or level-wind',
+      line:'20-30lb braid with 12-15lb fluorocarbon leader',
+      lures:['Blue Fox Vibrax #4 Silver','Coho flies (Pink/White intruder)','Spinners (Mepps Comet Silver #4)','Hoochies with flasher (ocean)','Cured egg clusters'],
+      technique:'Cast and retrieve spinners across current in rivers. Troll spinners or hoochies behind a flasher offshore at 2-3 mph. Drift eggs under a float.'
+    },
+    funFacts:['Coho are famous for spectacular aerial leaps when hooked','They return to spawn at exactly 3 years old','White-fleshed coho are sometimes called "silvers" — the silver color comes from ocean feeding'],
+    memoryHook:'Silver Salmon = spots on UPPER tail lobe only. White gums with black tip. COHOerent color (all silver).',
+    identifyingFeatures:['White gums with black tip on tongue','Spots only on upper lobe of tail','Small black spots on back (not both tail lobes)','Bright silver coloring in ocean']
+  },
+  {
+    id:2, name:'Lingcod', nickname:'Ling', bonus:false,
+    habitat:['ocean'], emoji:'🦎',
+    image:'https://upload.wikimedia.org/wikipedia/commons/7/75/Ophiodon_elongatus.png',
+    description:'Large, mottled green-brown predator with huge mouth full of teeth. One of the ocean\'s apex predators — will eat other fish right off your hook. Blue-green flesh (edible, turns white when cooked).',
+    season:'Open most of year offshore. Peak Oct-Mar for nearshore, summer for deeper water.',
+    seasonMonths:[2,2,2,1,1,2,2,2,2,2,2,2],
+    locations:['Rocky reefs off Cannon Beach','Tillamook Head area','Haystack Rock vicinity','30-80ft depth zones'],
+    gpsHints:['Charter boats from Warrenton Marina run to nearshore reefs','Tillamook Head reefs — boat access only'],
+    difficulty:2, diffLabel:'Intermediate',
+    regulations:'Minimum 22 inches (check current ODFW). Bag limit 2/day. No retention during certain spawning periods.',
+    tackle:{
+      rod:'7-9ft medium-heavy to heavy jigging rod',
+      reel:'3000-5000 spinning or conventional',
+      line:'40-65lb braid, 30-40lb fluorocarbon leader',
+      lures:['Berkley Powerbait Swimmer 5" (pink/white)','Leadhead jigs 2-6oz (white/chartreuse)','Live or fresh-dead rockfish','Metal jigs (Crippled Herring 4oz)','Large soft-plastic swimbaits'],
+      technique:'Jig heavy metal or soft plastics near rocky bottom. Let jig hit bottom, rip up 4-5 feet, drop back. Often holds just above structure. Will grab rockfish off hook.'
+    },
+    funFacts:['Lingcod flesh is naturally blue-green but turns white when cooked — perfectly edible','Males guard eggs for weeks after spawning','Can live to 20+ years and grow to 5 feet'],
+    memoryHook:'LING-cOD: Big head, big teeth, LING-ers near the bottom. Blue flesh = distinctive ID.',
+    identifyingFeatures:['Very large mouth with many teeth','Mottled green-brown coloring','Long body, large pectoral fins','Blue-green tinged flesh (visible when filleted)']
+  },
+  {
+    id:3, name:'Pacific Halibut', nickname:'Halibut', bonus:false,
+    habitat:['ocean'], emoji:'🪸',
+    image:'https://upload.wikimedia.org/wikipedia/commons/9/96/Hippoglossus_stenolepis.png',
+    description:'Massive flatfish, dark brown on top and white underneath. Both eyes on the same side of the head (right side). Can exceed 200 lbs. Prized table fare — firm white flesh.',
+    season:'Oregon halibut season typically May-Sept (check ODFW each year). Peak June-Aug.',
+    seasonMonths:[0,0,0,0,1,2,2,2,1,0,0,0],
+    locations:['40-80 fathoms offshore (40-50 miles out)','Charter boats from Warrenton/Astoria'],
+    gpsHints:['Charter boats from East Mooring Basin Astoria — all-day trips to offshore grounds'],
+    difficulty:3, diffLabel:'Expert',
+    regulations:'1 per day, minimum size varies. Check ODFW for current season dates — season can close early if quota is reached.',
+    tackle:{
+      rod:'7-8ft heavy conventional rod',
+      reel:'Large conventional/baitcast reel 40-80lb drag',
+      line:'80-100lb braid, 60-80lb fluorocarbon leader',
+      lures:['Whole herring or smelt (drift or anchor)','Circle hooks 8/0-10/0 with bait','Large spreader bar rigs with herring','Rubber swimbaits 6-10" (pink/white)','Iron jigs 8-16oz'],
+      technique:'Drift across sandy bottom at correct depth. Circle hook with whole herring on a spreader bar rig. Let bait sit on bottom, sweep rod, wait for weight of fish. Never yank on circle hooks.'
+    },
+    funFacts:['Both eyes migrate to the right side of the head as the fish grows from larval form','Halibut can live over 55 years','A single halibut can provide over 100 lbs of white fillets'],
+    memoryHook:'HALI-but (HALE and able): BOTH eyes on right side. FLAT, dark on top, white below.',
+    identifyingFeatures:['Diamond-shaped flat body','Both eyes on right side of head','Dark brown top, white underside','Lateral line with distinct curve over pectoral fin']
+  },
+  {
+    id:4, name:'Black Rockfish', nickname:'Black Bass / Sea Bass', bonus:false,
+    habitat:['ocean'], emoji:'🖤',
+    image:'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Sebastes_melanops_VA_02.jpg/330px-Sebastes_melanops_VA_02.jpg',
+    description:'Dark gray to black schooling rockfish. Large eyes, spiny dorsal fin with mild venom. Found in mid-water column near rocky structure. Highly prized sportfish.',
+    season:'Open most of year. Best May-Oct from charter or private boat.',
+    seasonMonths:[1,1,1,1,2,2,2,2,2,1,1,1],
+    locations:['Rocky reefs 30-120ft depth','Haystack Rock area','Tillamook Head','Twin Rocks offshore'],
+    gpsHints:['Haystack Rock visible from Cannon Beach — rockfish in the kelp zone around it (boat required)'],
+    difficulty:1, diffLabel:'Beginner',
+    regulations:'Bag limit check ODFW. Typically 10 combined rockfish per day. Avoid crushing barotrauma fish — use descender device.',
+    tackle:{
+      rod:'6-8ft medium jigging rod',
+      reel:'3000-5000 spinning',
+      line:'30-40lb braid, 15-20lb fluoro leader',
+      lures:['Berkley Gulp Grub 3" (white/pink)','Lucky Craft Pointer 100 (jerkbait)','Metal jigs 1-3oz','Drop shot with swimbaits','Tube jigs'],
+      technique:'Drift over rocky reefs, jig vertically or cast and count down. Mid-water column schools. Light jigs work great — these fish are aggressive biters.'
+    },
+    funFacts:['Rockfish can live 50-100+ years — a "small" fish may be older than you','Black rockfish school in midwater unlike many other rockfish','Mild venom in spines — handle with care'],
+    memoryHook:'BLACK rockfish = black coloring, MID-water column, schools near rocky reefs.',
+    identifyingFeatures:['Dark gray to black coloring','Large eyes','Spiny dorsal fin','Found in schools mid-water near rocks']
+  },
+  {
+    id:5, name:'Cabezon', nickname:'Cab / Blob Sculpin', bonus:false,
+    habitat:['ocean'], emoji:'👾',
+    image:'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2b/Scorpaenichthys_marmoratus.jpg/330px-Scorpaenichthys_marmoratus.jpg',
+    description:'Bizarre-looking large sculpin with mottled red-brown coloring, huge pectoral fins, and a flap of skin (cirrus) above each eye. Found on rocky bottom. Eggs are toxic — do not eat the roe.',
+    season:'Good year-round. Best Oct-Mar nearshore. Spawning Jan-Mar.',
+    seasonMonths:[2,2,2,1,1,1,1,1,1,2,2,2],
+    locations:['Rocky intertidal and subtidal zones','Tillamook Head','Haystack Rock area','Jetty rocks'],
+    gpsHints:['South Jetty at Fort Stevens State Park — accessible from parking area off Ridge Road'],
+    difficulty:1, diffLabel:'Beginner',
+    regulations:'10 per day (combined with other sculpin). No size limit typically.',
+    tackle:{
+      rod:'6-7ft medium spinning rod',
+      reel:'2500-3500 spinning',
+      line:'20-30lb braid, 15lb fluoro leader',
+      lures:['Berkley Gulp Crab (natural)','Live or fresh crab pieces','Ghost shrimp','Octopus pieces','Soft plastic crabs/shrimp'],
+      technique:'Fish on bottom near rocks. Cabezon are ambush predators — use realistic crab/shrimp imitations. Be patient. No need for long casts — fish right among the rocks.'
+    },
+    funFacts:['Cabezon eggs are poisonous — bright red or green depending on diet, NEVER eat the roe','Males guard the egg mass until it hatches','They can change color to match their surroundings'],
+    memoryHook:'CABezon = Crazy Appearance Beast. Blob-like, fleshy cirrus above eyes, EGGS ARE TOXIC.',
+    identifyingFeatures:['Large fleshy flap (cirrus) above each eye','Huge pectoral fins, no scales','Mottled red/green/brown coloring','Large head, tapering body']
+  },
+  {
+    id:6, name:'Redtail Surfperch', nickname:'Surf Perch', bonus:false,
+    habitat:['ocean'], emoji:'🏖',
+    image:'https://upload.wikimedia.org/wikipedia/commons/thumb/f/ff/Redtail_surfperch_%28Amphistichus_rhodoterus%29_01_%28cropped%29.tif/lossy-page1-330px-Redtail_surfperch_%28Amphistichus_rhodoterus%29_01_%28cropped%29.tif.jpg',
+    description:'Silvery perch with distinctive reddish-orange tail and fin edges. The premier target for surf anglers along Oregon beaches. Livebearers — give birth to fully formed young.',
+    season:'Year-round but best Feb-May (pre-spawn). Good Sept-Nov. Summer low period.',
+    seasonMonths:[1,2,2,2,2,1,0,0,1,2,1,1],
+    locations:['Seaside Beach','Cannon Beach','Del Rey Beach','Fort Stevens State Park beaches'],
+    gpsHints:['Del Rey Beach — park at the end of Del Rey Beach Rd, walk north along the beach','Fort Stevens Beach — drive-on beach near Peter Iredale wreck'],
+    difficulty:1, diffLabel:'Beginner',
+    regulations:'15 per day, no size limit. No license required for surfperch from the beach in Oregon.',
+    tackle:{
+      rod:'9-12ft surf rod (Penn Prevail or similar)',
+      reel:'4000-6000 spinning (Penn Battle, Shimano Baitrunner)',
+      line:'20-30lb braid, 10-12lb mono or fluoro leader',
+      lures:['Sand shrimp (best bait — ghost shrimp)','Berkley Gulp Sand Crab 1"','Sandworms (bloodworms/lugworms)','Small spinners (Mepps #1-2)','Small jigs (1/4-1/2oz)'],
+      technique:'Fish 1-3 waves out in the surf zone. Sand shrimp under a 1-2oz pyramid sinker. Cast into troughs between sandbars. Incoming tide 2hrs before to 2hrs after high is best.'
+    },
+    funFacts:['Surfperch give birth to live young — no eggs','They feed in the turbulent surf zone where other fish cannot survive','No fishing license needed to target them from the beach in Oregon'],
+    memoryHook:'REDTAIL: red/orange fins, SURF zone, needs NO LICENSE from beach. Oregon\'s most accessible fish.',
+    identifyingFeatures:['Red-orange tail and fin edges','Silvery-green body','Deep, compressed body shape','Forked tail']
+  },
+  {
+    id:7, name:'Albacore Tuna', nickname:'Albie / Longfin Tuna', bonus:false,
+    habitat:['ocean'], emoji:'🔵',
+    image:'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/Thon_germon_%28Thunnus_alalunga%29_%28Ifremer_00764-87615%29.jpg/330px-Thon_germon_%28Thunnus_alalunga%29_%28Ifremer_00764-87615%29.jpg',
+    description:'Fast, streamlined tuna with extremely long pectoral fins (longer than any other tuna). Steel-blue back, silver belly. Warm-blooded and capable of incredible speeds. Best eating of all Pacific tuna.',
+    season:'August-October offshore, 40-80 miles out. Depends on warm water (60°F+).',
+    seasonMonths:[0,0,0,0,0,0,0,2,2,1,0,0],
+    locations:['40-80 miles offshore from Astoria','Charter boats from Warrenton Marina'],
+    gpsHints:['East Mooring Basin Astoria — charter boats for albacore troll trips August-October'],
+    difficulty:3, diffLabel:'Expert',
+    regulations:'25 per person per day. Ocean boat license required.',
+    tackle:{
+      rod:'6-7ft heavy trolling rod or stand-up conventional',
+      reel:'Penn International 30-50, or Shimano Talica 20',
+      line:'80lb braid, 60-80lb fluoro leader',
+      lures:['Cedar plugs (troll at 6-8 knots)','Feather jigs (Yo-Zuri 6" blue/white)','Large spoons (Crippled Herring 4oz)','Spreader bars with small squids','Live anchovies (when found)'],
+      technique:'Troll at 6-9 knots using cedar plugs and feathers on long lines (40-80ft back). When fish are found, stop boat and cast jigs. Watch for birds and temperature breaks.'
+    },
+    funFacts:['Albacore can swim up to 50 mph in short bursts','They are warm-blooded, maintaining body temperature above ocean temperature','Pacific albacore from Oregon are considered the best tuna for canning'],
+    memoryHook:'ALBACORE = LONG pectoral fins (longer than body depth). WAY offshore. Expensive charter but worth it.',
+    identifyingFeatures:['Extremely long pectoral fins (reaches past anal fin)','Steel blue back, silver belly','Small finlets behind dorsal/anal fins','Streamlined, torpedo body']
+  },
+  {
+    id:8, name:'White Sturgeon', nickname:'Sturgeon', bonus:false,
+    habitat:['river'], emoji:'🦕',
+    image:'https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/4803_white_sturgeon_swart_odfw_%284455050144%29.jpg/330px-4803_white_sturgeon_swart_odfw_%284455050144%29.jpg',
+    description:'North America\'s largest freshwater fish — prehistoric dinosaur-like fish with rows of bony plates (scutes) instead of scales. Can live 100+ years and grow to 20 feet. Found in the Columbia River.',
+    season:'Year-round in Columbia River. Retainable seasons vary — check ODFW. Best Sept-April.',
+    seasonMonths:[2,2,2,1,1,1,1,1,2,2,2,2],
+    locations:['Columbia River near Astoria','Youngs Bay','Tongue Point area','Cathlamet Channel'],
+    gpsHints:['Tongue Point near Astoria — anchor in the channel during incoming tide','East Mooring Basin Astoria — boat launch for Columbia River access'],
+    difficulty:3, diffLabel:'Expert',
+    regulations:'SLOT LIMIT: Must be 44-50 inches fork length to retain (Columbia River). Release over/undersized fish carefully. Requires Combined Angling Tag.',
+    tackle:{
+      rod:'9-11ft heavy sturgeon rod (Lamiglas SSU)',
+      reel:'Large conventional (Penn 320 GTi or similar) 30lb+ drag',
+      line:'80-100lb braid, 40-60lb fluorocarbon leader',
+      lures:['Ghost shrimp clusters (top bait)','Sand shrimp','Nightcrawlers soaked in anise','Salmon/shad bellies','Smelt'],
+      technique:'Anchor and bottom-fish with a 3-way swivel rig. Heavy pyramid or slinky sinker. Use circle hooks 7/0-10/0. DO NOT set hook — let circle hook do the work. Very slow, patient game.'
+    },
+    funFacts:['White sturgeon are living fossils — their body plan has remained unchanged for 200 million years','A single large female may contain over 100 lbs of caviar (roe)','They can live to 100+ years — some Columbia River fish were alive during the Civil War'],
+    memoryHook:'STURGEON = PREHISTORIC rows of bony scutes (not scales). Columbia River GIANT. Slot limit — measure before keeping.',
+    identifyingFeatures:['Rows of bony scutes (plates) along body','Shark-like heterocercal tail','Barbels under snout','Toothless, vacuum-like mouth']
+  },
+  {
+    id:9, name:'Winter Steelhead', nickname:'Steelie', bonus:false,
+    habitat:['river'], emoji:'⚡',
+    image:'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Close_up_of_rainbow_trout_fish_underwater_oncorhynchus_mykiss.jpg/330px-Close_up_of_rainbow_trout_fish_underwater_oncorhynchus_mykiss.jpg',
+    description:'Sea-run rainbow trout — the most coveted freshwater gamefish in the Pacific Northwest. Chrome-bright from the ocean, gaining color as they enter freshwater. Fight much harder than resident rainbows.',
+    season:'Dec-March (peak Jan-Feb) on local rivers. Some summer steelhead in warmer months.',
+    seasonMonths:[1,2,2,1,0,1,1,1,0,0,0,1],
+    locations:['Necanicum River','Youngs River','Lewis & Clark River','Klaskanine River'],
+    gpsHints:['Necanicum River — US 101 pullouts near Seaside, or below Necanicum Hatchery','Klaskanine River — off Hwy 202 east of Astoria, multiple access points'],
+    difficulty:3, diffLabel:'Expert',
+    regulations:'Combined Angling Tag required. Hatchery fish (clipped adipose) only for retention on most local rivers. Wild steelhead release only.',
+    tackle:{
+      rod:'8.5-10ft medium-heavy drift rod or switch rod',
+      reel:'Large capacity spinning or centerpin reel',
+      line:'15-20lb mono or 30lb braid with 10-15lb fluoro leader',
+      lures:['Spin-N-Glo (pink/orange)','Corki with cured eggs','Jigs (1/4oz pink/white Marabou)','Blue Fox Vibrax Salmon #3-4','Yarn flies under a float'],
+      technique:'Drift fishing: float (bobber) with jig, eggs, or shrimp. Or swing flies in the traditional style. Fish seam between fast and slow water. Early mornings after rain events = best conditions.'
+    },
+    funFacts:['Steelhead are genetically identical to rainbow trout but spend part of their life at sea','A steelhead may make multiple spawning trips — unlike Pacific salmon they survive spawning','Winter steelhead can be found in rivers within days of ocean entry'],
+    memoryHook:'STEELHEAD = CHROME (ocean fresh), then picks up pink stripe as they color up in the river. Sea-run RAINBOW.',
+    identifyingFeatures:['Chrome-bright when fresh from ocean','Distinct pink lateral stripe (fresh run fish less colored)','Black spots on body and fins','Larger, more muscular than resident rainbow trout']
+  },
+  {
+    id:10, name:'Sea-run Cutthroat Trout', nickname:'Harvest Trout / Sea Trout', bonus:false,
+    habitat:['river','estuary'], emoji:'✂️',
+    image:'https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Coastal_cutthroat_trout_Puget_Sound.jpg/330px-Coastal_cutthroat_trout_Puget_Sound.jpg',
+    description:'Native trout with distinctive red-orange "slash" marks under the jaw. Sea-run fish return from estuaries bright silver. A beloved Oregon treasure found in small coastal streams.',
+    season:'Sept-Nov in rivers (best Sept-Oct). Year-round in estuaries. Summer in lakes.',
+    seasonMonths:[0,0,0,0,0,1,1,2,2,2,1,0],
+    locations:['Necanicum River','Neawanna Creek','Youngs River','Lewis & Clark River','Estuaries'],
+    gpsHints:['Necanicum River — walk the banks in Seaside near the Broadway Bridge for sea-run cutthroat in October'],
+    difficulty:2, diffLabel:'Intermediate',
+    regulations:'Check ODFW. Often catch-and-release on specific streams. No retention of wild fish in many coastal rivers.',
+    tackle:{
+      rod:'7-9ft light-medium spinning or fly rod (5-7wt)',
+      reel:'2000-3000 spinning or fly reel',
+      line:'6-10lb mono or fluoro, or 5-6wt fly line',
+      lures:['Panther Martin spinner #4 (silver blade)','Rooster Tail (yellow/black)','Small spinners 1/8-1/4oz','Woolly Bugger (olive/black) on fly','Small egg patterns','Muddler Minnow fly'],
+      technique:'Work upstream, cast spinners across and slightly upstream, retrieve through pools and runs. On fly, swing a Woolly Bugger through the pool. Very spooky fish — stay low and cast carefully.'
+    },
+    funFacts:['The "cutthroat" name comes from the red slash marks under the jaw','Sea-run cutthroat shuttle between ocean and freshwater without dying like Pacific salmon','They feed heavily on salmon eggs during spawning season'],
+    memoryHook:'CUTthroat = RED slashes under jaw like a cut. SEA-RUN fish go silver but always keep the slashes.',
+    identifyingFeatures:['Red-orange slash marks under jaw (always present)','Black spots throughout body including belly','Sea-run fish bright silver, resident fish yellowish','Spots all the way to tail fin']
+  },
+  {
+    id:11, name:'American Shad', nickname:'Shad', bonus:false,
+    habitat:['river'], emoji:'🔹',
+    image:'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/Dentonshad1904.jpg/330px-Dentonshad1904.jpg',
+    description:'Silvery, deep-bodied herring-like fish with a row of dark spots along the lateral line. Introduced to the Columbia River in 1871. Massive spring runs. Great sport fish — fights hard for its size.',
+    season:'May-July in the Columbia River. Peak late May to mid-June.',
+    seasonMonths:[0,0,0,0,2,2,1,0,0,0,0,0],
+    locations:['Columbia River near Astoria and Tongue Point','Bonneville Dam area (further upriver)'],
+    gpsHints:['Tongue Point area near Astoria — excellent bank access during the May-June run'],
+    difficulty:1, diffLabel:'Beginner',
+    regulations:'25 per day on Columbia River. Combined angling license required.',
+    tackle:{
+      rod:'6-7ft light to medium spinning rod',
+      reel:'2000-3000 spinning',
+      line:'8-12lb mono or 20lb braid with 8lb fluoro leader',
+      lures:['Shad dart (1/8-1/4oz chartreuse/white)','Small spinners (Mepps #1-2)','Kastmaster spoon 1/4oz','Small jigs (white/yellow)','Tiny spoons'],
+      technique:'Cast across current and let drift/swing. Use very light jigs. Shad dart or small spinner in current seams. Pound per pound one of the hardest fighting fish in fresh water.'
+    },
+    funFacts:['American shad were introduced to the Pacific Coast in 1871 and have thrived ever since','Their roe is considered a delicacy — shad roe is a traditional spring dish on the East Coast','A single female may carry 30,000 eggs'],
+    memoryHook:'SHAD = row of spots along side, DEEP body like a herring. MAY-JUNE Columbia run. Dart or spinner.',
+    identifyingFeatures:['Row of dark spots behind the gill cover','Deep, compressed silvery body','Large scales (lose easily)','Forked tail, herring-family look']
+  },
+  {
+    id:12, name:'Walleye', nickname:'Marble Eye / Walleyed Pike', bonus:false,
+    habitat:['river','lake'], emoji:'👁',
+    image:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/Walleye_%28Sander_vitreus%29_%281%29.jpg/330px-Walleye_%28Sander_vitreus%29_%281%29.jpg',
+    description:'Long, torpedo-shaped fish with distinctive milky, cloudy (glass) eyes due to a reflective layer (tapetum lucidum) that gives excellent night vision. Olive-gold coloring with white-tipped lower tail lobe.',
+    season:'Year-round in Columbia River. Best Apr-Jun and Oct-Dec. Dawn and dusk feeding.',
+    seasonMonths:[2,2,1,2,2,1,0,0,1,2,2,2],
+    locations:['Columbia River east of Astoria','Lake Sacajawea (further east)'],
+    gpsHints:['Columbia River — walleye prefer sandy/gravelly bottom in the mid-to-upper Columbia, less common near Astoria'],
+    difficulty:2, diffLabel:'Intermediate',
+    regulations:'5 per day on Columbia River. No size limit in most Columbia sections.',
+    tackle:{
+      rod:'6.5-7.5ft medium spinning or casting rod',
+      reel:'2500-3500 spinning',
+      line:'10-17lb fluoro or 20-30lb braid with 10lb fluoro leader',
+      lures:['Rapala Shad Rap #7 (gold)','Lindy Rig with nightcrawler','Jigging Rapala (silver/blue)','Bottom bouncer with spinner harness','Jigging spoon 3/8-3/4oz'],
+      technique:'Troll Rapala Shad Rap near bottom at 1.5-2 mph. Or drift Lindy rigs with nightcrawlers. Fish low-light periods — walleye have exceptional night vision. Jig vertically over rocky humps.'
+    },
+    funFacts:['Walleye eyes have a tapetum lucidum (reflective layer) that makes them glow in the dark like cats','They are primarily crepuscular — most active at dawn, dusk, and night','Walleye are considered the best-tasting freshwater fish by many anglers'],
+    memoryHook:'WALLeye = glassy, milky EYES (tapetum lucidum). GOLD/olive coloring. White tip on lower tail. Night hunter.',
+    identifyingFeatures:['Milky, glassy, opaque-looking eyes','Olive-gold coloring with darker mottling','White tip on bottom lobe of tail fin','Sharp canine-like teeth']
+  },
+  {
+    id:13, name:'Smallmouth Bass', nickname:'Smallie / Bronze Bass', bonus:false,
+    habitat:['river'], emoji:'💪',
+    image:'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/Smallmouth_Bass_%2849561724026%29.jpg/330px-Smallmouth_Bass_%2849561724026%29.jpg',
+    description:'Bronzy-green bass with vertical bars on the sides. Upper jaw does NOT extend past the eye (smaller mouth than largemouth). Pound for pound considered one of the toughest fighters in freshwater.',
+    season:'May-September in Columbia and Youngs River. Peak June-August.',
+    seasonMonths:[0,0,0,0,1,2,2,2,2,1,0,0],
+    locations:['Columbia River (rocky/gravel areas)','Youngs River','Lewis & Clark River (lower sections)'],
+    gpsHints:['Columbia River — gravel bars downstream of Astoria. Rocky structure areas near islands.'],
+    difficulty:2, diffLabel:'Intermediate',
+    regulations:'No size limit or bag limit in Columbia River. Check ODFW for specific waters.',
+    tackle:{
+      rod:'6.5-7ft medium spinning or casting rod',
+      reel:'2500-3000 spinning or small baitcaster',
+      line:'8-15lb fluoro or 20-30lb braid with 10-12lb fluoro leader',
+      lures:['Ned Rig (Z-Man 2.75" TRD, green pumpkin)','Drop shot with Roboworm (morning dawn)','Rapala Shad Rap #5 (crawdad)','Tube jig 3/8oz (brown/green)','Live crayfish (best natural bait)'],
+      technique:'Target rocky banks, gravel bars, and submerged structure. Drag a tube jig slowly along bottom. In rivers, cast upstream of rocks and let lure tumble naturally past.'
+    },
+    funFacts:['Smallmouth bass are said to fight 3x harder than largemouth for their size','They prefer cooler, cleaner water than largemouth and are an indicator of water quality','Male smallmouth guard the nest and fry aggressively after spawning'],
+    memoryHook:'SMALL mouth = jaw does NOT extend past eye. BRONZE coloring with vertical bars. Rocky water fighter.',
+    identifyingFeatures:['Upper jaw ends at or before the eye (key difference from largemouth)','Bronze-green coloring, vertical side bars','Red eye (often)','Smaller body than largemouth']
+  },
+  {
+    id:14, name:'Rainbow Trout', nickname:'Stocked Trout / Hatchery Bow', bonus:false,
+    habitat:['lake','river'], emoji:'🌈',
+    image:'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Close_up_of_rainbow_trout_fish_underwater_oncorhynchus_mykiss.jpg/330px-Close_up_of_rainbow_trout_fish_underwater_oncorhynchus_mykiss.jpg',
+    description:'The classic hatchery trout — silvery with pink lateral stripe and black spots. ODFW stocks many Clatsop County lakes. Freshwater cousin of steelhead — same species, just different life history.',
+    season:'Year-round in stocked lakes. ODFW plants heavily spring (Apr-May) and fall (Sept-Oct).',
+    seasonMonths:[1,1,1,2,2,1,1,1,2,2,1,1],
+    locations:['Coffenbury Lake (Fort Stevens)','Cullaby Lake','Sunset Lake','Smith Lake','Gnat Creek'],
+    gpsHints:['Coffenbury Lake — parking lot at Fort Stevens State Park off Ridge Road','Cullaby Lake — boat ramp on Cullaby Lake Rd off Hwy 101'],
+    difficulty:1, diffLabel:'Beginner',
+    regulations:'5 per day, 8-inch minimum (check ODFW for specific lakes). Some waters are catch-and-release.',
+    tackle:{
+      rod:'6-7ft light-medium spinning rod',
+      reel:'1000-2500 spinning',
+      line:'4-8lb mono or fluoro',
+      lures:['PowerBait dough (rainbow/garlic)','Salmon eggs (Pautzke Gold label)','Rooster Tail 1/8oz (black/yellow)','Kastmaster 1/4oz','Berkley Gulp Trout Worm'],
+      technique:'From shore: PowerBait on a sliding sinker rig, no float — let dough float just off bottom. From boat: troll Kastmaster or Rapala at 2 mph. Hatchery fish respond well to scented baits.'
+    },
+    funFacts:['Hatchery rainbow trout are descended from wild fish from Shasta River, CA — all Pacific NW hatchery fish trace back to the same brood stock','They can be caught within hours of stocking','Rainbow and steelhead are the same species — Oncorhynchus mykiss'],
+    memoryHook:'RAINBOW = pink lateral stripe + black spots. STOCKED in local lakes. PowerBait = instant trout magnet.',
+    identifyingFeatures:['Pink/red lateral stripe','Black spots on body, dorsal fin, and tail','Silver-pink coloring','Smaller adipose fin (may be clipped in hatchery fish)']
+  },
+  {
+    id:15, name:'Largemouth Bass', nickname:'Largies / Green Bass', bonus:false,
+    habitat:['lake'], emoji:'🐢',
+    image:'https://upload.wikimedia.org/wikipedia/commons/thumb/f/fb/Largemouth_Bass_%28Micropterus_salmoides%29_June_2023_%28cropped%29.jpg/330px-Largemouth_Bass_%28Micropterus_salmoides%29_June_2023_%28cropped%29.jpg',
+    description:'America\'s most popular gamefish. Olive-green with dark lateral stripe from head to tail. Upper jaw extends past the eye (KEY difference from smallmouth). Ambush predator in weedy, warm lakes.',
+    season:'Year-round. Spawning May-June. Best May-Sept in Clatsop County lakes.',
+    seasonMonths:[0,0,0,1,2,2,2,2,1,1,0,0],
+    locations:['Cullaby Lake','Sunset Lake','Coffenbury Lake (some)','Smith Lake'],
+    gpsHints:['Cullaby Lake — boat ramp on Cullaby Lake Rd. Fish the weed beds in the eastern coves','Smith Lake — off US 101 near Warrenton, county park access'],
+    difficulty:1, diffLabel:'Beginner',
+    regulations:'No size or bag limit in most Oregon waters (check local regs). Tournaments subject to rules.',
+    tackle:{
+      rod:'6.5-7.5ft medium-heavy baitcast or spinning rod',
+      reel:'2500-4000 spinning or baitcaster (Shimano Curado)',
+      line:'14-20lb fluoro or 40-65lb braid with 12-16lb fluoro leader',
+      lures:['Zoom Brush Hog (green pumpkin)','Rapala DT-6 crankbait (crawdad)','Strike King KVD Spinnerbait (chartreuse/white)','Senko wacky rig 5" (green pumpkin)','Frog (Booyah Pad Crasher) for surface'],
+      technique:'Cast into weeds/structure with Texas-rigged soft plastic. Slow down — largemouth are ambush feeders. Frog on lily pads at dawn is phenomenal. Spinnerbait retrieved through grass pockets.'
+    },
+    funFacts:['Largemouth bass can inhale and exhale water in milliseconds to create suction that pulls prey in','They are one of the most studied fish species in the world due to bass fishing\'s popularity','Female largemouth grow larger than males — a 10+ lb bass is always a female'],
+    memoryHook:'LARGEmouth = jaw goes PAST the eye. DARK lateral stripe head-to-tail. Loves lily pads and weeds.',
+    identifyingFeatures:['Upper jaw extends clearly past the rear of the eye','Horizontal dark stripe along lateral line','Greenish coloring with white belly','Notch between front spiny and rear soft dorsal fin']
+  },
+  {
+    id:16, name:'Yellow Perch', nickname:'Perch', bonus:false,
+    habitat:['lake'], emoji:'💛',
+    image:'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Yellow_Perch_%28Perca_flavescens%29_%28cropped%29.jpg/330px-Yellow_Perch_%28Perca_flavescens%29_%28cropped%29.jpg',
+    description:'Vividly colored small fish with yellow-green body, 6-8 dark vertical bars, and orange-red lower fins. School in large numbers. Excellent eating — sweet, white, flaky flesh.',
+    season:'Year-round. Best Oct-April (winter schools at depth). Summer in deeper water.',
+    seasonMonths:[2,2,2,1,1,0,0,0,1,2,2,2],
+    locations:['Cullaby Lake','Sunset Lake','Smith Lake'],
+    gpsHints:['Cullaby Lake — fish 8-15ft depth near submerged structure and dock areas'],
+    difficulty:1, diffLabel:'Beginner',
+    regulations:'25 per day, no size limit in Oregon.',
+    tackle:{
+      rod:'5-6ft ultralight spinning rod',
+      reel:'1000-2000 spinning',
+      line:'4-6lb mono or fluoro',
+      lures:['Small jigs 1/16-1/8oz (white/yellow)','Nightcrawler piece on small hook','Minnow (live or soft plastic)','Small spinners (Mepps #0-1)','Perch jigs (small tube jigs)'],
+      technique:'Fish vertically in schools using small jigs or live bait. Locate school with electronics or by watching for perch dimpling the surface. When you catch one, stay — the whole school is there.'
+    },
+    funFacts:['Yellow perch is considered one of the best-tasting freshwater fish in North America','They school in large groups — once you find one, you\'ve found hundreds','Perch are highly social — if you catch one from a school and throw it back, it leads others away'],
+    memoryHook:'YELLOW with BARS (like a football jersey). Orange-red lower fins. Schools = keep fishing same spot.',
+    identifyingFeatures:['6-8 dark vertical bars on yellow-green body','Orange-red pelvic and anal fins','Two separate dorsal fins','Small perch-like profile']
+  },
+  {
+    id:17, name:'Bluegill', nickname:'Bream / Sunfish', bonus:false,
+    habitat:['lake'], emoji:'🔵',
+    image:'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Bluegill_%28cropped%29.jpg/330px-Bluegill_%28cropped%29.jpg',
+    description:'Colorful sunfish with blue-purple opercular flap (earflap), olive-yellow body with dark vertical bars, and orange-yellow belly. The classic pond fish — perfect for beginning anglers.',
+    season:'Year-round. Best April-September. Spawning May-July in shallow water.',
+    seasonMonths:[1,1,1,2,2,2,2,2,1,1,1,1],
+    locations:['Cullaby Lake','Sunset Lake','Smith Lake','Coffenbury Lake'],
+    gpsHints:['Coffenbury Lake — fish the shallow, weedy southern cove from shore or canoe'],
+    difficulty:1, diffLabel:'Beginner',
+    regulations:'25 per day, no size limit in Oregon.',
+    tackle:{
+      rod:'4-6ft ultralight spinning rod',
+      reel:'1000-1500 spinning',
+      line:'4-6lb mono',
+      lures:['Small red worm/nightcrawler piece on #8-10 hook','Small spinners (Mepps #0)','Cricket or Waxworm','Fly: small dry fly or woolly worm','Small inline spinner with float'],
+      technique:'Use a small bobber, 18-inch leader, small hook, small bait. Fish near structure (docks, weeds, brush). Let the bobber do the watching. Simple and effective — ideal for kids.'
+    },
+    funFacts:['Bluegill can detect ultraviolet light that humans cannot see','A large female can deposit up to 60,000 eggs','Bluegill are the most popular panfish in America — more bluegill are caught than any other species'],
+    memoryHook:'BLUE-gill = BLUE ear flap (opercular flap). Classic bobber-and-worm panfish. Vertical bars, orange belly.',
+    identifyingFeatures:['Dark blue-black ear flap (opercular flap)','Olive body with vertical bars','Orange-yellow belly on males','Rounded profile, compressed body']
+  },
+  {
+    id:18, name:'Black Crappie', nickname:'Speckled Perch / Papermouth', bonus:false,
+    habitat:['lake'], emoji:'⚫',
+    image:'https://upload.wikimedia.org/wikipedia/commons/thumb/3/38/Black_crappie.jpg/330px-Black_crappie.jpg',
+    description:'Silver-black speckled fish with 7-8 dorsal spines. No distinct dark patch on the cheek (unlike white crappie). School heavily around submerged structure. One of the best-tasting panfish.',
+    season:'Year-round. Best spring (spawning April-June) and fall.',
+    seasonMonths:[1,1,2,2,2,1,1,1,2,2,1,1],
+    locations:['Cullaby Lake','Sunset Lake','Smith Lake'],
+    gpsHints:['Sunset Lake — boat ramp off Sunset Beach Ln. Fish submerged timber and dock areas'],
+    difficulty:1, diffLabel:'Beginner',
+    regulations:'25 per day, no size limit in Oregon.',
+    tackle:{
+      rod:'5-7ft ultralight to light spinning rod',
+      reel:'1000-2500 spinning',
+      line:'4-8lb mono or fluoro',
+      lures:['Marabou jig 1/16oz (white/chartreuse)','Bobby Garland Crappie Stroll 2" (pink/white)','Live minnow under slip float','Small tube jig (white/pearl)','Tiny spinnerbait 1/8oz'],
+      technique:'Fish near submerged brush piles and dock pilings. Vertical jigging works well. Float with live minnow just above structure. Crappie suspend at specific depths — move your bait until you find the right depth.'
+    },
+    funFacts:['Crappie are called "papermouth" because their mouths tear easily when hooked — be gentle!','They can detect food in near-zero visibility using their lateral line','A 15-inch crappie is a true trophy — most fish 8-12 inches'],
+    memoryHook:'BLACK Crappie = speckled (irregular black spots), 7-8 dorsal spines, no cheek bar. PAPER-thin mouth — go easy!',
+    identifyingFeatures:['Irregularly scattered black spots (no pattern)','7-8 spines in dorsal fin','Silver base color with olive/dark markings','Round, deep-bodied shape']
+  },
+  {
+    id:19, name:'Brown Bullhead Catfish', nickname:'Bullhead / Horned Pout', bonus:false,
+    habitat:['lake'], emoji:'😺',
+    image:'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b4/Ameiurus_nebulosus.jpg/330px-Ameiurus_nebulosus.jpg',
+    description:'Mottled brown catfish with 8 barbels (whiskers) around mouth. Sharp spines in pectoral and dorsal fins — handle carefully! Squared or slightly notched tail. Excellent eating when from clean water.',
+    season:'Spring through fall. Peak May-September. Night fishing in summer is best.',
+    seasonMonths:[0,0,1,1,2,2,2,2,1,1,0,0],
+    locations:['Coffenbury Lake','Cullaby Lake','Sunset Lake','Smith Lake'],
+    gpsHints:['Coffenbury Lake — fish the muddy bottom in the deeper northern section after dark in summer'],
+    difficulty:1, diffLabel:'Beginner',
+    regulations:'No size or bag limit in Oregon for bullhead catfish.',
+    tackle:{
+      rod:'5-7ft medium spinning rod',
+      reel:'2000-3000 spinning',
+      line:'8-12lb mono',
+      lures:['Nightcrawlers (best bait by far)','Chicken liver on treble hook','Stink bait (Sonny\'s or Magic Bait)','Waxworms','Cut fish pieces'],
+      technique:'Fish on the bottom with no float using a slip sinker rig. Set hook firmly when line starts moving — bullhead often mouth the bait. Night fishing in summer is most productive. Strong smell = better bait.'
+    },
+    funFacts:['Bullhead catfish can breathe air using a modified gill structure — surviving out of water briefly','They are extremely tolerant of low oxygen and warm, muddy water','Parent bullheads guard their young in a school, herding them with their mouths'],
+    memoryHook:'BULLHEAD = mottled brown, SQUARED tail (vs. forked), 8 barbels. STINKY bait works best. Night fisher.',
+    identifyingFeatures:['8 barbels around the mouth','Mottled brown coloring','Squared or slightly notched (not forked) tail','Sharp spines in pectoral and dorsal fins']
+  }
+];
+
+
+var BONUS_FISH = [
+  {
+    id:20, name:'Chum Salmon', nickname:'Dog Salmon', bonus:true,
+    habitat:['river'], emoji:'🐕',
+    image:'',
+    wikiSlug:'Chum_salmon',
+    description:'Fourth most abundant Pacific salmon. Dark olive-green with distinctive purple blotchy vertical bars (especially in males). Calico-pattern coloring. Males develop large hooked jaw and large canine teeth — giving the "dog salmon" name.',
+    season:'Oct-Dec in Columbia River tributaries. Smaller run than Chinook/Coho.',
+    seasonMonths:[0,0,0,0,0,0,0,0,0,2,2,1],
+    locations:['Columbia River tributaries','Klaskanine River (small returns)'],
+    gpsHints:['Klaskanine River — hatchery on Klaskanine Hatchery Rd east of Astoria'],
+    difficulty:2, diffLabel:'Intermediate',
+    regulations:'Combined Angling Tag. Check ODFW — retention often limited. Some streams closed.',
+    tackle:{
+      rod:'8-9ft medium-heavy rod',
+      reel:'Level-wind or large spinning reel',
+      line:'20-30lb braid, 15lb fluoro leader',
+      lures:['Bright pink/orange spinners','Large Spin-N-Glo','Pink or chartreuse jigs','Cured egg clusters'],
+      technique:'Drift eggs or bright attractor flies/jigs. Chum can be selective — bright colors work. Not as commonly targeted as Chinook/Coho.'
+    },
+    funFacts:['The largest commercial Pacific salmon harvest globally','Their calico blotching intensifies dramatically as they approach spawning','Chum have the lowest fat content of all Pacific salmon — less prized for eating'],
+    memoryHook:'CHUM = CALICO bars (purple blotches) + DOG teeth. FALL run, often overlooked.',
+    identifyingFeatures:['Purple-green blotchy vertical bars (spawning)','Large canine-like teeth in males','No large black spots (unlike Chinook/Coho)','Greenish tail without distinct spots']
+  },
+  {
+    id:21, name:'Pink Salmon', nickname:'Humpy / Humpback Salmon', bonus:true,
+    habitat:['river'], emoji:'🦵',
+    image:'',
+    wikiSlug:'Pink_salmon',
+    description:'Smallest Pacific salmon. In ocean: bright silver with large oval black spots on both tail lobes. Males develop large hump behind the head during spawning — giving the "humpback" nickname. ODD YEARS ONLY in Columbia (2027, 2029...).',
+    season:'Odd years only — Aug-Sept in Columbia River. Limited Clatsop County returns.',
+    seasonMonths:[0,0,0,0,0,0,0,2,1,0,0,0],
+    locations:['Columbia River (odd years)'],
+    gpsHints:['Columbia River near Astoria — check ODFW reports for odd-year returns before planning a trip'],
+    difficulty:2, diffLabel:'Intermediate',
+    regulations:'Combined Angling Tag. Odd years only. Check ODFW.',
+    tackle:{
+      rod:'7-8ft medium spinning rod',
+      reel:'3000 spinning',
+      line:'15-20lb braid, 10lb fluoro leader',
+      lures:['Small pink spinners','Pink jigs (1/4oz)','Small spoons (silver/pink)','Small Coho flies'],
+      technique:'Cast bright pink lures across current. Pink salmon hit spinners and spoons aggressively in saltwater; more sluggish in rivers.'
+    },
+    funFacts:['Pink salmon have the shortest life cycle of all Pacific salmon — exactly 2 years','Males grow a pronounced hump before spawning — unique among Pacific salmon','Their runs are so predictable (odd vs. even years) that fisheries managers can plan decades in advance'],
+    memoryHook:'PINK = smallest salmon, HUMP on back (males), ODD years only, LARGE oval spots on BOTH tail lobes.',
+    identifyingFeatures:['Large oval black spots on both lobes of tail','Spawning males have large dorsal hump','Smallest Pacific salmon','Pale pink flesh']
+  },
+  {
+    id:22, name:'Bull Trout', nickname:'Dolly Varden (often confused)', bonus:true,
+    habitat:['river'], emoji:'❄️',
+    image:'',
+    wikiSlug:'Bull_trout',
+    description:'Native char with pale yellow, orange, and red spots on olive-green background. NO black spots. Requires the coldest, cleanest water of any Pacific Northwest fish — a canary-in-the-coalmine species. THREATENED — catch and release only.',
+    season:'Year-round in cold tributaries. Less active in warm summer months.',
+    seasonMonths:[1,1,1,1,0,0,0,0,1,1,1,1],
+    locations:['Upper cold tributaries of Clatsop County streams','Remote headwaters'],
+    gpsHints:['Access limited — upper Lewis & Clark River headwaters and protected wilderness tributaries'],
+    difficulty:2, diffLabel:'Intermediate',
+    regulations:'THREATENED SPECIES. Catch-and-release only. Never retain. Use barbless hooks in their habitat.',
+    tackle:{
+      rod:'7-9ft 4-6wt fly rod or ultralight spinning',
+      reel:'Fly reel or small spinning reel',
+      line:'4-6lb fluoro or 5wt fly line',
+      lures:['Egg patterns (flies)','Small olive streamers','Woolly Bugger (olive)','Small spinners 1/8oz'],
+      technique:'Cold, clear upper tributaries. Use light gear and barbless hooks. Handle very carefully — wet hands. Treat every bull trout like the treasure it is.'
+    },
+    funFacts:['Bull trout require water below 55°F to survive — they cannot live in degraded or warm streams','Their presence indicates excellent water quality and healthy forests','Bull trout were extirpated from many drainages due to dam construction and stream warming'],
+    memoryHook:'BULL trout = colored spots (orange/red/yellow), NO black spots. COLD water only. THREATENED — always release!',
+    identifyingFeatures:['Orange, yellow, and red spots on olive body','Absolutely NO black spots (key ID)','Large head relative to body','Requires coldest, cleanest water']
+  },
+  {
+    id:23, name:'Pacific Lamprey', nickname:'Pacific Eel (not actually an eel)', bonus:true,
+    habitat:['river'], emoji:'🐍',
+    image:'',
+    wikiSlug:'Pacific_lamprey',
+    description:'Ancient, eel-like jawless fish with a sucker disc instead of a jaw. Dark grey-blue, smooth skin, no scales. Culturally and spiritually significant to Columbia River Tribes who have harvested them for thousands of years. Not commonly targeted by sport anglers.',
+    season:'Adult migration: March-July upriver. Larvae (ammocoetes) in stream sediments for 3-7 years.',
+    seasonMonths:[0,0,2,2,2,2,1,0,0,0,0,0],
+    locations:['Columbia River','Youngs River'],
+    gpsHints:['Tribal harvest occurs at traditional locations — do not interfere with tribal fishing activities'],
+    difficulty:1, diffLabel:'Beginner',
+    regulations:'Sport harvest regulated — check ODFW. Significant tribal cultural rights apply. Do not interfere with tribal harvest.',
+    tackle:{rod:'N/A',reel:'N/A',line:'N/A',lures:['Not typically targeted by sport anglers'],technique:'Not commonly targeted. If incidentally caught, handle gently and release carefully.'},
+    funFacts:['Pacific lamprey have been used by Columbia River tribes for food, medicine, and trade for over 10,000 years','Larvae spend up to 7 years buried in stream sediment before metamorphosing into adults','They lack jaws entirely — their circular sucker disc is ringed with teeth for parasitic feeding at sea'],
+    memoryHook:'LAMPREY = eel-like, SUCKER DISC mouth, no jaw, no scales. Ancient fish. Culturally vital to tribes.',
+    identifyingFeatures:['Circular sucker disc with teeth instead of jaw','Eel-like body with no paired fins','No scales, smooth skin','7 circular gill openings on each side']
+  },
+  {
+    id:24, name:'Eulachon', nickname:'Candlefish / Pacific Smelt', bonus:true,
+    habitat:['river'], emoji:'🕯️',
+    image:'',
+    wikiSlug:'Eulachon',
+    description:'Tiny, extremely oily smelt-like fish historically so important that coastal tribes rendered their fat for trade. So oily a dried eulachon can be lit and burned like a candle — hence "candlefish." Runs in lower Columbia River in spring via dip-net.',
+    season:'Feb-April in lower Columbia River. Large schools detectable in clear water.',
+    seasonMonths:[0,2,2,1,0,0,0,0,0,0,0,0],
+    locations:['Lower Columbia River near Astoria','Columbia River estuary'],
+    gpsHints:['Lower Columbia River — Tongue Point area and estuary. Dip-netting from boats during runs.'],
+    difficulty:1, diffLabel:'Beginner',
+    regulations:'Dip-net license and Columbia River endorsement required. Check ODFW for specific seasons — harvest has been restricted in recent years due to population concerns.',
+    tackle:{
+      rod:'Dip net (not rod fishing)',
+      reel:'N/A',
+      line:'Dip net with fine mesh',
+      lures:['Dip net — not rod-and-reel fishing'],
+      technique:'Dip-net from boat in lower Columbia during spring runs. Traditional harvest method. Eulachon are so small they pass through most hook-and-line tackle.'
+    },
+    funFacts:['Eulachon grease was such an important trade commodity that trade routes were called "grease trails"','They are so oily that a dried, cured eulachon can be lit and will burn steadily like a candle','Their Columbia River run has declined significantly — now a Species of Concern'],
+    memoryHook:'EULACHON = CANDLEFISH. So oily it burns. TINY, runs in Feb-Apr. DIP NET only. "Grease trail" trade fish.',
+    identifyingFeatures:['Very small (6-9 inches)','Extremely oily flesh','Silvery smelt-like appearance','Forked tail, adipose fin (salmonid family)']
+  },
+  {
+    id:25, name:'Northern Pikeminnow', nickname:'Squawfish (old name)', bonus:true,
+    habitat:['river'], emoji:'💰',
+    image:'',
+    wikiSlug:'Northern_pikeminnow',
+    description:'Native predatory minnow — large, torpedo-shaped, olive-brown. Responsible for consuming millions of juvenile salmon per year near Columbia River dams. A BOUNTY PROGRAM pays $8-10+ per fish reported and you can collect at ODFW checkpoints.',
+    season:'Year-round. Best May-Sept when water is warm.',
+    seasonMonths:[1,1,1,2,2,2,2,2,1,1,1,1],
+    locations:['Columbia River near Astoria','Bonneville Dam tailrace (hotspot)'],
+    gpsHints:['Columbia River — can be caught throughout. Bonneville area most famous for the bounty fishery.'],
+    difficulty:1, diffLabel:'Beginner',
+    regulations:'BOUNTY PROGRAM: Register with ODFW, collect $8-10+ per fish (over 9 inches). Paid daily at check stations. No bag limit. Encouraged harvest!',
+    tackle:{
+      rod:'6-7ft medium spinning rod',
+      reel:'2500-3000 spinning',
+      line:'10-15lb mono',
+      lures:['Small spinners (Mepps #2-3)','Small crankbaits','Live or cut baitfish','Nightcrawlers','Small jigs'],
+      technique:'Cast near current seams in the Columbia. Pike minnow are aggressive — they\'ll hit spinners readily. Bring them to ODFW check stations same day for bounty payment.'
+    },
+    funFacts:['The bounty program (since 1990) has paid out millions of dollars and removed tens of millions of pikeminnow from the Columbia','Each pikeminnow eats an estimated 1 juvenile salmon per day near dams','The bounty increases to $10+ for larger fish'],
+    memoryHook:'PIKEMINNOW = BOUNTY fish! $8-10 per fish. Olive torpedo. Columbia River salmon predator. GET PAID to fish.',
+    identifyingFeatures:['Large, torpedo-shaped minnow (up to 18 inches)','Olive-brown coloring','No spots or stripes','Large mouth for a minnow, terminal (front-facing)']
+  },
+  {
+    id:26, name:'Largescale Sucker', nickname:'Mullet (incorrect)', bonus:true,
+    habitat:['river'], emoji:'🌀',
+    image:'',
+    wikiSlug:'Largescale_sucker',
+    description:'Native bottom-feeding fish with distinctive downward-facing sucker mouth. Olive-brown with large scales. Frequently caught by trout anglers using worms. Not targeted but quite common. Often mistaken for carp or suckers from other regions.',
+    season:'Year-round. Spawning March-June in gravel streams.',
+    seasonMonths:[2,2,2,2,2,1,1,1,1,2,2,2],
+    locations:['Columbia River tributaries','Youngs River','Lewis & Clark River'],
+    gpsHints:['Columbia River tributaries — especially during spring spawning runs in gravel-bed streams'],
+    difficulty:1, diffLabel:'Beginner',
+    regulations:'No bag limit or size limit. Considered an incidental catch species.',
+    tackle:{
+      rod:'Any general spinning rod',
+      reel:'Any spinning reel',
+      line:'6-10lb mono',
+      lures:['Nightcrawlers','Dough baits','Worm pieces near bottom'],
+      technique:'Not typically targeted. Most often caught incidentally while fishing for trout. Found in all types of flowing water from small creeks to large rivers.'
+    },
+    funFacts:['Suckers play an important ecological role — their bottom-feeding stirs up invertebrates for other fish','Their sucker mouth can extend downward to vacuum food from rocks and gravel','They are a very old fish family — related to fish that existed 50 million years ago'],
+    memoryHook:'SUCKER = DOWNWARD-facing sucker mouth, large scales, olive-brown. Often caught by accident on worms.',
+    identifyingFeatures:['Sucker-type downward-facing mouth with thick, fleshy lips','Large scales','Olive-brown coloring','No barbels (unlike catfish)']
+  },
+  {
+    id:27, name:'Starry Flounder', nickname:'Diamond Back', bonus:true,
+    habitat:['estuary'], emoji:'⭐',
+    image:'',
+    wikiSlug:'Starry_flounder',
+    description:'Flatfish of the estuary and bay. Distinguished from other flounders by its alternating dark and light bands on the dorsal and anal fins — like yellow and black barber stripes. Eyes can be on either side (right or left). Found in muddy estuaries.',
+    season:'Year-round in estuaries. Best Sept-April.',
+    seasonMonths:[2,2,2,1,1,0,0,0,1,2,2,2],
+    locations:['Columbia River estuary','Youngs Bay','Tansy Point area'],
+    gpsHints:['Youngs Bay — fish muddy bottom areas near the mouth. Access from Astoria waterfront.'],
+    difficulty:1, diffLabel:'Beginner',
+    regulations:'5 per day, 12-inch minimum. Check ODFW.',
+    tackle:{
+      rod:'6-7ft medium spinning rod',
+      reel:'2000-3000 spinning',
+      line:'10-15lb mono, 10lb fluoro leader',
+      lures:['Nightcrawlers on bottom','Shrimp','Sand lance (candlefish)','Small jigs tipped with bait'],
+      technique:'Fish on the muddy bottom of estuaries with natural bait. Slow, patient fishing. Look for muddy/sandy flats in Youngs Bay and Columbia estuary channels.'
+    },
+    funFacts:['Starry flounder can have eyes on either the left or right side — unlike most flatfish which are consistently one or the other','Their distinctive fin stripes make them easy to identify','They are a popular target for kids fishing from piers and docks in Astoria'],
+    memoryHook:'STARRY flounder = STRIPED fins (yellow/black bands), can be EITHER side (left or right-eyed). Estuary flatfish.',
+    identifyingFeatures:['Alternating yellow and dark bands on dorsal and anal fins','Rough, spiny skin (star-like scales)','Eyes on either left or right side (variable)','Diamond/oval body shape']
+  },
+  {
+    id:28, name:'Spiny Dogfish', nickname:'Cape Shark / Dog Shark', bonus:true,
+    habitat:['ocean'], emoji:'🦈',
+    image:'',
+    wikiSlug:'Spiny_dogfish',
+    description:'Small shark with a sharp spine in front of each dorsal fin — be careful when handling! Slate-gray with white spots. Often caught incidentally while bottomfishing. Surprisingly good eating — very popular in British fish-and-chips.',
+    season:'Year-round, common spring and fall when schools move through.',
+    seasonMonths:[1,1,2,2,2,1,1,1,1,2,1,1],
+    locations:['Nearshore ocean and continental shelf','Bottomfishing grounds off Cannon Beach'],
+    gpsHints:['Any nearshore bottomfishing area — often caught mixed in with rockfish and lingcod'],
+    difficulty:1, diffLabel:'Beginner',
+    regulations:'Check ODFW. Historically not heavily regulated but check current rules. Good eating if prepared correctly.',
+    tackle:{
+      rod:'6-8ft medium-heavy bottomfishing rod',
+      reel:'3000-5000 spinning or conventional',
+      line:'30-50lb braid, 20-30lb fluoro leader',
+      lures:['Cut herring','Squid pieces','Shrimp','Any fresh bait on the bottom'],
+      technique:'Usually caught incidentally while bottomfishing for rockfish or lingcod. Spiny dogfish travel in large schools — if you catch one, you\'ll often catch many.'
+    },
+    funFacts:['Spiny dogfish are the most abundant shark in the world','They have one of the longest pregnancies of any vertebrate — 22-24 months','The spine in front of each dorsal fin can inject a mild venom — handle carefully'],
+    memoryHook:'SPINY dogfish = SPINE in front of each dorsal fin. Small shark. VENOMOUS spines — handle carefully!',
+    identifyingFeatures:['Sharp spine in front of each dorsal fin','White spots on gray body','Slim, torpedo shark shape','No anal fin']
+  },
+  {
+    id:29, name:'Kelp Greenling', nickname:'Seatrout / Rock Trout', bonus:true,
+    habitat:['ocean'], emoji:'🌿',
+    image:'',
+    wikiSlug:'Kelp_greenling',
+    description:'Beautiful reef fish where males and females look COMPLETELY different. Males: gray-blue with irregular orange-brown spots. Females: tan to reddish-brown with rounded dark spots. Found in kelp beds and rocky reefs. Excellent eating.',
+    season:'Year-round but best May-October.',
+    seasonMonths:[1,1,1,1,2,2,2,2,2,1,1,1],
+    locations:['Rocky reefs and kelp beds off Cannon Beach and Tillamook Head','Nearshore rocky zones'],
+    gpsHints:['Tillamook Head nearshore reefs — boat access, 30-80ft depth'],
+    difficulty:1, diffLabel:'Beginner',
+    regulations:'5 per day (check ODFW — part of greenling aggregate limit).',
+    tackle:{
+      rod:'6-8ft medium jigging rod',
+      reel:'2000-4000 spinning',
+      line:'20-30lb braid, 12-15lb fluoro leader',
+      lures:['Berkley Gulp Shrimp 3"','Small jigs (pink/white 1/2oz)','Bare hook with bait (shrimp or herring)'],
+      technique:'Fish near kelp and rocky structure. Cast into kelp beds and work jig slowly. Kelp greenling are inquisitive and will investigate anything that looks like food.'
+    },
+    funFacts:['Male and female kelp greenling look so different they were once classified as separate species','They are year-round residents of kelp forest ecosystems, unlike migratory salmon','Their flesh is considered superior table fare — mild and firm'],
+    memoryHook:'KELP greenling = males and females look TOTALLY DIFFERENT. Males: blue-gray + orange spots. Females: reddish + dark spots.',
+    identifyingFeatures:['Males: blue-gray with irregular orange-brown spots','Females: tan/reddish with dark rounded spots','Single lateral line','Long dorsal fin running most of body']
+  },
+  {
+    id:30, name:'Pacific Cod', nickname:'True Cod / Grey Cod', bonus:true,
+    habitat:['ocean'], emoji:'🐠',
+    image:'',
+    wikiSlug:'Pacific_cod',
+    description:'Classic "true" cod with pale brown-gray mottled body, three distinct dorsal fins, barbel on chin, and white lateral line. Excellent table fare. Found in deeper water than most nearshore species — typically 100-900 feet.',
+    season:'Best fall and winter when they move shallower. Year-round in deeper water.',
+    seasonMonths:[2,2,1,1,0,0,0,0,1,2,2,2],
+    locations:['Deeper offshore grounds, 100+ feet','Charter boats from Warrenton targeting deeper water'],
+    gpsHints:['Offshore deeper water (100-300ft) west of Tillamook Head — charter boat territory'],
+    difficulty:2, diffLabel:'Intermediate',
+    regulations:'10 per day (check ODFW). Part of groundfish complex regulations.',
+    tackle:{
+      rod:'7-9ft heavy jigging or conventional rod',
+      reel:'Conventional reel for deeper water',
+      line:'65-100lb braid (deep water needs heavy line)',
+      lures:['Heavy jigs 6-16oz (white/chartreuse)','Whole herring or squid on bottom','Dropper loop with multiple hooks','Norwegian-style jigging'],
+      technique:'Fish on bottom in deeper water. Heavy jigs dropped to the seafloor and jigged vertically. Pacific cod school near the bottom — once you find them, it can be fast action.'
+    },
+    funFacts:['Pacific cod can live up to 18 years','They were a critical food source for indigenous peoples of the Pacific Northwest for thousands of years','Pacific cod have three dorsal fins and two anal fins — unusual among fish'],
+    memoryHook:'PACIFIC COD = THREE dorsal fins, chin barbel, white lateral line. DEEPER water. Classic fish-and-chips fish.',
+    identifyingFeatures:['Three separate dorsal fins','Single barbel (whisker) on chin','White lateral line on brownish body','Slightly rounded, stocky body']
+  },
+  {
+    id:31, name:'Pacific Sanddab', nickname:'Sanddab', bonus:true,
+    habitat:['ocean'], emoji:'🏜',
+    image:'',
+    wikiSlug:'Pacific_sanddab',
+    description:'Small, left-eyed flatfish found in sandy and muddy bottoms. Light brown with orange-brown mottling. Eyes are on the LEFT side (unlike most flatfish). One of the most delicious small fish in the Pacific — prized by chefs.',
+    season:'Year-round but most common summer and fall in shallower water.',
+    seasonMonths:[1,1,1,1,1,2,2,2,2,1,1,1],
+    locations:['Sandy and muddy offshore grounds, 100-300ft','Mixed catches with rockfish and lingcod'],
+    gpsHints:['Sandy bottom areas offshore — often caught mixed in with other bottomfish species'],
+    difficulty:1, diffLabel:'Beginner',
+    regulations:'Check ODFW groundfish regulations. Typically generous bag limits.',
+    tackle:{
+      rod:'Any medium bottomfishing rod',
+      reel:'Any appropriate spinning or conventional reel',
+      line:'30-50lb braid',
+      lures:['Small cut squid pieces','Shrimp','Herring pieces','Small jigs tipped with bait'],
+      technique:'Fish on sandy/muddy bottom. Usually caught in mixed catches while targeting other species. Light gear if targeting specifically. They\'re small — maximize by using small hooks.'
+    },
+    funFacts:['Pacific sanddab are considered one of the most delicious fish in the Pacific — prized in San Francisco restaurants','They are left-eyed flatfish — both eyes end up on the left side as they develop','Sanddab can change their color pattern to match the seafloor precisely'],
+    memoryHook:'SANDDAB = LEFT-eyed flatfish, small, sandy-brown. Delicious tiny flatfish. LEFT eyes (remember: sanddab = sinister = left).',
+    identifyingFeatures:['Both eyes on LEFT side of body','Small size (8-12 inches typical)','Light brown with orange mottling','Rounded, oval body shape']
+  },
+  {
+    id:32, name:'Striped Bass', nickname:'Striper / Linesider', bonus:true,
+    habitat:['ocean','estuary'], emoji:'🦓',
+    image:'',
+    wikiSlug:'Striped_bass',
+    description:'Large, powerful fish with 7-8 distinct horizontal stripes running from gill to tail. Introduced to Pacific Coast from East Coast in 1879. Occasional strays near Columbia River mouth and Tillamook Bay. Silver with olive-green back.',
+    season:'Summer-fall. Occasional catches near Columbia mouth June-October.',
+    seasonMonths:[0,0,0,0,0,1,2,2,1,0,0,0],
+    locations:['Columbia River mouth (occasional)','Youngs Bay (rare)'],
+    gpsHints:['Columbia River mouth area — near jetties. Very opportunistic catches — rare in Clatsop County.'],
+    difficulty:3, diffLabel:'Expert',
+    regulations:'Check ODFW. 2 per day, minimum 18 inches in Oregon. Regulations may change — verify.',
+    tackle:{
+      rod:'7-9ft medium-heavy spinning or casting rod',
+      reel:'4000-6000 spinning',
+      line:'20-30lb braid, 15-20lb fluoro leader',
+      lures:['Pencil poppers (surface)','Swimbaits (5-7" white/silver)','Large spoons (Hopkins)','Soft crab imitations','Large plugs (Rapala X-Rap 14)'],
+      technique:'Cast large lures near structure in tidal areas. Stripers ambush baitfish at tidal transitions. Fish incoming tides near jetty rocks.'
+    },
+    funFacts:['Striped bass were introduced to San Francisco Bay in 1879 and spread up the coast','They can live over 30 years and grow to 80+ lbs','Stripers are anadromous — they live in salt water but spawn in freshwater rivers'],
+    memoryHook:'STRIPER = 7-8 HORIZONTAL STRIPES head-to-tail. Silver + olive. Introduced from East Coast. RARE here.',
+    identifyingFeatures:['7-8 distinct horizontal black stripes','Silver body, olive-green back','Two separate dorsal fins','Large, bass-like profile']
+  },
+  {
+    id:33, name:'Pile Perch', nickname:'Pile Perch / Rubberlip Perch', bonus:true,
+    habitat:['ocean','estuary'], emoji:'🪨',
+    image:'',
+    wikiSlug:'Pile_perch',
+    description:'Largest of Oregon\'s surfperch family. Silver with a distinctive dark blotch at the base of the pectoral fin. Found around dock pilings, jetty rocks, and pier structures in Astoria and Warrenton. Good eating.',
+    season:'Year-round near pilings. Best May-October.',
+    seasonMonths:[1,1,1,2,2,2,2,2,2,1,1,1],
+    locations:['Astoria waterfront pilings','Warrenton dock areas','Jetty structures','Piers and boat docks'],
+    gpsHints:['Astoria waterfront — fish the pilings along the bay waterfront. Easy bank access.','Warrenton docks — near the boat ramp area at the East Mooring Basin'],
+    difficulty:1, diffLabel:'Beginner',
+    regulations:'15 per day, no size limit.',
+    tackle:{
+      rod:'6-7ft light-medium spinning rod',
+      reel:'2000-3000 spinning',
+      line:'8-12lb mono or fluoro',
+      lures:['Mussels (best bait)','Sand shrimp pieces','Small jigs 1/8oz','Ghost shrimp','Pile worm pieces'],
+      technique:'Fish right against the pilings. Mussels are the classic bait — scrape them off the pilings, smash slightly, put on hook. Simple and deadly. Fish on the bottom or mid-water near structure.'
+    },
+    funFacts:['Pile perch feed heavily on mussels — the bait literally comes from the same pilings you\'re fishing','They give live birth to 5-20 young per litter','Pile perch are one of the easiest fish to find in urban fishing areas — they live right under docks year-round'],
+    memoryHook:'PILE perch = lives on PILINGS! Dark blotch on pectoral fin base. Use MUSSELS from the same pilings.',
+    identifyingFeatures:['Dark blotch at base of pectoral fin','Silver body','Deep, round perch shape','Two-lobed lower lip (thick lips)']
+  },
+  {
+    id:34, name:'Shiner Perch', nickname:'Shiner', bonus:true,
+    habitat:['estuary'], emoji:'✨',
+    image:'',
+    wikiSlug:'Shiner_perch',
+    description:'Tiny but beautiful perch of the estuary. Shiny silver with 3 yellow bars on the sides and a distinctive yellow blotch at the base of the dorsal fin. Extremely common around docks in Astoria. Often caught by children.',
+    season:'Year-round in estuaries and bays.',
+    seasonMonths:[2,2,2,2,2,2,2,2,2,2,2,2],
+    locations:['Astoria waterfront','Youngs Bay dock areas','Columbia River estuary docks'],
+    gpsHints:['Any dock or pier along the Astoria waterfront — shiner perch are extremely abundant'],
+    difficulty:1, diffLabel:'Beginner',
+    regulations:'No bag or size limit.',
+    tackle:{
+      rod:'Ultralight or kids\' fishing rod',
+      reel:'1000 spinning',
+      line:'4-6lb mono',
+      lures:['Tiny pieces of shrimp','Small worm pieces on #10-12 hook','Mussel bits','Bread pieces','Small soft plastic grubs'],
+      technique:'Drop bait right off the dock edge. No casting needed — shiner perch are right below you. Perfect beginner and kids\' fish. Very easy to catch.'
+    },
+    funFacts:['Shiner perch are viviparous — giving birth to live young','A single dock can harbor hundreds of shiner perch','They are an important food source for larger fish, seabirds, and marine mammals'],
+    memoryHook:'SHINER perch = 3 yellow bars, yellow dorsal blotch. Tiny. Under EVERY dock. Perfect kids\' fish.',
+    identifyingFeatures:['3 yellowish bars on silver body','Yellow blotch at base of dorsal fin','Very small (4-6 inches)','Bright, shiny silver sides']
+  },
+  {
+    id:35, name:'Pacific Staghorn Sculpin', nickname:'Bull Head / Muddler', bonus:true,
+    habitat:['estuary'], emoji:'🦌',
+    image:'',
+    wikiSlug:'Pacific_staghorn_sculpin',
+    description:'Bizarre-looking estuary sculpin with large, flat head and antler-like preopercular spines (deer antler appearance). Brown-olive mottled coloring. Extremely common in mudflats and estuaries. Often caught accidentally. Excellent live bait for larger fish.',
+    season:'Year-round in estuaries. Most active at low tide on mudflats.',
+    seasonMonths:[2,2,2,2,2,2,2,2,2,2,2,2],
+    locations:['Columbia River estuary mudflats','Youngs Bay','Fort Stevens state park nearshore areas'],
+    gpsHints:['Youngs Bay mudflats — accessible from various pullouts along Hwy 101 south of Astoria'],
+    difficulty:1, diffLabel:'Beginner',
+    regulations:'No bag limit or size limit. Often used as baitfish.',
+    tackle:{
+      rod:'Any spinning rod',
+      reel:'Any reel',
+      line:'6-10lb mono',
+      lures:['Worm pieces','Shrimp pieces','Any bait on the bottom'],
+      technique:'Usually caught accidentally while fishing estuaries. If targeting for bait: use small hook with worm on the mudflat bottom. Handle with care — preopercular spines are sharp!'
+    },
+    funFacts:['The staghorn sculpin can survive in water with very low oxygen by using its modified gill structure to breathe air','Their remarkable camouflage makes them nearly invisible on estuary mudflats','They are an important prey species for herons, seals, and larger fish in the estuary'],
+    memoryHook:'STAGHORN sculpin = ANTLER-like spines on head (preopercular). Estuary mudflat. Mottled brown. Excellent BAITFISH.',
+    identifyingFeatures:['Large, flat head with branched antler-like preopercular spines','Mottled brown-olive coloring','No scales','Fan-like pectoral fins']
+  },
+  {
+    id:36, name:'Peamouth Chub', nickname:'Peamouth', bonus:true,
+    habitat:['lake','river'], emoji:'🟤',
+    image:'',
+    wikiSlug:'Peamouth',
+    description:'Native minnow of Pacific Northwest lakes and rivers. Olive-brown with 2-3 pale stripes along the sides. Develops red coloring on mouth and sides during spawning season. Often mistaken for other minnow species. Common in Clatsop County lakes.',
+    season:'Year-round. Spawning April-June when red coloring is most visible.',
+    seasonMonths:[2,2,2,2,2,2,2,2,2,2,2,2],
+    locations:['Cullaby Lake','Sunset Lake','Smith Lake','Columbia River tributaries'],
+    gpsHints:['Cullaby Lake — found throughout, often in shallow weedy areas'],
+    difficulty:1, diffLabel:'Beginner',
+    regulations:'No bag limit or size limit. Not commonly targeted.',
+    tackle:{
+      rod:'Ultralight spinning rod',
+      reel:'1000 spinning',
+      line:'4-6lb mono',
+      lures:['Tiny worm pieces','Micro jigs','Small dry flies'],
+      technique:'Small hooks and tiny baits. Usually caught accidentally while targeting perch or crappie. Abundant in local lakes.'
+    },
+    funFacts:['Peamouth is one of the most common native fish in Oregon lakes and is rarely recognized by anglers','During spawning, males develop vivid red coloring and look completely different from non-spawning fish','They form large schools in open water during summer'],
+    memoryHook:'PEAMOUTH = native minnow, 2 pale stripes, turns RED around mouth when spawning. Common, rarely recognized.',
+    identifyingFeatures:['2-3 pale lateral stripes on olive body','Small, pea-sized mouth (terminal position)','Red coloring around mouth during spawning','Torpedo-shaped minnow body']
+  },
+  {
+    id:37, name:'Pumpkinseed', nickname:'Common Sunfish / Pumpkinseed Sunfish', bonus:true,
+    habitat:['lake'], emoji:'🎃',
+    image:'',
+    wikiSlug:'Pumpkinseed',
+    description:'Perhaps the most colorful freshwater fish in Oregon. Blue-green with orange and red spots, orange-red belly, blue cheek markings, and a distinctive red or orange edge on the black ear flap (opercular flap). Found in warmer Clatsop County lakes.',
+    season:'Year-round but best April-September. Spawning May-July.',
+    seasonMonths:[1,1,1,2,2,2,2,2,1,1,1,1],
+    locations:['Cullaby Lake','Sunset Lake (some)','Warmer, weedy lake areas'],
+    gpsHints:['Cullaby Lake — weed beds along the eastern shore'],
+    difficulty:1, diffLabel:'Beginner',
+    regulations:'25 per day, no size limit.',
+    tackle:{
+      rod:'Ultralight spinning or fly rod (3-4wt)',
+      reel:'1000-1500 spinning or fly reel',
+      line:'4-6lb mono or 3-4wt fly line',
+      lures:['Small red worm on #10-12 hook','Waxworm','Cricket','Small dry flies (Royal Coachman)','Tiny spinners Mepps #0'],
+      technique:'Fish near shallow weed beds with bobber and worm. Pumpkinseed are not picky — they\'ll hit almost anything small. Great kids\' fish.'
+    },
+    funFacts:['Pumpkinseed are one of the most elaborately colored freshwater fish in North America','They can crush snails with specialized pharyngeal (throat) teeth — a diet niche no other sunfish exploits','They hybridize readily with bluegill where the two species overlap'],
+    memoryHook:'PUMPKINSEED = orange-and-blue PUMPKIN colors, red edge on the ear flap. Most COLORFUL local sunfish.',
+    identifyingFeatures:['Red or orange edge on black ear flap (opercular flap)','Blue cheek markings','Orange-red belly, orange spots','Wavy blue-green lines on cheek']
+  },
+  {
+    id:38, name:'White Crappie', nickname:'Silver Crappie / Pale Crappie', bonus:true,
+    habitat:['lake'], emoji:'🥛',
+    image:'',
+    wikiSlug:'White_crappie',
+    description:'Similar to Black Crappie but paler silver-white with distinct vertical bars (not irregular spots). KEY ID: White Crappie has 5-6 dorsal spines (vs. 7-8 for Black Crappie). Bars vs. spots is the easiest field mark. Excellent eating.',
+    season:'Year-round. Best spring (spawning April-June) and fall.',
+    seasonMonths:[1,1,2,2,2,1,1,1,2,2,1,1],
+    locations:['Cullaby Lake','Sunset Lake'],
+    gpsHints:['Sunset Lake — submerged brush piles and docks. Launch from Sunset Beach Ln boat ramp.'],
+    difficulty:1, diffLabel:'Beginner',
+    regulations:'25 per day, no size limit.',
+    tackle:{
+      rod:'5-7ft light spinning rod',
+      reel:'1000-2500 spinning',
+      line:'4-8lb mono or fluoro',
+      lures:['Small tube jig 1/16oz (white/pearl)','Live minnow under float','Bobby Garland Crappie Stroll','Tiny spinnerbait 1/16oz'],
+      technique:'Identical to black crappie fishing — vertical jigging near structure or float with live minnow. White crappie often prefer slightly deeper, more open water than black crappie.'
+    },
+    funFacts:['White crappie are more tolerant of turbid (murky) water than black crappie — this helps separate their habitat preferences','They can live in schools of thousands during winter, suspended at a specific depth','A white crappie\'s 5-6 dorsal spines vs. black crappie\'s 7-8 is the most reliable way to tell them apart'],
+    memoryHook:'WHITE crappie = VERTICAL BARS (not spots), 5-6 dorsal spines (vs. black crappie\'s 7-8). Paler color.',
+    identifyingFeatures:['Distinct vertical bars (not irregular spots like black crappie)','5-6 spines in dorsal fin (fewer than black crappie)','Paler, more silvery base color','Slightly longer body, more elongated than black crappie']
+  },
+  {
+    id:39, name:'Tench', nickname:'Doctor Fish', bonus:true,
+    habitat:['lake'], emoji:'🩺',
+    image:'',
+    wikiSlug:'Tench',
+    description:'Rare introduced European species found in Coffenbury Lake (Fort Stevens). Stocky, olive-green with tiny scales, very small rounded fins, and tiny barbels at corners of mouth. Mucus-covered. Rarely caught — most anglers have never seen one.',
+    season:'Year-round. Most active July-September in warm water.',
+    seasonMonths:[0,0,0,0,1,2,2,2,1,0,0,0],
+    locations:['Coffenbury Lake (Fort Stevens State Park) — primary location'],
+    gpsHints:['Coffenbury Lake — parking off Ridge Road in Fort Stevens State Park. Fish the southern weedy areas.'],
+    difficulty:3, diffLabel:'Expert',
+    regulations:'No specific regulations. Not commonly encountered.',
+    tackle:{
+      rod:'6-7ft medium spinning rod',
+      reel:'2000-3000 spinning',
+      line:'8-10lb mono',
+      lures:['Nightcrawler on bottom (most likely method)','Dough bait','Sweet corn on small hook (traditional European method)','Bread paste'],
+      technique:'Fish the bottom of weedy, warm areas of Coffenbury Lake with natural bait. Very difficult to target specifically. Slow, patient fishing in late summer. If you catch one, it\'s a genuine trophy catch.'
+    },
+    funFacts:['Tench secrete a mucus thought to have healing properties — medieval physicians believed other fish would rub against tench to cure themselves, hence "doctor fish"','They are extremely rare in Oregon — Coffenbury Lake is one of very few known populations','Tench can survive low-oxygen conditions that would kill most fish by gulping air at the surface'],
+    memoryHook:'TENCH = olive-green, slimy, TINY barbels, TINY scales. European import. Coffenbury Lake ONLY. Very rare catch.',
+    identifyingFeatures:['Olive-green with golden sheen','Very small, deeply embedded scales','Tiny barbels at corners of mouth','Thick, stocky body with rounded fins','Covered in protective mucus']
+  }
+];
+
+var ALL_FISH = FISH.concat(BONUS_FISH);
+
+
+// ============================================================
+// LEARN TAB DATA
+// ============================================================
+var LEARN_SECTIONS = [
+  {icon:'🎣', title:'Spin Fishing (The Most Common Method)', bodyId:'learn-body-0'},
+  {icon:'🪱', title:'Bait Fishing', bodyId:'learn-body-1'},
+  {icon:'🪶', title:'Fly Fishing', bodyId:'learn-body-2'},
+  {icon:'⛵', title:'Trolling (Boat Fishing)', bodyId:'learn-body-3'},
+  {icon:'🌊', title:'Surf/Beach Fishing', bodyId:'learn-body-4'},
+  {icon:'🚢', title:'Ocean/Offshore Fishing', bodyId:'learn-body-5'},
+  {icon:'🦀', title:'Crabbing and Clamming', bodyId:'learn-body-6'},
+  {icon:'🪢', title:'Fishing Knots', bodyId:'learn-body-7'},
+  {icon:'📋', title:'Oregon Fishing Regulations Quick Reference', bodyId:'learn-body-8'},
+  {icon:'🛒', title:'Gear & Equipment Guide', bodyId:'learn-body-9'},
+];
+
+
+// ============================================================
+// APP STATE & NAVIGATION
+// ============================================================
+var currentScreen = 'study';
+var studyIndex = 0;
+var studyKnown = {};
+var studyLearning = {};
+var quizState = {};
+var matchState = {};
+var speedState = {};
+var browseFilter = 'all';
+var detailFishId = null;
+var currentQCount = 20;
+
+function navTo(screen) {
+  document.querySelectorAll('.screen').forEach(function(s) { s.classList.remove('active'); });
+  document.querySelectorAll('.nav-btn').forEach(function(b) { b.classList.remove('active'); });
+  var el = document.getElementById('screen-' + screen);
+  if (el) el.classList.add('active');
+  var nb = document.getElementById('nav-' + screen);
+  if (nb) nb.classList.add('active');
+  currentScreen = screen;
+  if (screen === 'study') renderStudyCard();
+  if (screen === 'quiz') showQuizSetup();
+  if (screen === 'match') initMatch();
+  if (screen === 'speed') resetSpeed();
+  if (screen === 'browse') renderBrowse();
+  if (screen === 'learn') renderLearn();
+}
+
+// ── STUDY MODE ──
+function getStudyPool() {
+  return FISH;
+}
+
+function renderStudyCard() {
+  var pool = getStudyPool();
+  var total = pool.length;
+  var knownCount = Object.keys(studyKnown).length;
+  var learningCount = total - knownCount;
+  document.getElementById('stat-known').textContent = knownCount;
+  document.getElementById('stat-learning').textContent = learningCount;
+  document.getElementById('stat-total').textContent = total;
+
+  if (studyIndex >= total) studyIndex = 0;
+  var fish = pool[studyIndex];
+  document.getElementById('study-counter').textContent = (studyIndex + 1) + ' / ' + total;
+  var area = document.getElementById('study-card-area');
+  area.innerHTML = buildFishCard(fish, true);
+  area.classList.add('fade-in');
+  setTimeout(function() { area.classList.remove('fade-in'); }, 400);
+  prefetchWikiImage(fish);
+}
+
+function studyMark(known) {
+  var pool = getStudyPool();
+  var fish = pool[studyIndex];
+  if (known) {
+    studyKnown[fish.id] = true;
+    delete studyLearning[fish.id];
+  } else {
+    studyLearning[fish.id] = true;
+    delete studyKnown[fish.id];
+  }
+  studyIndex = (studyIndex + 1) % pool.length;
+  renderStudyCard();
+}
+
+// Fish card builder (full detail)
+function buildFishCard(fish, compact) {
+  var months = ['J','F','M','A','M','J','J','A','S','O','N','D'];
+  var monthColors = ['season-closed','season-possible','season-peak'];
+  var seasonHtml = '<div class="season-strip">';
+  (fish.seasonMonths || [0,0,0,0,0,0,0,0,0,0,0,0]).forEach(function(v, i) {
+    seasonHtml += '<div class="season-month ' + monthColors[v] + '"><span>' + months[i] + '</span></div>';
+  });
+  seasonHtml += '</div>';
+
+  var diffRods = '';
+  for (var d = 0; d < (fish.difficulty || 1); d++) diffRods += '🎣';
+
+  var habBadges = (fish.habitat || []).map(function(h) {
+    return '<span class="habitat-tag">' + h.charAt(0).toUpperCase() + h.slice(1) + '</span>';
+  }).join('');
+
+  var lureChips = (fish.tackle && fish.tackle.lures ? fish.tackle.lures : []).map(function(l) {
+    return '<span class="lure-chip">' + l + '</span>';
+  }).join('');
+
+  var factsHtml = (fish.funFacts || []).map(function(f) {
+    return '<div class="fun-fact">' + f + '</div>';
+  }).join('');
+
+  var idFeaturesHtml = (fish.identifyingFeatures || []).map(function(f) {
+    return '<div class="id-feature">' + f + '</div>';
+  }).join('');
+
+  var gpsHtml = (fish.gpsHints || []).map(function(g) {
+    return '<div class="gps-hint"><span>📍</span><span>' + g + '</span></div>';
+  }).join('');
+
+  var imgSrc = fish.image || '';
+  if (!imgSrc && fish.wikiSlug) {
+    imgSrc = 'https://en.wikipedia.org/api/rest_v1/page/summary/' + fish.wikiSlug;
+    // Will be replaced dynamically
+  }
+  var imgHtml = '<img class="fish-card-img" src="' + (fish.image || '') + '" alt="' + fish.name + '" loading="lazy" ' +
+    (fish.wikiSlug && !fish.image ? 'data-wiki="' + fish.wikiSlug + '"' : '') + ' onerror="this.style.opacity=0.3">';
+
+  return '<div class="fish-card fade-in">' +
+    imgHtml +
+    '<div class="fish-card-body">' +
+      '<div style="display:flex;align-items:flex-start;justify-content:space-between">' +
+        '<div>' +
+          '<div class="fish-name">' + fish.name + '</div>' +
+          '<div class="fish-nickname">' + (fish.nickname || '') + '</div>' +
+        '</div>' +
+        '<span class="fish-emoji-badge">' + (fish.emoji || '🐟') + '</span>' +
+      '</div>' +
+      '<div class="fish-habitat-tags">' + habBadges + (fish.bonus ? '<span class="bonus-badge">★ Bonus</span>' : '') + '</div>' +
+      '<div class="difficulty-row"><span class="diff-rods">' + diffRods + '</span><span class="diff-label">' + (fish.diffLabel || '') + '</span></div>' +
+      (fish.regulations ? '<div class="reg-badge">⚖️ ' + fish.regulations.substring(0, 80) + (fish.regulations.length > 80 ? '…' : '') + '</div>' : '') +
+      '<div class="fish-section"><div class="fish-section-label">Description</div><div class="fish-section-value">' + fish.description + '</div></div>' +
+      '<div class="fish-section"><div class="fish-section-label">Season</div>' + seasonHtml + '<div class="fish-section-value" style="font-size:12px;margin-top:6px">' + fish.season + '</div></div>' +
+      '<div class="fish-section"><div class="fish-section-label">📍 Locations</div><div class="fish-section-value">' + (fish.locations || []).join(', ') + '</div>' +
+      (gpsHtml ? '<div style="margin-top:6px">' + gpsHtml + '</div>' : '') + '</div>' +
+      '<div class="fish-section"><div class="fish-section-label">🎣 Tackle</div>' +
+        '<div class="tackle-grid">' +
+          '<div class="tackle-row"><span class="tackle-icon">🪝</span><div><div class="tackle-label">Rod</div><div class="tackle-text">' + (fish.tackle ? fish.tackle.rod : '') + '</div></div></div>' +
+          '<div class="tackle-row"><span class="tackle-icon">🔄</span><div><div class="tackle-label">Reel</div><div class="tackle-text">' + (fish.tackle ? fish.tackle.reel : '') + '</div></div></div>' +
+          '<div class="tackle-row"><span class="tackle-icon">🧵</span><div><div class="tackle-label">Line</div><div class="tackle-text">' + (fish.tackle ? fish.tackle.line : '') + '</div></div></div>' +
+          '<div><div class="tackle-label" style="margin-top:6px">Lures/Baits</div><div class="lure-chips">' + lureChips + '</div></div>' +
+          '<div class="tackle-row" style="margin-top:8px"><span class="tackle-icon">🎯</span><div><div class="tackle-label">Technique</div><div class="tackle-text">' + (fish.tackle ? fish.tackle.technique : '') + '</div></div></div>' +
+        '</div>' +
+      '</div>' +
+      (fish.identifyingFeatures && fish.identifyingFeatures.length ? '<div class="fish-section"><div class="fish-section-label">🔍 Key ID Features</div>' + idFeaturesHtml + '</div>' : '') +
+      (factsHtml ? '<div class="fish-section"><div class="fish-section-label">💡 Fun Facts</div>' + factsHtml + '</div>' : '') +
+      (fish.memoryHook ? '<div class="memory-hook"><div class="memory-hook-label">🧠 Memory Hook</div><div class="memory-hook-text">' + fish.memoryHook + '</div></div>' : '') +
+    '</div>' +
+  '</div>';
+}
+
+// ── WIKI IMAGE LOADER ──
+var wikiCache = {};
+function prefetchWikiImage(fish) {
+  if (!fish.wikiSlug || fish.image) return;
+  if (wikiCache[fish.wikiSlug]) {
+    applyWikiImage(fish.wikiSlug, wikiCache[fish.wikiSlug]);
+    return;
+  }
+  fetch('https://en.wikipedia.org/api/rest_v1/page/summary/' + fish.wikiSlug)
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      var url = (data.thumbnail && data.thumbnail.source) ? data.thumbnail.source : '';
+      wikiCache[fish.wikiSlug] = url;
+      if (url) {
+        fish.image = url;
+        applyWikiImage(fish.wikiSlug, url);
+      }
+    })
+    .catch(function() {});
+}
+function applyWikiImage(slug, url) {
+  document.querySelectorAll('[data-wiki="' + slug + '"]').forEach(function(img) {
+    img.src = url;
+    img.style.opacity = '';
+  });
+}
+function prefetchAllWiki() {
+  BONUS_FISH.forEach(function(f) { prefetchWikiImage(f); });
+}
+
+// ── QUIZ MODE ──
+function setQCount(n) {
+  currentQCount = n;
+  ['10','20','40'].forEach(function(x) {
+    var btn = document.getElementById('qcount-' + x);
+    if (btn) btn.style.borderColor = (x == n) ? 'var(--accent)' : '';
+  });
+}
+
+function showQuizSetup() {
+  document.getElementById('quiz-setup').style.display = 'block';
+  document.getElementById('quiz-play').style.display = 'none';
+  document.getElementById('quiz-results').style.display = 'none';
+}
+
+function startQuiz() {
+  var expert = document.getElementById('expert-toggle').checked;
+  var pool = expert ? ALL_FISH : FISH;
+  var typeEl = document.querySelector('input[name="qtype"]:checked');
+  var qType = typeEl ? typeEl.value : 'name';
+  var count = Math.min(currentQCount === 40 ? 999 : currentQCount, pool.length);
+  var shuffled = pool.slice().sort(function() { return Math.random() - 0.5; }).slice(0, count);
+
+  quizState = {
+    pool: pool,
+    questions: shuffled,
+    index: 0,
+    score: 0,
+    type: qType,
+    answered: false,
+    wrongFish: []
+  };
+
+  document.getElementById('quiz-setup').style.display = 'none';
+  document.getElementById('quiz-play').style.display = 'block';
+  document.getElementById('quiz-results').style.display = 'none';
+  renderQuizQuestion();
+}
+
+function renderQuizQuestion() {
+  var qs = quizState;
+  if (qs.index >= qs.questions.length) {
+    showQuizResults();
+    return;
+  }
+  var fish = qs.questions[qs.index];
+  var pct = (qs.index / qs.questions.length) * 100;
+  document.getElementById('quiz-pbar').style.width = pct + '%';
+  document.getElementById('quiz-score-disp').textContent = 'Question ' + (qs.index + 1) + ' of ' + qs.questions.length + '  |  Score: ' + qs.score;
+
+  var questionHtml = '';
+  var correctAnswer = '';
+  var options = [];
+
+  if (qs.type === 'name') {
+    questionHtml = '<img src="' + (fish.image || '') + '" alt="' + fish.name + '" style="width:100%;max-height:200px;object-fit:cover;border-radius:12px;margin-bottom:12px" loading="lazy" ' + (fish.wikiSlug && !fish.image ? 'data-wiki="' + fish.wikiSlug + '"' : '') + '><h2>What fish is this?</h2>';
+    correctAnswer = fish.name;
+    prefetchWikiImage(fish);
+    options = getQuizOptions(fish, qs.pool, 'name');
+  } else if (qs.type === 'tackle') {
+    questionHtml = '<div style="font-size:15px;font-weight:600;margin-bottom:12px">Best tackle for fishing <strong>' + fish.name + '</strong>:</div>' +
+      '<div class="lure-chip" style="margin-right:4px;margin-bottom:4px">' + (fish.tackle && fish.tackle.lures && fish.tackle.lures[0] ? fish.tackle.lures[0] : 'Spinner') + '</div>';
+    questionHtml += '<h2 style="margin-top:12px">Which rod/technique?</h2>';
+    correctAnswer = fish.tackle ? fish.tackle.rod : 'Medium rod';
+    options = getQuizOptions(fish, qs.pool, 'rod');
+  } else if (qs.type === 'season') {
+    questionHtml = '<h2>' + fish.name + '</h2><p style="color:var(--text2);font-size:14px">Where is this fish primarily found?</p>';
+    correctAnswer = (fish.locations || ['Unknown'])[0];
+    options = getQuizOptions(fish, qs.pool, 'location');
+  } else if (qs.type === 'fact') {
+    var fact = fish.funFacts && fish.funFacts.length ? fish.funFacts[Math.floor(Math.random() * fish.funFacts.length)] : 'Has a distinctive appearance.';
+    questionHtml = '<div style="font-style:italic;color:var(--text2);font-size:14px;margin-bottom:12px">Fun Fact:</div><p style="font-size:15px;line-height:1.5">"' + fact + '"</p><h2 style="margin-top:12px">Which fish is this about?</h2>';
+    correctAnswer = fish.name;
+    options = getQuizOptions(fish, qs.pool, 'name');
+  }
+
+  document.getElementById('quiz-question-wrap').innerHTML = questionHtml;
+  document.getElementById('quiz-feedback').style.display = 'none';
+  document.getElementById('quiz-next-btn').style.display = 'none';
+  qs.answered = false;
+  qs.correctAnswer = correctAnswer;
+
+  var optsHtml = '';
+  options.forEach(function(opt, i) {
+    optsHtml += '<button class="quiz-opt" onclick="answerQuiz(this, ' + JSON.stringify(opt) + ')">' + opt + '</button>';
+  });
+  document.getElementById('quiz-options').innerHTML = optsHtml;
+
+  // Apply wiki images
+  document.querySelectorAll('[data-wiki]').forEach(function(img) {
+    var slug = img.getAttribute('data-wiki');
+    if (wikiCache[slug]) img.src = wikiCache[slug];
+  });
+}
+
+function getQuizOptions(fish, pool, type) {
+  var correct, getVal;
+  if (type === 'name') { correct = fish.name; getVal = function(f) { return f.name; }; }
+  else if (type === 'rod') { correct = fish.tackle ? fish.tackle.rod : ''; getVal = function(f) { return f.tackle ? f.tackle.rod : ''; }; }
+  else if (type === 'location') { correct = (fish.locations || ['Unknown'])[0]; getVal = function(f) { return (f.locations || ['Unknown'])[0]; }; }
+  else { correct = fish.name; getVal = function(f) { return f.name; }; }
+
+  var wrong = pool.filter(function(f) { return f.id !== fish.id && getVal(f) && getVal(f) !== correct; });
+  wrong = wrong.sort(function() { return Math.random() - 0.5; }).slice(0, 3);
+  var opts = wrong.map(function(f) { return getVal(f); }).concat([correct]);
+  return opts.sort(function() { return Math.random() - 0.5; });
+}
+
+function answerQuiz(btn, chosen) {
+  if (quizState.answered) return;
+  quizState.answered = true;
+  var correct = quizState.correctAnswer;
+  var fish = quizState.questions[quizState.index];
+  var isCorrect = chosen === correct;
+  if (isCorrect) quizState.score++;
+  else quizState.wrongFish.push(fish);
+
+  document.querySelectorAll('.quiz-opt').forEach(function(b) {
+    if (b.textContent === correct) b.classList.add('correct');
+  });
+  if (!isCorrect) btn.classList.add('wrong');
+
+  var fb = document.getElementById('quiz-feedback');
+  fb.className = 'quiz-feedback ' + (isCorrect ? 'correct' : 'wrong');
+  fb.style.display = 'block';
+  fb.innerHTML = isCorrect
+    ? '✅ Correct! ' + (fish.memoryHook ? fish.memoryHook.substring(0, 100) : '')
+    : '❌ That\'s <strong>' + fish.name + '</strong> (' + (fish.nickname || '') + '). ' + (fish.memoryHook ? fish.memoryHook.substring(0, 120) : '');
+
+  document.getElementById('quiz-next-btn').style.display = 'flex';
+}
+
+function quizNext() {
+  quizState.index++;
+  renderQuizQuestion();
+}
+
+function showQuizResults() {
+  document.getElementById('quiz-play').style.display = 'none';
+  document.getElementById('quiz-results').style.display = 'block';
+  var score = quizState.score;
+  var total = quizState.questions.length;
+  var pct = Math.round((score / total) * 100);
+  var emoji = pct >= 90 ? '🏆' : pct >= 70 ? '🎉' : pct >= 50 ? '😊' : '📚';
+  document.getElementById('result-emoji').textContent = emoji;
+  document.getElementById('result-score').textContent = score + ' / ' + total;
+  document.getElementById('result-label').textContent = pct + '% correct';
+  var bk = document.getElementById('result-breakdown');
+  if (quizState.wrongFish.length) {
+    bk.innerHTML = '<div class="section-label" style="margin-bottom:8px">Review These:</div>' +
+      quizState.wrongFish.map(function(f) {
+        return '<div style="padding:8px 0;border-bottom:1px solid #1a3060;font-size:13px"><strong>' + f.name + '</strong><br><span style="color:var(--text2)">' + (f.memoryHook || '').substring(0, 100) + '</span></div>';
+      }).join('');
+  } else {
+    bk.innerHTML = '<div style="text-align:center;padding:16px;color:var(--success)">Perfect score! 🎊</div>';
+  }
+}
+
+// ── MATCH MODE ──
+function initMatch() {
+  document.getElementById('match-complete').style.display = 'none';
+  document.getElementById('match-grid').style.display = 'grid';
+  var fishPool = FISH.sort(function() { return Math.random() - 0.5; }).slice(0, 6);
+  var cards = [];
+  fishPool.forEach(function(f) {
+    cards.push({ id: f.id, type: 'image', fish: f, content: '<img src="' + (f.image || '') + '" style="width:60px;height:45px;object-fit:cover;border-radius:6px" loading="lazy">' });
+    cards.push({ id: f.id, type: 'name', fish: f, content: f.name });
+  });
+  cards = cards.sort(function() { return Math.random() - 0.5; });
+
+  matchState = { cards: cards, selected: null, matched: {}, moves: 0, startTime: Date.now(), timer: null };
+  if (matchState.timer) clearInterval(matchState.timer);
+  matchState.timer = setInterval(updateMatchTimer, 1000);
+
+  document.getElementById('match-moves').textContent = '0';
+  document.getElementById('match-matched').textContent = '0';
+  document.getElementById('match-time').textContent = '0:00';
+
+  var grid = document.getElementById('match-grid');
+  grid.innerHTML = '';
+  cards.forEach(function(card, i) {
+    var div = document.createElement('div');
+    div.className = 'match-card';
+    div.innerHTML = card.content;
+    div.dataset.idx = i;
+    div.onclick = function() { selectMatch(i); };
+    grid.appendChild(div);
+  });
+}
+
+function updateMatchTimer() {
+  var elapsed = Math.floor((Date.now() - matchState.startTime) / 1000);
+  var m = Math.floor(elapsed / 60);
+  var s = elapsed % 60;
+  document.getElementById('match-time').textContent = m + ':' + (s < 10 ? '0' : '') + s;
+}
+
+function selectMatch(idx) {
+  var state = matchState;
+  if (state.matched[idx]) return;
+  var card = state.cards[idx];
+  var cardEl = document.querySelectorAll('.match-card')[idx];
+
+  if (state.selected === null) {
+    state.selected = idx;
+    cardEl.classList.add('selected');
+    return;
+  }
+  if (state.selected === idx) {
+    cardEl.classList.remove('selected');
+    state.selected = null;
+    return;
+  }
+
+  state.moves++;
+  document.getElementById('match-moves').textContent = state.moves;
+
+  var prevIdx = state.selected;
+  var prevCard = state.cards[prevIdx];
+  var prevEl = document.querySelectorAll('.match-card')[prevIdx];
+  prevEl.classList.remove('selected');
+  state.selected = null;
+
+  if (card.id === prevCard.id && card.type !== prevCard.type) {
+    // Match!
+    state.matched[idx] = true;
+    state.matched[prevIdx] = true;
+    cardEl.classList.add('matched');
+    prevEl.classList.add('matched');
+    var matchedCount = Object.keys(state.matched).length / 2;
+    document.getElementById('match-matched').textContent = matchedCount;
+    if (matchedCount === 6) {
+      clearInterval(state.timer);
+      setTimeout(function() {
+        document.getElementById('match-grid').style.display = 'none';
+        document.getElementById('match-complete').style.display = 'flex';
+        document.getElementById('match-final-moves').textContent = state.moves;
+      }, 600);
+    }
+  } else {
+    // Wrong
+    cardEl.classList.add('wrong');
+    prevEl.classList.add('wrong');
+    setTimeout(function() {
+      cardEl.classList.remove('wrong');
+      prevEl.classList.remove('wrong');
+    }, 500);
+  }
+}
+
+// ── SPEED MODE ──
+var speedTimer = null;
+function startSpeed() {
+  document.getElementById('speed-setup').style.display = 'none';
+  document.getElementById('speed-play').style.display = 'block';
+  document.getElementById('speed-results').style.display = 'none';
+
+  var expert = document.getElementById('speed-expert-toggle').checked;
+  var pool = (expert ? ALL_FISH : FISH).sort(function() { return Math.random() - 0.5; });
+  speedState = { pool: pool, index: 0, score: 0, streak: 0, timeLeft: 60, answered: [], timer: null };
+
+  document.getElementById('speed-input').value = '';
+  document.getElementById('speed-input').oninput = checkSpeedAnswer;
+  document.getElementById('speed-input').focus();
+
+  renderSpeedPrompt();
+  speedState.timer = setInterval(function() {
+    speedState.timeLeft--;
+    var timeEl = document.getElementById('speed-time');
+    timeEl.textContent = speedState.timeLeft;
+    timeEl.className = 'time' + (speedState.timeLeft <= 10 ? ' danger' : speedState.timeLeft <= 20 ? ' warning' : '');
+    if (speedState.timeLeft <= 0) endSpeed();
+  }, 1000);
+}
+
+function renderSpeedPrompt() {
+  var st = speedState;
+  if (st.index >= st.pool.length) { endSpeed(); return; }
+  var fish = st.pool[st.index];
+  document.getElementById('speed-img').src = fish.image || '';
+  if (!fish.image && fish.wikiSlug) {
+    document.getElementById('speed-img').setAttribute('data-wiki', fish.wikiSlug);
+    prefetchWikiImage(fish);
+  }
+  document.getElementById('speed-question').textContent = 'What is this fish?';
+  document.getElementById('speed-input').value = '';
+  document.getElementById('speed-input').className = 'speed-input';
+  document.getElementById('speed-score').textContent = st.score;
+  document.getElementById('speed-count').textContent = st.answered.length;
+  document.getElementById('speed-streak').textContent = 'Streak: ' + st.streak + (st.streak >= 3 ? ' 🔥' : '');
+}
+
+function checkSpeedAnswer() {
+  var st = speedState;
+  if (st.index >= st.pool.length) return;
+  var fish = st.pool[st.index];
+  var typed = document.getElementById('speed-input').value.toLowerCase().trim();
+  var targets = [fish.name.toLowerCase(), (fish.nickname || '').toLowerCase()].filter(Boolean);
+  var match = targets.some(function(t) { return t.includes(typed) && typed.length >= Math.min(4, t.length - 1); });
+  if (match) {
+    st.streak++;
+    var bonus = Math.max(1, Math.floor(st.streak / 3));
+    st.score += bonus;
+    st.answered.push(fish);
+    st.index++;
+    document.getElementById('speed-input').className = 'speed-input correct';
+    setTimeout(renderSpeedPrompt, 300);
+  }
+}
+
+function endSpeed() {
+  clearInterval(speedState.timer);
+  document.getElementById('speed-play').style.display = 'none';
+  document.getElementById('speed-results').style.display = 'block';
+  var st = speedState;
+  document.getElementById('speed-final-score').textContent = st.score + ' pts';
+  document.getElementById('speed-final-label').textContent = st.answered.length + ' fish identified in 60 seconds!';
+  var missed = FISH.filter(function(f) { return !st.answered.find(function(a) { return a.id === f.id; }); }).slice(0, 5);
+  document.getElementById('speed-missed').innerHTML = '<div class="section-label" style="margin-bottom:8px">Missed (practice these):</div>' +
+    missed.map(function(f) { return '<div style="font-size:13px;padding:6px 0;border-bottom:1px solid #1a3060">' + f.name + ' — <span style="color:var(--text2)">' + (f.memoryHook || '').substring(0, 80) + '</span></div>'; }).join('');
+}
+
+function resetSpeed() {
+  clearInterval(speedState.timer);
+  document.getElementById('speed-setup').style.display = 'block';
+  document.getElementById('speed-play').style.display = 'none';
+  document.getElementById('speed-results').style.display = 'none';
+}
+
+// ── BROWSE MODE ──
+function filterBrowse(filter) {
+  browseFilter = filter;
+  document.querySelectorAll('.filter-btn').forEach(function(b) { b.classList.remove('active'); });
+  event.target.classList.add('active');
+  renderBrowse();
+}
+
+function renderBrowse() {
+  var list = document.getElementById('browse-list');
+  if (!list) return;
+
+  var mainFish = FISH;
+  var bonusFish = BONUS_FISH;
+
+  if (browseFilter !== 'all' && browseFilter !== 'bonus') {
+    mainFish = FISH.filter(function(f) { return f.habitat.indexOf(browseFilter) > -1; });
+    bonusFish = BONUS_FISH.filter(function(f) { return f.habitat.indexOf(browseFilter) > -1; });
+  } else if (browseFilter === 'bonus') {
+    mainFish = [];
+    bonusFish = BONUS_FISH;
+  }
+
+  var html = '';
+  if (mainFish.length) {
+    mainFish.forEach(function(f) {
+      html += fishListItem(f);
+    });
+  }
+  if (bonusFish.length) {
+    html += '<div class="bonus-section-label">★ Bonus: Lesser-Known Species</div>' +
+      '<div style="font-size:12px;color:var(--text2);margin-bottom:10px">Less commonly targeted but present in local Clatsop County waters.</div>';
+    bonusFish.forEach(function(f) {
+      html += fishListItem(f);
+    });
+  }
+  if (!html) html = '<div class="empty-state"><div class="emoji">🐟</div><div>No fish in this category.</div></div>';
+  list.innerHTML = html;
+
+  // Trigger wiki image loads for visible bonus fish
+  list.querySelectorAll('[data-wiki]').forEach(function(img) {
+    var slug = img.getAttribute('data-wiki');
+    if (wikiCache[slug]) { img.src = wikiCache[slug]; return; }
+    fetch('https://en.wikipedia.org/api/rest_v1/page/summary/' + slug)
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        var url = data.thumbnail && data.thumbnail.source ? data.thumbnail.source : '';
+        wikiCache[slug] = url;
+        if (url) {
+          var fish = ALL_FISH.find(function(f) { return f.wikiSlug === slug; });
+          if (fish) fish.image = url;
+          document.querySelectorAll('[data-wiki="' + slug + '"]').forEach(function(el) { el.src = url; });
+        }
+      }).catch(function() {});
+  });
+}
+
+function fishListItem(f) {
+  var habBadges = (f.habitat || []).map(function(h) { return '<span class="fish-list-hab">' + h + '</span>'; }).join('');
+  var imgAttr = f.image ? ('src="' + f.image + '"') : (f.wikiSlug ? 'src="" data-wiki="' + f.wikiSlug + '"' : 'src=""');
+  var diffRods = '';
+  for (var d = 0; d < (f.difficulty || 1); d++) diffRods += '🎣';
+  return '<div class="fish-list-item" onclick="openDetail(' + f.id + ')">' +
+    '<img class="fish-list-img" ' + imgAttr + ' alt="' + f.name + '" loading="lazy" onerror="this.style.opacity=0.2">' +
+    '<div class="fish-list-info">' +
+      '<div class="fish-list-name">' + f.name + (f.bonus ? '<span class="bonus-badge" style="margin-left:6px">★</span>' : '') + '</div>' +
+      '<div class="fish-list-nick">' + (f.nickname || '') + '</div>' +
+      '<div class="fish-list-habitats">' + habBadges + '</div>' +
+    '</div>' +
+    '<div style="text-align:right;flex-shrink:0">' +
+      '<div style="font-size:18px">' + (f.emoji || '🐟') + '</div>' +
+      '<div style="font-size:11px;margin-top:2px">' + diffRods + '</div>' +
+    '</div>' +
+  '</div>';
+}
+
+// ── DETAIL VIEW ──
+function openDetail(id) {
+  var fish = ALL_FISH.find(function(f) { return f.id === id; });
+  if (!fish) return;
+  detailFishId = id;
+  document.getElementById('detail-overlay').classList.add('open');
+  document.getElementById('detail-title').textContent = fish.name;
+  var img = document.getElementById('detail-img');
+  if (fish.image) { img.src = fish.image; img.style.display = 'block'; }
+  else if (fish.wikiSlug) {
+    img.src = '';
+    img.setAttribute('data-wiki', fish.wikiSlug);
+    img.style.display = 'block';
+    if (wikiCache[fish.wikiSlug]) { img.src = wikiCache[fish.wikiSlug]; }
+    else { prefetchWikiImage(fish); }
+  } else { img.style.display = 'none'; }
+  document.getElementById('detail-body').innerHTML = buildFishCard(fish, false);
+  document.getElementById('detail-overlay').scrollTop = 0;
+}
+
+function closeDetail() {
+  document.getElementById('detail-overlay').classList.remove('open');
+}
+
+// ── LEARN TAB ──
+function renderLearn() {
+  var container = document.getElementById('learn-content');
+  if (!container) return;
+  if (container.children.length > 0) return;
+
+  var html = '<div style="font-size:13px;color:var(--text2);margin-bottom:16px;line-height:1.5">Comprehensive fishing techniques for Clatsop County. Tap any section to expand.</div>';
+
+  LEARN_SECTIONS.forEach(function(section, i) {
+    var bodyEl = document.getElementById(section.bodyId);
+    var bodyHtml = bodyEl ? bodyEl.innerHTML : '';
+    html += '<div class="learn-section">' +
+      '<div class="learn-section-header" onclick="toggleLearn(this)" id="learn-hdr-' + i + '">' +
+        '<div class="learn-section-title"><span>' + section.icon + '</span>' + section.title + '</div>' +
+        '<span class="learn-section-arrow">&#9660;</span>' +
+      '</div>' +
+      '<div class="learn-section-body">' + bodyHtml + '</div>' +
+    '</div>';
+  });
+
+  container.innerHTML = html;
+}
+function toggleLearn(header) {
+  var isOpen = header.classList.contains('open');
+  // Close all others
+  document.querySelectorAll('.learn-section-header').forEach(function(h) { h.classList.remove('open'); });
+  if (!isOpen) header.classList.add('open');
+}
+
+// ── INIT ──
+window.addEventListener('DOMContentLoaded', function() {
+  // Start on study screen
+  navTo('study');
+  // Prefetch wiki images in background
+  setTimeout(prefetchAllWiki, 2000);
+});
+
+// Handle back button for detail overlay
+window.addEventListener('popstate', function() {
+  if (document.getElementById('detail-overlay').classList.contains('open')) {
+    closeDetail();
+  }
+});
+</script>
+</div>
+</body>
+</html>
