@@ -1,0 +1,14 @@
+[out:json][timeout:60];
+(
+  node["leisure"="slipway"](45.85,-124.10,46.30,-123.40);
+  way["leisure"="slipway"](45.85,-124.10,46.30,-123.40);
+  node["amenity"="boat_ramp"](45.85,-124.10,46.30,-123.40);
+  way["amenity"="boat_ramp"](45.85,-124.10,46.30,-123.40);
+  node["leisure"="fishing"](45.85,-124.10,46.30,-123.40);
+  way["leisure"="fishing"](45.85,-124.10,46.30,-123.40);
+  node["man_made"="pier"](45.85,-124.10,46.30,-123.40);
+  way["man_made"="pier"](45.85,-124.10,46.30,-123.40);
+  node["leisure"="marina"](45.85,-124.10,46.30,-123.40);
+  way["leisure"="marina"](45.85,-124.10,46.30,-123.40);
+);
+out center;
