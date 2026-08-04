@@ -1,4 +1,20 @@
-<<!DOCTYPE html>
+
+<script>
+// Hotfix: replace broken startGame that crashes on let gameStarted TDZ
+var _gameStarted = false;
+var _startBtnEl = document.getElementById('startBtn');
+var _overlayEl = document.getElementById('overlay');
+function startGame() {
+  if (_gameStarted) return;
+  _gameStarted = true;
+  if (_overlayEl) _overlayEl.style.display = 'none';
+  if (typeof clock !== 'undefined') clock.start();
+}
+if (_startBtnEl) {
+  _startBtnEl.onclick = startGame;
+}
+document.addEventListener('keydown', function() { if (!_gameStarted) startGame(); });
+</script><<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
