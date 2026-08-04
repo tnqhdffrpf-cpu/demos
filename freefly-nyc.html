@@ -882,21 +882,23 @@ cvs.addEventListener('mousedown', e=>{touchDir=getTouchDir(e.clientX);showTF(tou
 cvs.addEventListener('mouseup',   ()=>{touchDir=0;showTF(0);});
 cvs.addEventListener('mouseleave',()=>{touchDir=0;showTF(0);});
 
-document.getElementById('startBtn').addEventListener('click', async()=>{
-  if (typeof DeviceOrientationEvent!=='undefined' &&
-      typeof DeviceOrientationEvent.requestPermission==='function') {
-    try {
-      const perm=await DeviceOrientationEvent.requestPermission();
-      if (perm==='granted'){window.addEventListener('deviceorientation',onOrientation,true);motionReady=true;}
-    } catch(e){}
+function startGame(){
+  if(gameStarted) return;
+  if(typeof DeviceOrientationEvent!=='undefined' &&
+     typeof DeviceOrientationEvent.requestPermission==='function'){
+    DeviceOrientationEvent.requestPermission().then(perm=>{
+      if(perm==='granted'){window.addEventListener('deviceorientation',onOrientation,true);motionReady=true;}
+    }).catch(()=>{});
   } else {
     window.addEventListener('deviceorientation',onOrientation,true);
     motionReady=true;
   }
   document.getElementById('overlay').style.display='none';
-  if (rawBeta!==0) pitchNeutral=rawBeta;
+  if(rawBeta!==0) pitchNeutral=rawBeta;
   gameStarted=true; clock.start();
-});
+}
+document.getElementById('startBtn').addEventListener('click', startGame);
+document.addEventListener('keydown', ()=>{ if(!gameStarted) startGame(); });
 
 // ── Region HUD ────────────────────────────────────────────────────────────────
 const regionEl=document.getElementById('region-label');
